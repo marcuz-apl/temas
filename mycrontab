@@ -1,0 +1,1 @@
+* */5 * * * python /app/app-updater.py >> /app/logfile.txt

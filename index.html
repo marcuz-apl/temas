@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>TEMAS - Turkey Earthquake Monitoring and Analysis System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style>
+      #toolbar {
+        background-color: #333;
+        font-size: large;
+        color: #fff;
+        padding: 10px;
+        display: flex;
+        justify-content: space-evenly;
+      }
+      #toolbar a {
+        color: #fff;
+        margin-right: 10px;
+      }
+      #myIframe {
+        font-family: Arial, Helvetica, sans-serif;
+      }
+    </style>
+  </head>
+  <body onPageshow="loadIframe('output/map_bubble_koeri.html')">
+    <div id="toolbar" style="text-align:center">
+      <a href="#" onClick="loadIframe('output/map_bubble_koeri.html')">Home</a>
+      <a href="#" onClick="loadIframe('output/table_interact_koeri.html')"> Data Table</a>
+      <a href="#" onClick="loadIframe('output/map_bubble_koeri.html')">Bubble Map</a>
+      <a href="#" onClick="loadIframe('output/map_heat_koeri.html')">Heat Map</a>
+      <a href="#" onClick="loadIframe('output/about.html')">Project</a>
+    </div>
+    <iframe id="myIframe" width="100%" height="840px"></iframe>
+
+    <script>
+      function loadIframe(url) {
+        document.getElementById("myIframe").src = url;
+      }
+    </script>
+  </body>
+</html>

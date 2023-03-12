@@ -554,7 +554,7 @@ origin-time-utc	mag	mag-type	latitude	longitude	depth(km)	region	a/m	time-update
 2023/02/19 14:18:43	3.8	MLv	37.8506° N	37.3837° E	0	Nurhak-Kahramanmaras	A	2023/02/19 14:22:35	Stations Event
 2023/02/19 14:04:41	3.9	MLv	36.0883° N	36.1186° E	5	Merkez-Hatay	M	2023/02/20 09:54:43	Stations Event
 2023/02/19 13:58:42	3.3	MLv	37.9971° N	37.5009° E	0	Nurhak-Kahramanmaras	A	2023/02/19 14:02:13	Stations Event
-2023/02/19 13:38:07	3.6	MLv	38.1268° N	38.4783° E		Sincik-Adiyaman	M	2023/02/19 13:47:16	Stations Event
+2023/02/19 13:38:07	3.6	MLv	38.1268° N	38.4783° E	0	Sincik-Adiyaman	M	2023/02/19 13:47:16	Stations Event
 2023/02/19 12:04:33	4.9	MLv	38.2608° N	38.2480° E	0	Yesilyurt-Malatya	A	2023/02/19 12:09:33	Stations Event
 2023/02/19 11:54:35	3.5	MLv	37.2601° N	36.7548° E	2	Turkoglu-Kahramanmaras	A	2023/02/19 11:58:40	Stations Event
 2023/02/19 11:14:09	3.4	MLv	38.4210° N	39.6881° E	0	Maden-Elazig	A	2023/02/19 11:18:06	Stations Event
@@ -566,7 +566,7 @@ origin-time-utc	mag	mag-type	latitude	longitude	depth(km)	region	a/m	time-update
 2023/02/19 08:08:38	3.9	MLv	38.0145° N	37.4615° E	0	Nurhak-Kahramanmaras	A	2023/02/19 08:12:52	Stations Event
 2023/02/19 07:16:29	3.3	MLv	36.6412° N	36.4911° E	6	Kirikhan-Hatay	A	2023/02/19 07:19:51	Stations Event
 2023/02/19 06:55:38	4	MLv	37.5540° N	37.2061° E	0	Merkez-Kahramanmaras	A	2023/02/19 07:14:16	Stations Event
-2023/02/19 06:43:31	2.5	MLv	38.0135° N	36.5516° E		Goksun-Kahramanmaras	M	2023/02/19 13:18:12	Stations Event
+2023/02/19 06:43:31	2.5	MLv	38.0135° N	36.5516° E	0	Goksun-Kahramanmaras	M	2023/02/19 13:18:12	Stations Event
 2023/02/19 05:46:34	4.2	MLv	37.4973° N	37.2574° E	0	Pazarcik-Kahramanmaras	A	2023/02/19 06:07:04	Stations Event
 2023/02/19 05:24:02	2.8	MLv	38.9667° N	42.0575° E	13	Bulanik-Mus	A	2023/02/19 05:25:58	Stations Event
 2023/02/19 04:41:37	3.2	MLv	34.8413° N	33.9624° E	20	Cyprus Region	A	2023/02/19 04:45:34	Stations Event
