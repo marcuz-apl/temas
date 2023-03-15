@@ -1,16 +1,26 @@
+# Base image
 FROM python:3.10.6-slim
 LABEL maintainer="https://github.com/marcuszou/"
 
-RUN apt-get update && apt-get install -y cron
+# Update, install cron and some utilities
+RUN apt-get update && apt-get install cron nano procps -y
+# /usr/sbin/service cron start
+RUN pip install --upgrade pip
+
+# Copy files to work directory
 WORKDIR /app
 COPY . /app
-
+# Install Python libraries in the WORKDIR!
 RUN pip install -r requirements.txt
-RUN chmod a+x /app/app-httpsvr.py
 
-COPY mycrontab /etc/cron.d/mycrontab
-RUN chmod 0644 /etc/cron.d/mycrontab
-RUN /usr/bin/crontab /etc/cron.d/mycrontab
+# Copy the cron job that runs the Python script every hour
+#COPY mycrontab /app/mycrontab
+RUN chmod +x /app/mycrontab
+RUN crontab /app/mycrontab
 
-# run crond as main process of container
-CMD ["cron", "-f"]
+# Expose port 8000 for the http.server
+EXPOSE 8000
+RUN python -m http.server 8000
+
+# Run cron daemon in foreground (DO NOT fork)
+ENTRYPOINT [ 'cron', '-f' ]

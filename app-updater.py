@@ -1,30 +1,78 @@
 ## TEMAS - Turkey Earthquake Monitoring and Analysis System
 
 # PART 0. Prep
-import os
-import pandas as pd
-import folium
-from folium import plugins
 import branca
 from branca.colormap import StepColormap
-from pretty_html_table import build_table
-import datetime as dt
-import sqlite3
-import requests
+import bs4
 from bs4 import BeautifulSoup
+import datetime as dt
+import folium
+from folium import plugins
+import pandas as pd
+import requests
+import sqlite3
 
 print('\nTEMAS 0.7\n\nMission Started on', dt.datetime.now(), ', be patient....\n')
 
 ## PART 1. Web Scrapping Real-time Data
 
 print('Mission #1 - Web Scrapping the Real-time Data...')
+
+# Load up real-time dataset (incremental) from Turkey Observatory - last 500 Eq
+
+url0 = "http://www.koeri.boun.edu.tr/scripts/lasteq.asp"
+r = requests.get(url0)
+soup = BeautifulSoup(r.content, "html.parser")
+
+table = str(soup.find('pre'))
+# 500 rows only
+data0 = table.splitlines()[7:507:]
+
+# Define our Functions
+
+def lasteq2df(items):
+    df = pd.DataFrame(columns=["origintimeutc", "magnitude", "magType", "latitude", "longitude", 
+                               "depthKm", "region", "measMethod", "updTime", "attribute"])
+    line = list()
+    for item in items:
+        line.append(item.split())
+    for item in line:
+        date = dt.datetime.strptime(item[0], "%Y.%m.%d").date()
+        time = dt.datetime.strptime(item[1], "%H:%M:%S").time()
+        # combine the date and time
+        origintimeutc = dt.datetime.combine(date, time)
+        updTime = origintimeutc
+        latitude = item[2] + "° N"
+        longitude = item[3] + "° E"
+        depthKm = format(float(item[4]), ".1f")
+        magnitude = format(float(item[6]), ".1f")
+        magType = "MLv"
+        measMethod = "RETMC"
+        attribute = item[len(item) - 1]
+        region = str()
+        if len(item) == 10:
+            region = item[len(item) - 2]
+        else:
+            for i in (item[8:len(item) - 1]):
+                region = region + i + " "
+        new_row = {"origintimeutc": [origintimeutc], "magnitude": [magnitude], 
+                   "magType": [magType], "latitude": [latitude], "longitude": [longitude], "depthKm": [depthKm], 
+                   "region": [region], "measMethod": [measMethod], "updTime": [updTime], "attribute": [attribute]}
+        df = pd.concat([df, pd.DataFrame.from_dict(new_row)])
+    return df
+
+df0 = lasteq2df(data0)
+# Filter out the minor events (less than 3) to save some spaces; 
+# Also the Koeri Station analyze the events and only keep events whenever the magnitude is bigger than 3.0.
+df0 = df0[df0['magnitude'].astype('float') >= 3]
+
 # send a GET request to the URL - the first page
-url0 = "http://sc3.koeri.boun.edu.tr/eqevents/events.html"
-response = requests.get(url0)
+url1 = "http://sc3.koeri.boun.edu.tr/eqevents/events.html"
+response = requests.get(url1)
 # parse the HTML content of the page with BeautifulSoup
 soup = BeautifulSoup(response.content, "html.parser")
 
-data0 = []
+data1 = []
 # find the table element and iterate over its rows
 table = soup.find("table", {'class': 'index'})
 rows = table.find_all("tr", {'class': 'trIndevnrow'})[1:]
@@ -32,30 +80,30 @@ for row in rows:
     # get the cells in the row
     cols = row.find_all("td")
     # get the earthquake information from the columns
-    origintimeutc = cols[0].text.strip()
+    origintimeutc = dt.datetime.strptime(cols[0].text.strip(), "%Y/%m/%d %H:%M:%S") # change the date format
     magnitude = cols[1].text.strip()
     magType = cols[2].text.strip()
-    lat = cols[3].text.strip()
-    long = cols[4].text.strip()
-    depth = cols[5].text.strip()
+    latitude = cols[3].text.strip()
+    longitude = cols[4].text.strip()
+    depthKm = cols[5].text.strip()
     region = cols[6].text.strip()
-    am = cols[7].text.strip()
-    lastUpd = cols[8].text.strip()
-    kml = cols[9].text.strip()
+    measMethod = cols[7].text.strip()
+    updTime = dt.datetime.strptime(cols[8].text.strip(), "%Y/%m/%d %H:%M:%S") # change the date format
+    attribute = cols[9].text.strip()
     
-    data0.append([origintimeutc, magnitude, magType, lat, long, depth, region, am, lastUpd, kml])
-        
-df0 = pd.DataFrame(data0, columns=['origintimeutc', 'magnitude', 'magType', 'latitude', 'longitude', 'depthKM', 'region', 'measMethod', 'updTime', 'attribute'])
+    data1.append([origintimeutc, magnitude, magType, latitude, longitude, depthKm, region, measMethod, updTime, attribute])
+
+df1 = pd.DataFrame(data1, columns = ["origintimeutc", "magnitude", "magType", "latitude", "longitude", "depthKm", "region", "measMethod", "updTime", "attribute"])
 
 # Scrapping Multiple Pages
-data1 = []
-# loop through the pages 1-9
-for i in range(1,9):
+data2 = []
+# loop through the pages 1-5
+for i in range(1,5):
     # specify the URL to scrape
-    url = f"http://sc3.koeri.boun.edu.tr/eqevents/events{i}.html"
+    url2 = f"http://sc3.koeri.boun.edu.tr/eqevents/events{i}.html"
     
     # make a GET request to the URL and get the HTML content
-    response = requests.get(url)
+    response = requests.get(url2)
     html_content = response.content
     
     # parse the HTML content using BeautifulSoup
@@ -70,23 +118,23 @@ for i in range(1,9):
         cols = row.find_all('td')
         
         # get the earthquake information from the columns
-        origintimeutc = cols[0].text.strip()
+        origintimeutc = dt.datetime.strptime(cols[0].text.strip(), "%Y/%m/%d %H:%M:%S") # change the date format
         magnitude = cols[1].text.strip()
         magType = cols[2].text.strip()
-        lat = cols[3].text.strip()
-        long = cols[4].text.strip()
-        depth = cols[5].text.strip()
+        latitude = cols[3].text.strip()
+        longitude = cols[4].text.strip()
+        depthKm = cols[5].text.strip()
         region = cols[6].text.strip()
-        am = cols[7].text.strip()
-        lastUpd = cols[8].text.strip()
-        kml = cols[9].text.strip()
+        measMethod = cols[7].text.strip()
+        updTime = dt.datetime.strptime(cols[8].text.strip(), "%Y/%m/%d %H:%M:%S") # change the date format
+        attribute = cols[9].text.strip()
         
-        data1.append([origintimeutc, magnitude, magType, lat, long, depth, region, am, lastUpd, kml])
-        
-df1 = pd.DataFrame(data1, columns = ["origintimeutc", "magnitude", "magType", "latitude", "longitude", "depthKM", "region", "measMethod", "updTime", "attribute"])
+        data2.append([origintimeutc, magnitude, magType, latitude, longitude, depthKm, region, measMethod, updTime, attribute])
+               
+df2 = pd.DataFrame(data2, columns = ["origintimeutc", "magnitude", "magType", "latitude", "longitude", "depthKm", "region", "measMethod", "updTime", "attribute"])
 
-# Concatenate 2 realtime dataframes
-rtDF = pd.concat([df0, df1]).drop_duplicates(subset='origintimeutc', keep='last')
+# Concatenate 3 realtime dataframes
+rtDF = pd.concat([df0, df1, df2]).drop_duplicates(subset='origintimeutc', keep='last')
 # Reset the Index
 rtDF = rtDF.reset_index(drop=True)
 
@@ -96,12 +144,12 @@ print('Mission #1 - Completed.\n')
 
 print('Mission #2 - Retrieving the Historic Data from Database...')
 # Create a connection to the databse
-conn = sqlite3.connect('data/earthquake-in-turkey.db')
+conn = sqlite3.connect('data/eq-turkey.db')
 # Read out the whole dataset as dataframe
 histDF = pd.read_sql_query("SELECT * FROM quaketk", conn)
+
 # Determine the last timestamp of the Historic database
 cutoff_time = histDF['origintimeutc'].max()
-
 # Subset the Realtime DF per the last record in the Historic Database
 rtDF = rtDF[rtDF['origintimeutc'] > cutoff_time]
 
@@ -109,14 +157,17 @@ rtDF = rtDF[rtDF['origintimeutc'] > cutoff_time]
 rtDF1 = rtDF.sort_values(by='origintimeutc', ascending=True)
 rtDF1.reset_index(drop=True, inplace=True)
 
+# apply data type to str for all columns before saving to SQLite3 database
+rtDF2 = rtDF1.applymap(str)
+
 print('Mission #2 - Completed.\n')
 
 ## PART 3. Merge/Insert Realtime DF into Historic Database
 
 print('Mission #3 - Merging Realtime Data into the Historic Database...')
 # Save the dataframe to database
-rtDF1.columns = ['origintimeutc', 'magnitude', 'magtype', 'latitude', 'longitude', 'depthkm', 'region', 'measmethod', 'updtime', 'attribute']
-rtDF1.to_sql('quaketk', conn, if_exists='append', index=False)
+rtDF2.columns = ['origintimeutc', 'magnitude', 'magtype', 'latitude', 'longitude', 'depthkm', 'region', 'measmethod', 'updtime', 'attribute']
+rtDF2.to_sql('quaketk', conn, if_exists='append', index=False)
 # Cloe the Database
 conn.close
 
@@ -126,7 +177,7 @@ print('Mission #3 - Completed.\n')
 
 print('Mission #4 - Retrieving the Whole Dataset...')
 # Create a connection to the databse
-conn = sqlite3.connect('data/earthquake-in-turkey.db')
+conn = sqlite3.connect('data/eq-turkey.db')
 # Read out the whole dataset as dataframe
 df_d = pd.read_sql_query("SELECT * FROM quaketk", conn)
 
@@ -136,7 +187,8 @@ print('Mission #4 - Completed.\n')
 
 print('Mission #5 - Retreating Data and Exporting Data Tables...')
 # Re-treatment of the dataset
-df_d['origintimeutc'] = df_d['origintimeutc'].apply(lambda x: dt.datetime.strptime(x,'%Y/%m/%d %H:%M:%S') if type(x)==str else pd.NaT)
+#df_d['origintimeutc'] = df_d['origintimeutc'].apply(lambda x: dt.datetime.strptime(x,'%Y-%m-%d %H:%M:%S') if type(x)==str else pd.NaT)
+df_d['origintimeutc'] = pd.to_datetime(df_d['origintimeutc'])
 df_d['magnitude'] = df_d['magnitude'].astype('float')
 df_d['magtype'] = df_d['magtype'].astype('string')
 
@@ -146,7 +198,8 @@ df_d['depthkm'] = df_d['depthkm'].replace('-', 0).astype("float")
 
 df_d['region'] = df_d['region'].astype('string')
 df_d['measmethod'] = df_d['measmethod'].astype('string')
-df_d['updtime'] = df_d['updtime'].apply(lambda x: dt.datetime.strptime(x,'%Y/%m/%d %H:%M:%S') if type(x)==str else pd.NaT)
+#df_d['updtime'] = df_d['updtime'].apply(lambda x: dt.datetime.strptime(x,'%Y-%m-%d %H:%M:%S') if type(x)==str else pd.NaT)
+df_d['updtime'] = pd.to_datetime(df_d['updtime'])
 df_d['attribute'] = df_d['attribute'].astype('string')
 
 # Adjust datetime from UTC (GMT) to Turkey timezone (GMT+3)
@@ -154,6 +207,7 @@ df_d['eventtime'] = df_d['origintimeutc'] + pd.DateOffset(hours=3)
 df_d['updtime'] = df_d['updtime'] + pd.DateOffset(hours=3)
 df_d['eventtime'] = pd.to_datetime(df_d['eventtime'])
 df_d['updtime'] = pd.to_datetime(df_d['updtime'])
+
 
 # Create new columns for date and time
 df_d['date'] = pd.to_datetime(df_d['eventtime']).dt.date
@@ -200,7 +254,7 @@ def generate_html(dataframe: pd.DataFrame):
 
 # Give a go
 table_interact = generate_html(df_tbl_1)
-with open("output/table_interact_koeri.html", 'w') as f:
+with open("web/table_interact_koeri.html", 'w') as f:
     f.write(table_interact)
 
 # Another Pretty HTML Data Table
@@ -228,7 +282,7 @@ html_table_bluelight = build_table(df_tbl_1, 'blue_light',
 html_table_bluelight = '<div style="text-align:center">' + html_table_bluelight + '</div>'
 
 # write the HTML table to a file
-with open('output/table_bluelight_koeri.html', 'w') as f:
+with open('web/table_bluelight_koeri.html', 'w') as f:
     f.write(html_table_bluelight)
 
 print('Mission #5 - Completed.\n')
@@ -304,7 +358,7 @@ legend_bar.add_to(bubbleMap)
 bubbleMap.add_child(folium.LatLngPopup())
 
 # Eventually save map to interactive HTML file
-bubbleMap.save("output/map_bubble_koeri.html")
+bubbleMap.save("web/map_bubble_koeri.html")
 
 ## 6.2 Heat Map
 
@@ -329,7 +383,7 @@ plugins.HeatMap(heatMapData,
                 ).add_to(heatMap)
 
 # Save Heatmap
-heatMap.save("output/map_heat_koeri.html")
+heatMap.save("web/map_heat_koeri.html")
 
 print('Mission #6 - Completed.\n')
 

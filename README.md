@@ -4,43 +4,113 @@
 
 
 
-Project: TEMAS - Turkey Earthquake Monitoring and Analysis System
+Project: **TEMAS** - **T**urkey **E**arthquake **M**onitoring and **A**nalysis **S**ystem
 
-Latest Version: 0.7.1 
-
-Released: 12 March 2023 
-
-by: Marcus Zou
+Latest Version: 0.7.2  |  Released: 13 March 2023  |  by: Marcus Zou
 
 
 
-## Project Intro
+## Project Features
 
 * This full-stack project is to keep tracking and visualize the earthquake events in Turkey, from January 2023 onwards. 
+* The data table and maps shall be updated in a real-time fashion (every 2 hours) and automatically.
+* It's alive at https://temas.corunsol.net.
 
-* The original dataset (the base and the update) are mainly obtained from [Kandilli Observatory](http://www.koeri.boun.edu.tr/).
+## Technical Intro
 
-* The data and maps shall be updated daily (in the early morning of MST) and automatically, then you may find a little out-of-date if you access our project website during the daytime of Mountain Standard Time (GMT-7).
-
-* The project landing page is: index.html while app.py is a task to be scheduled every day.
-
-* The Jupyter Notebook file of `tuner_all-in-one_koeri_data.ipynb` is a debugging notebook where I made the app.py accordingly. Feel free to go through the steps out there.
-
-* The final project can be accessed at: https://temas.corunsol.net. 
+* The project landing page is: `index.html` while `app-updater.py` is a task to be scheduled every day.
+* The `tuner_all-in-one_koeri_data.ipynb` is a debugging Jupyter notebook where I made the `app-updater.py` accordingly. Feel free to go through the steps out there.
+* The original dataset (the base and the update) are mainly obtained from [Automatic Solutions page of Kandilli Observatory](http://www.koeri.boun.edu.tr/sismo/2/latest-earthquakes/automatic-solutions/).
+* If the Automatic Solutions page stops updating, the alternative source is the [last earthquake snapshot](http://www.koeri.boun.edu.tr/scripts/lasteq.asp).
 
 ## Toolsets
 
 ```
  1. Python (3.10.6) + Folium library + Web Scraping technology
- 2. Back-end databasing
+ 2. Back-end databasing (SQLite3, will seek mySQL if the dataset gets big in the future)
  3. Docker deployment
 ```
 
-## Pre-requisite Libraries
 
-```
-  pip install -r requirements.txt
-```
+
+## How to Make Use of the Project
+
+Two ways to use my project (**Method #1 and #3 are preferred** since it's just a piece of cake):
+
+1. **Docker-Pull** method:
+
+   1A) pull down the very Docker image:
+
+   ```shell
+   docker pull marcuszou/temas:0.7.2
+   ```
+
+   1B) run the docker image into a container:
+
+   ```
+   docker run -d -p 8000:8000 --name "TEMAS-0.7.2" -v /web:/app -t temas:0.7.2
+   ```
+
+   1C) then you can launch a web browser to browse to - http://localhost:8000 to enjoy the project.
+
+   
+
+   **Note**: the web server and job runner (the daily scrapper) have been configured such that everything is running smoothly and automatically unless you shut down the docker container.
+
+   
+
+2. **Fork-Git-Repo** method:
+
+   2A) Clone the very repo:
+
+   ```
+   git clone https://github.com/marcuszou/earthquake-in-turkey.git
+   ```
+
+   2B) enter into the project folder and run the simple web server - Python module http.server:
+
+   ```
+   cd earthquake-in-turkey
+   python ./app-httpsvr.py
+   ```
+
+   2C) schedule the `app-updater.py` as below:
+
+   * for `Linux/Mac` user, please use the `crontab` file:
+
+     ```
+     touch /var/log/cron.log
+     cron ./mycrontab
+     ```
+   
+   * for `Windows` user, please use the `Task Scheduler` to schedule to run `./app-updater.py` periodically.
+   
+   2D) then you can launch a web browser to browse to - http://localhost:8000 to enjoy the project.
+   
+   
+   
+3. **Fork-n-Dock** method:
+   
+   3A) Clone the very repo:
+   
+   ```
+   git clone https://github.com/marcuszou/earthquake-in-turkey.git
+   ```
+   
+   3B) enter into the project folder and build a docker image:
+   
+   ```
+   cd earthquake-in-turkey
+   docker build --no-cache -t mytemas:0.7.2 .
+   ```
+   
+   3C) Run the docker image into a container:
+   
+   ```
+   docker run -d -p 8000:8000 --name "TEMAS-0.7.2" -v /web:/app -t mytemas:0.7.2
+   ```
+   
+   3D) then you can launch a web browser to browse to - http://localhost:8000 to enjoy the project.
 
 ## Special Technical Report when Dockerizing the Project
 
@@ -50,11 +120,13 @@ by: Marcus Zou
 
 * Then the best smaller docker image shall be: `Python-3.10.6-slim` (45 MB only for downloading), which need you to install `cron` module in the `Dockerfile` though. 
 
-* A light-weight Http Server has to run to serve the http requests to our website (`index.html`).
+* A light-weight Python module based Http Server has to run to serve the http requests to our website (`index.html`).
 
   
 
 ## Versions
+
+* v0.7.2 build 2023-03-13 - Changes on the job scheduler, .ignore files and finalizing. Pushed to github and cloud.
 
 * v0.7.1 build 2023-03-12 - Scheduled a Data Updater and dockerized the project into a cloud service.
 
