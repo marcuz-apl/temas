@@ -1,0 +1,25 @@
+# Use an official runtime as a parent image
+# nginx:1.21.6-alpine is 77MB but cannot install cron on
+# nginx:1.21.6 is 56MB
+FROM nginx:stable
+
+#RUN apk update (for alpine)
+#RUN apk add python3 nano (for alpine)
+RUN apt update && apt install -y python3 nano cron
+
+# Set the working directory to /app
+WORKDIR /app
+COPY . /app
+
+# Install crontab task
+RUN touch /app/cron.log
+RUN crontab /app/mycrontab
+
+# Install any needed packages specified in requirements.txt
+#RUN rm -rf /usr/share/nginx/html/*
+COPY index.html /usr/share/nginx/html/index.html
+
+# Make port 80 available to the world outside this container
+EXPOSE 80
+
+CMD ["cron", "-f"]

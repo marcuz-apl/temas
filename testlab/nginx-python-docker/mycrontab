@@ -1,0 +1,1 @@
+* * * * * /usr/local/bin/python /app/scheduler.py >> /app/cron.log 2>&1

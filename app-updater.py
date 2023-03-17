@@ -75,7 +75,7 @@ soup = BeautifulSoup(response.content, "html.parser")
 data1 = []
 # find the table element and iterate over its rows
 table = soup.find("table", {'class': 'index'})
-rows = table.find_all("tr", {'class': 'trIndevnrow'})[1:]
+rows = table.find_all('tr', {'class': ['trIndevnrow', 'trIndoddrow']})[1:]
 for row in rows:
     # get the cells in the row
     cols = row.find_all("td")
@@ -113,7 +113,7 @@ for i in range(1,5):
     eq_table = soup.find('table', {'class': 'index'})
     
     # loop through the rows of the table
-    for row in eq_table.find_all('tr', {'class': 'trIndevnrow'})[1:]:
+    for row in eq_table.find_all('tr', {'class': ['trIndevnrow', 'trIndoddrow']})[1:]:
         # get the columns of the row
         cols = row.find_all('td')
         
