@@ -40,18 +40,29 @@ export class TemasMap {
     // Zoom control in top-right
     L.control.zoom({ position: 'topright' }).addTo(this.map);
 
-    // CartoDB Dark Matter Base Tiles (Free, ultra-reliable, sleek dark theme)
-    this.darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-      subdomains: 'abcd',
-      maxZoom: 19
+    // Esri World Dark Gray Base (100% Free, NO API key, zero watermarks)
+    this.darkBase = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles &copy; Esri &mdash; USGS, NOAA',
+      maxZoom: 16
     }).addTo(this.map);
 
-    // Alternative OpenStreetMap Standard
-    this.osmTiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    // Esri Dark Reference Labels Overlay
+    this.darkLabels = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 16
+    }).addTo(this.map);
+
+    // Alternative OpenStreetMap Standard (100% Free)
+    this.osmTiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors',
       maxZoom: 19
     });
+
+    // Layer control to switch basemaps
+    const baseLayers = {
+      "Dark Canvas": L.layerGroup([this.darkBase, this.darkLabels]),
+      "OpenStreetMap": this.osmTiles
+    };
+    L.control.layers(baseLayers, null, { position: 'topright' }).addTo(this.map);
 
     this.markerLayerGroup.addTo(this.map);
     this.faultLayerGroup.addTo(this.map);
