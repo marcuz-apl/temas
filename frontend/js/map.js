@@ -15,6 +15,30 @@ export function getMagnitudeRadius(mag) {
   return Math.max(5, Math.pow(mag, 1.8) * 0.7);
 }
 
+export const TURKISH_CITIES = {
+  "Kahramanmaraş": [37.5753, 36.9228],
+  "Gaziantep": [37.0662, 37.3833],
+  "Hatay (Antakya)": [36.2023, 36.1613],
+  "Malatya": [38.3552, 38.3095],
+  "Adana": [37.0000, 35.3213],
+  "Ankara": [39.9334, 32.8597],
+  "İstanbul": [41.0082, 28.9784],
+  "İzmir": [38.4237, 27.1428],
+  "Diyarbakır": [37.9144, 40.2306],
+  "Trabzon": [41.0027, 39.7168]
+};
+
+export function calculateHaversineKm(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
 export class TemasMap {
   constructor(containerId, onMarkerClick) {
     this.containerId = containerId;
@@ -186,9 +210,14 @@ export class TemasMap {
         fillOpacity: 0.65
       });
 
-      // Rich custom popup
+      // Rich custom popup with Wave Arrival Estimator
+      const initialCity = "Kahramanmaraş";
+      const initialDist = Math.round(calculateHaversineKm(lat, lon, TURKISH_CITIES[initialCity][0], TURKISH_CITIES[initialCity][1]));
+      const pWaveSec = Math.round(initialDist / 6.0);
+      const sWaveSec = Math.round(initialDist / 3.5);
+
       const popupHtml = `
-        <div class="custom-popup">
+        <div class="custom-popup" data-lat="${lat}" data-lon="${lon}">
           <div class="popup-mag" style="color: ${color}">
             <span>${mag.toFixed(1)}</span>
             <small style="font-size: 0.75rem; color: #94a3b8;">${eq.magtype || 'ML'}</small>
@@ -212,10 +241,38 @@ export class TemasMap {
               <strong>${eq.measmethod || 'RETMC'}</strong>
             </div>
           </div>
+          <div class="popup-estimator" style="margin-top: 8px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.08);">
+            <div style="font-size: 0.7rem; color: #94a3b8; margin-bottom: 4px;"><strong>Wave Arrival from Epicenter:</strong></div>
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <select class="city-selector" style="background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; font-size: 0.72rem; padding: 2px 4px; outline: none;">
+                ${Object.keys(TURKISH_CITIES).map(c => `<option value="${c}" ${c === initialCity ? 'selected' : ''}>${c}</option>`).join('')}
+              </select>
+              <span class="est-result" style="font-size: 0.72rem; font-family: monospace; color: #38bdf8;">${initialDist}km | P:~${pWaveSec}s | S:~${sWaveSec}s</span>
+            </div>
+          </div>
         </div>
       `;
 
       marker.bindPopup(popupHtml, { closeButton: false });
+
+      marker.on('popupopen', (e) => {
+        const popupEl = e.popup.getElement();
+        if (!popupEl) return;
+        const selector = popupEl.querySelector('.city-selector');
+        const resEl = popupEl.querySelector('.est-result');
+        if (selector && resEl) {
+          selector.addEventListener('change', (ev) => {
+            const cityName = ev.target.value;
+            const cityCoords = TURKISH_CITIES[cityName];
+            if (cityCoords) {
+              const d = Math.round(calculateHaversineKm(lat, lon, cityCoords[0], cityCoords[1]));
+              const pTime = Math.round(d / 6.0);
+              const sTime = Math.round(d / 3.5);
+              resEl.textContent = `${d}km | P:~${pTime}s | S:~${sTime}s`;
+            }
+          });
+        }
+      });
 
       marker.on('click', () => {
         if (this.onMarkerClick) {

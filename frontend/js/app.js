@@ -134,6 +134,45 @@ class TemasApp {
       });
     }
 
+    // Sidebar Collapse / Expand Toggle
+    const sidebarToggle = document.getElementById('btn-toggle-sidebar');
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebarToggle && sidebar) {
+      sidebarToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('collapsed');
+        setTimeout(() => this.mapEngine.map.invalidateSize(), 300);
+      });
+    }
+
+    // Fullscreen Toggle
+    const fsBtn = document.getElementById('btn-fullscreen');
+    if (fsBtn) {
+      fsBtn.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+          fsBtn.textContent = '⤦';
+        } else {
+          document.exitFullscreen().catch(() => {});
+          fsBtn.textContent = '⛶';
+        }
+      });
+    }
+
+    // Seismic Audio Alerts Toggle
+    const audioBtn = document.getElementById('btn-toggle-audio');
+    const audioIcon = document.getElementById('audio-icon');
+    if (audioBtn) {
+      audioBtn.addEventListener('click', () => {
+        this.state.audioEnabled = !this.state.audioEnabled;
+        if (this.state.audioEnabled) {
+          audioIcon.textContent = '🔊 Audio';
+          this.playSeismicTone(5.0);
+        } else {
+          audioIcon.textContent = '🔇 Audio';
+        }
+      });
+    }
+
     // Sync Now Button
     const syncBtn = document.getElementById('btn-sync');
     if (syncBtn) {
@@ -472,7 +511,26 @@ class TemasApp {
         matchingCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
     }
+    this.playSeismicTone(eq.magnitude);
     this.mapEngine.focusEarthquake(eq);
+  }
+
+  playSeismicTone(mag) {
+    if (!this.state.audioEnabled) return;
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const baseFreq = Math.max(55, 175 - (parseFloat(mag) * 15));
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(baseFreq, ctx.currentTime);
+      gain.gain.setValueAtTime(0.12, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.45);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.45);
+    } catch (e) {}
   }
 
   handleMarkerClick(eq) {

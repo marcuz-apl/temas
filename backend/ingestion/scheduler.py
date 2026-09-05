@@ -1,8 +1,9 @@
 import asyncio
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Any, Optional
 from backend.ingestion.koeri import fetch_koeri_earthquakes
+from backend.ingestion.usgs import fetch_usgs_earthquakes
 from backend.database import insert_earthquakes
 
 logger = logging.getLogger("temas.ingestion.scheduler")
@@ -20,21 +21,35 @@ DEFAULT_INTERVAL_SECONDS = 180  # 3 minutes
 
 
 async def perform_sync() -> Dict[str, Any]:
-    """Executes a single sync cycle."""
+    """Executes a single sync cycle with KOERI (primary) and USGS (secondary)."""
     SYNC_STATE["is_running"] = True
     SYNC_STATE["last_sync_status"] = "in_progress"
-    start_time = datetime.utcnow()
+    now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
 
     try:
-        records = await fetch_koeri_earthquakes()
+        # 1. Fetch Primary (KOERI)
+        records = []
+        try:
+            koeri_records = await fetch_koeri_earthquakes()
+            records.extend(koeri_records)
+        except Exception as e:
+            logger.error("Primary KOERI sync error: %s", e)
+
+        # 2. Fetch Secondary / Fallback (USGS)
+        try:
+            usgs_records = await fetch_usgs_earthquakes()
+            records.extend(usgs_records)
+        except Exception as e:
+            logger.warning("Secondary USGS sync error: %s", e)
+
         inserted = insert_earthquakes(records)
 
-        SYNC_STATE["last_sync_time"] = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+        SYNC_STATE["last_sync_time"] = now_str
         SYNC_STATE["last_sync_status"] = "success"
         SYNC_STATE["last_fetched"] = len(records)
         SYNC_STATE["last_inserted"] = inserted
 
-        logger.info("Sync complete: %d fetched, %d newly inserted", len(records), inserted)
+        logger.info("Multi-source sync complete: %d fetched, %d newly inserted", len(records), inserted)
         return {
             "status": "success",
             "fetched": len(records),
@@ -47,7 +62,7 @@ async def perform_sync() -> Dict[str, Any]:
         return {
             "status": "error",
             "message": str(e),
-            "timestamp": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+            "timestamp": now_str
         }
     finally:
         SYNC_STATE["is_running"] = False

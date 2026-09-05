@@ -68,3 +68,16 @@ def test_frontend_serving():
     res_js = client.get("/static/js/app.js")
     assert res_js.status_code == 200
     assert "TemasApp" in res_js.text
+
+def test_boundaries_provinces():
+    res = client.get("/api/boundaries/provinces")
+    assert res.status_code == 200
+    data = res.json()
+    assert "type" in data
+    assert data["type"] == "FeatureCollection"
+
+@pytest.mark.anyio
+async def test_usgs_fetch():
+    from backend.ingestion.usgs import fetch_usgs_earthquakes
+    quakes = await fetch_usgs_earthquakes()
+    assert isinstance(quakes, list)
