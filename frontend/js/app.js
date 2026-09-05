@@ -1088,6 +1088,17 @@ class TemasApp {
         useCORS: true,
         allowTaint: false,
         logging: false,
+        onclone: (clonedDoc) => {
+          // Ensure brand title and text elements render without any background box artifacts
+          const brandH1 = clonedDoc.querySelector('.brand-text h1');
+          if (brandH1) {
+            brandH1.style.background = 'none';
+            brandH1.style.webkitBackgroundClip = 'initial';
+            brandH1.style.backgroundClip = 'initial';
+            brandH1.style.webkitTextFillColor = 'initial';
+            brandH1.style.color = '#ffffff';
+          }
+        },
         ignoreElements: (el) => {
           // Exclude transient toasts, active modals, or hover trigger zones
           if (el.classList && (el.classList.contains('toast') || el.id === 'toast-container' || el.classList.contains('modal-backdrop'))) {

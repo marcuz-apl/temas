@@ -37,12 +37,26 @@ v2.1.0 (Baseline Architecture)
         │
         ├─► v2.9.3 (Feat/Fix: Default Auto-Hidden Sidebar, Draggable Map Widgets, Clean White A4/Letter PNG Export)
         │
-        └─► v2.9.4 (Feat: One-Click Frontpage Map Snapshot Camera Action)
+        ├─► v2.9.4 (Feat: One-Click Frontpage Map Snapshot Camera Action)
+        │
+        └─► v2.9.5 (Feat: Fancy Seismic Wave Icon, Clean Map Attribution, Snapshot Box Fix, Legacy Purge)
 ```
 
 ---
 
 ## Milestone Change Log Details
+
+### [v2.9.5] — 2026-09-05
+**Feat: Fancy Seismic Wave Icon, Clean Map Attribution, Snapshot Box Fix, Legacy Purge**
+- **Type**: `feat(ui)` / `fix(snapshot)` / `chore(cleanup)`
+- **Scope**: `frontend/index.html`, `frontend/css/style.css`, `frontend/js/app.js`, `frontend/js/map.js`, `frontend/assets/favicon.svg`, `legacy/`
+- **Key Deliverables**:
+  - **Discreet Viewport (Leaflet Bar Removed)**: Fully disabled and suppressed the Leaflet lower-right attribution bar (`attributionControl: false` in map configuration and CSS hard suppression), eliminating map clutter.
+  - **Fancy Seismic Wave Brand Icon & SVG Favicon**: Replaced generic lightning symbol with an animated SVG emblem featuring multi-frequency concentric seismic shockwave rings, pulsing epicenter core, and seismogram waveform spike. Added crisp vector `frontend/assets/favicon.svg` for browser tabs.
+  - **Snapshot Brand Box Artifact Fix**: Resolved the gray/white rectangular box artifact that appeared over "TEMAS 2" during snapshot export. Replaced CSS `-webkit-background-clip: text` gradient on `<h1>` with solid `#ffffff`, and added an `onclone` DOM normalization hook in `captureFrontpageSnapshot()` to guarantee zero background artifacts during canvas rasterization.
+  - **Retirement of Legacy Directory**: Deleted 40 obsolete 2023 proof-of-concept scripts and notebooks in `legacy/`, keeping the active repository focused on modern FastAPI and async JS architecture.
+
+---
 
 ### [v2.9.4] — 2026-09-05
 **Feat: One-Click Frontpage Map Snapshot Camera Action**

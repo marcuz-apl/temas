@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </linearGradient>
+    <linearGradient id="waveGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="50%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#ef4444"/>
+    </linearGradient>
+    <radialGradient id="epicenterGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ef4444" stop-opacity="1"/>
+      <stop offset="60%" stop-color="#f59e0b" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#38bdf8" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background Shield -->
+  <rect width="64" height="64" rx="16" fill="url(#bgGrad)" stroke="#38bdf8" stroke-width="1.5"/>
+
+  <!-- Concentric Seismic Waves -->
+  <circle cx="32" cy="32" r="26" stroke="url(#waveGrad)" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.4"/>
+  <circle cx="32" cy="32" r="18" stroke="#38bdf8" stroke-width="2" opacity="0.65"/>
+  <circle cx="32" cy="32" r="11" stroke="#f59e0b" stroke-width="2.2" opacity="0.85"/>
+
+  <!-- Glowing Epicenter Core -->
+  <circle cx="32" cy="32" r="7" fill="url(#epicenterGlow)"/>
+  <circle cx="32" cy="32" r="3.5" fill="#ffffff"/>
+
+  <!-- High-Magnitude Seismogram Waveform Spike -->
+  <path d="M 6 32 H 18 L 22 23 L 27 41 L 32 14 L 37 50 L 42 24 L 46 36 L 50 32 H 58"
+        stroke="#ffffff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

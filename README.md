@@ -120,7 +120,7 @@ During initial proof-of-concept development in February–March 2023, TEMAS was 
 
 - The lightweight `alpine` Python variants encountered compilation issues with `pandas` in early 2023, leading to the adoption of `python:3.10-slim`.
 - The original prototype ran a daily cron scraper inside an Nginx container on port `8001`.
-- These legacy experiments are preserved in the `legacy/` directory for historical reference, while production operations have transitioned to the high-performance async FastAPI architecture on port `4070`.
+- These legacy proof-of-concept scripts have been retired, with all operations consolidated into the unified async FastAPI architecture on port `4070`.
 </details>
 
 ---
