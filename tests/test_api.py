@@ -1,6 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
-from backend.main import app
+from backend.main import app, ADMIN_KEY
 from backend.database import init_db
 
 @pytest.fixture(scope="session", autouse=True)
@@ -14,7 +14,7 @@ def test_health():
     assert res.status_code == 200
     data = res.json()
     assert data["status"] == "healthy"
-    assert data["service"] == "TEMAS-2.0"
+    assert data["service"] == "TEMAS-2.1"
 
 def test_earthquakes_list():
     res = client.get("/api/earthquakes?limit=10")
@@ -55,10 +55,17 @@ def test_boundaries_tectonic():
     assert "type" in data
     assert data["type"] == "FeatureCollection"
 
+def test_boundaries_provinces():
+    res = client.get("/api/boundaries/provinces")
+    assert res.status_code == 200
+    data = res.json()
+    assert "type" in data
+    assert data["type"] == "FeatureCollection"
+
 def test_frontend_serving():
     res = client.get("/")
     assert res.status_code == 200
-    assert "TEMAS 2.0" in res.text
+    assert "TEMAS" in res.text
     assert "Turkey Earthquake Monitoring" in res.text
 
     res_css = client.get("/static/css/style.css")
@@ -69,12 +76,100 @@ def test_frontend_serving():
     assert res_js.status_code == 200
     assert "TemasApp" in res_js.text
 
-def test_boundaries_provinces():
-    res = client.get("/api/boundaries/provinces")
+def test_admin_frontend_serving():
+    res = client.get("/admin")
+    assert res.status_code == 200
+    assert "Admin Control Deck" in res.text
+    assert "authModal" in res.text
+
+    res_admin_css = client.get("/static/css/admin.css")
+    assert res_admin_css.status_code == 200
+
+    res_admin_js = client.get("/static/js/admin.js")
+    assert res_admin_js.status_code == 200
+
+# ==========================================
+# ADMIN & MULTI-SOURCE TESTS
+# ==========================================
+
+def test_admin_auth_protection():
+    # Unauthorized without header
+    res = client.get("/api/admin/status")
+    assert res.status_code == 401
+
+    # Unauthorized with wrong key
+    res_wrong = client.get("/api/admin/status", headers={"X-Admin-Key": "wrong-key"})
+    assert res_wrong.status_code == 401
+
+    # Authorized with valid key
+    res_ok = client.post("/api/admin/auth", headers={"X-Admin-Key": ADMIN_KEY})
+    assert res_ok.status_code == 200
+    assert res_ok.json()["status"] == "authenticated"
+
+def test_admin_status_telemetry():
+    res = client.get("/api/admin/status", headers={"X-Admin-Key": ADMIN_KEY})
     assert res.status_code == 200
     data = res.json()
-    assert "type" in data
-    assert data["type"] == "FeatureCollection"
+    assert "providers" in data
+    assert "koeri" in data["providers"]
+    assert "emsc" in data["providers"]
+    assert "usgs" in data["providers"]
+    assert "database" in data
+    assert "by_year" in data["database"]
+    assert "magnitude_distribution" in data["database"]
+
+def test_admin_vacuum():
+    res = client.post("/api/admin/db/vacuum", headers={"X-Admin-Key": ADMIN_KEY})
+    assert res.status_code == 200
+    data = res.json()
+    assert data["status"] == "success"
+    assert "after_mb" in data
+
+def test_admin_manual_event_lifecycle():
+    event_payload = {
+        "origintimeutc": "2024-06-15 14:30:00",
+        "magnitude": 4.8,
+        "magtype": "MW",
+        "latitude": 38.1234,
+        "longitude": 36.5678,
+        "depthkm": 7.5,
+        "region": "TEST-OBSERVATORY-REGION",
+        "measmethod": "MANUAL-OPERATOR",
+        "attribute": "VERIFIED-REVIEWED"
+    }
+    # Create
+    res_create = client.post("/api/admin/earthquakes", json=event_payload, headers={"X-Admin-Key": ADMIN_KEY})
+    assert res_create.status_code in [200, 201]
+
+    # Verify present
+    res_query = client.get("/api/earthquakes?region=TEST-OBSERVATORY-REGION")
+    assert res_query.status_code == 200
+    items = res_query.json()["items"]
+    assert len(items) >= 1
+    assert items[0]["magnitude"] == 4.8
+
+    # Delete
+    del_payload = {
+        "origintimeutc": "2024-06-15 14:30:00",
+        "latitude": 38.1234,
+        "longitude": 36.5678
+    }
+    res_del = client.request("DELETE", "/api/admin/earthquakes", json=del_payload, headers={"X-Admin-Key": ADMIN_KEY})
+    assert res_del.status_code == 200
+    assert res_del.json()["deleted"] is True
+
+@pytest.mark.anyio
+async def test_emsc_fetch():
+    from backend.ingestion.emsc import fetch_emsc_earthquakes
+    quakes = await fetch_emsc_earthquakes(min_mag=3.5, limit=3)
+    assert isinstance(quakes, list)
+    if quakes:
+        q = quakes[0]
+        assert "origintimeutc" in q
+        assert "magnitude" in q
+        assert q["magnitude"] >= 3.5
+        assert "measmethod" in q
+        assert "EMSC" in q["measmethod"]
 
 @pytest.mark.anyio
 async def test_usgs_fetch():

@@ -187,3 +187,103 @@ def get_stats() -> Dict[str, Any]:
         "last_event_time": latest_time,
         "last_event_time_trt": to_turkey_time(latest_time) if latest_time else None
     }
+
+
+def get_admin_stats() -> Dict[str, Any]:
+    """Provides detailed database telemetry, storage metrics, and annual breakdowns."""
+    db_size_bytes = 0
+    if os.path.exists(DB_PATH):
+        db_size_bytes = os.path.getsize(DB_PATH)
+
+    wal_path = f"{DB_PATH}-wal"
+    wal_size_bytes = os.path.getsize(wal_path) if os.path.exists(wal_path) else 0
+
+    with get_db_connection() as conn:
+        # Total & date range
+        total_row = conn.execute("SELECT COUNT(*) as cnt, MIN(origintimeutc) as min_date, MAX(origintimeutc) as max_date FROM quaketk").fetchone()
+        total_count = total_row["cnt"] or 0
+        min_date = total_row["min_date"]
+        max_date = total_row["max_date"]
+
+        # Yearly distribution
+        years_rows = conn.execute("""
+            SELECT SUBSTR(origintimeutc, 1, 4) as year, COUNT(*) as cnt, MAX(magnitude) as max_mag 
+            FROM quaketk 
+            GROUP BY year 
+            ORDER BY year DESC
+        """).fetchall()
+        by_year = [{"year": r["year"], "count": r["cnt"], "max_mag": r["max_mag"]} for r in years_rows]
+
+        # Magnitude classes
+        mag_dist_rows = conn.execute("""
+            SELECT 
+                SUM(CASE WHEN magnitude >= 7.0 THEN 1 ELSE 0 END) as m7_plus,
+                SUM(CASE WHEN magnitude >= 6.0 AND magnitude < 7.0 THEN 1 ELSE 0 END) as m6_69,
+                SUM(CASE WHEN magnitude >= 5.0 AND magnitude < 6.0 THEN 1 ELSE 0 END) as m5_59,
+                SUM(CASE WHEN magnitude >= 4.0 AND magnitude < 5.0 THEN 1 ELSE 0 END) as m4_49,
+                SUM(CASE WHEN magnitude >= 3.0 AND magnitude < 4.0 THEN 1 ELSE 0 END) as m3_39,
+                SUM(CASE WHEN magnitude < 3.0 THEN 1 ELSE 0 END) as m_under3
+            FROM quaketk
+        """).fetchone()
+
+        # Measurement methods / sources breakdown
+        sources_rows = conn.execute("""
+            SELECT measmethod, COUNT(*) as cnt 
+            FROM quaketk 
+            GROUP BY measmethod 
+            ORDER BY cnt DESC 
+            LIMIT 10
+        """).fetchall()
+        sources = [{"method": r["measmethod"], "count": r["cnt"]} for r in sources_rows]
+
+    return {
+        "total_records": total_count,
+        "earliest_date": min_date,
+        "latest_date": max_date,
+        "db_size_bytes": db_size_bytes,
+        "db_size_mb": round(db_size_bytes / (1024 * 1024), 2),
+        "wal_size_mb": round(wal_size_bytes / (1024 * 1024), 2),
+        "by_year": by_year,
+        "magnitude_distribution": {
+            "M7.0+": mag_dist_rows["m7_plus"] or 0,
+            "M6.0-6.9": mag_dist_rows["m6_69"] or 0,
+            "M5.0-5.9": mag_dist_rows["m5_59"] or 0,
+            "M4.0-4.9": mag_dist_rows["m4_49"] or 0,
+            "M3.0-3.9": mag_dist_rows["m3_39"] or 0,
+            "< M3.0": mag_dist_rows["m_under3"] or 0
+        },
+        "sources": sources
+    }
+
+
+def vacuum_database() -> Dict[str, Any]:
+    """Runs SQLite VACUUM and ANALYZE to reclaim disk space and rebuild indexes."""
+    before_size = os.path.getsize(DB_PATH) if os.path.exists(DB_PATH) else 0
+    with get_db_connection() as conn:
+        conn.execute("VACUUM")
+        conn.execute("PRAGMA optimize")
+    after_size = os.path.getsize(DB_PATH) if os.path.exists(DB_PATH) else 0
+    saved_bytes = before_size - after_size
+    return {
+        "status": "success",
+        "before_mb": round(before_size / (1024 * 1024), 2),
+        "after_mb": round(after_size / (1024 * 1024), 2),
+        "saved_kb": round(saved_bytes / 1024, 1)
+    }
+
+
+def delete_earthquake(origintimeutc: str, latitude: float, longitude: float) -> bool:
+    """Deletes an anomalous or false-positive earthquake event."""
+    with get_db_connection() as conn:
+        cursor = conn.execute(
+            "DELETE FROM quaketk WHERE origintimeutc = ? AND latitude = ? AND longitude = ?",
+            (origintimeutc, latitude, longitude)
+        )
+        return cursor.rowcount > 0
+
+
+def insert_manual_earthquake(record: Dict[str, Any]) -> bool:
+    """Manually inserts a verified seismic record."""
+    inserted = insert_earthquakes([record])
+    return inserted > 0
+

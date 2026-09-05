@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TEMAS 2.1 — Observatory Operations Deck</title>
+  <meta name="description" content="Mission control, multi-source ingestion telemetry, and historical backfill engine for TEMAS Turkey-Syria Seismic Observatory.">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="/static/css/admin.css">
+</head>
+<body>
+
+  <!-- Ambient Cyber Lighting Background -->
+  <div class="cyber-grid-bg"></div>
+  <div class="ambient-glow glow-top"></div>
+  <div class="ambient-glow glow-bottom"></div>
+
+  <!-- Security Gate Modal (Futuristic Passcode) -->
+  <div id="authModal" class="modal-backdrop">
+    <div class="modal-card auth-card">
+      <div class="auth-scanner-line"></div>
+      
+      <div class="auth-header">
+        <div class="hex-logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="shield-icon">
+            <path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z"/>
+            <path d="M12 8v8"/>
+            <path d="M8 12h8"/>
+          </svg>
+        </div>
+        <div class="auth-title-group">
+          <h2>TEMAS OBSERVATORY</h2>
+          <span class="auth-subtitle">OPERATIONS CONTROL DECK &bull; v2.1</span>
+        </div>
+      </div>
+
+      <p class="auth-desc">Authentication required to access automated scrapers, database maintenance, and multi-tier failover circuit breakers.</p>
+
+      <form id="authForm" class="auth-form">
+        <div class="input-group">
+          <label for="adminKeyInput">
+            <span>OPERATOR PASSKEY</span>
+            <span class="key-hint">DEFAULT: temas-admin-2026</span>
+          </label>
+          <div class="input-with-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="field-icon">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <input type="password" id="adminKeyInput" placeholder="Enter administrative key..." autocomplete="current-password" required autofocus>
+          </div>
+        </div>
+        <div id="authError" class="error-msg hidden">
+          <span class="err-icon">⚠️</span> Passkey rejected. Access unauthorized.
+        </div>
+        <button type="submit" id="authSubmitBtn" class="btn-primary full-width glow-btn">
+          <span>Authorize Access</span>
+          <span class="btn-arrow">→</span>
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        <a href="/" class="back-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="link-icon">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          Return to Public Observatory Map
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Mission Control Interface -->
+  <div id="adminDeck" class="admin-layout hidden">
+    
+    <!-- Top Command Deck Bar -->
+    <header class="deck-header">
+      <div class="header-left">
+        <div class="brand-group">
+          <div class="pulse-beacon"></div>
+          <div class="brand-text">
+            <div class="brand-title">TEMAS <span>OPS</span></div>
+            <div class="brand-sub">SEISMIC MISSION CONTROL</div>
+          </div>
+        </div>
+        <div class="version-badge">v2.1.0</div>
+        <div class="net-status-chip">
+          <span class="dot-live"></span>
+          <span>MULTI-SOURCE ENGINE ARMED</span>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="clock-chip" id="deckTime">--:--:-- UTC</div>
+        <a href="/" class="nav-btn" title="View Public Interactive Map">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+            <line x1="8" y1="2" x2="8" y2="18"></line>
+            <line x1="16" y1="6" x2="16" y2="22"></line>
+          </svg>
+          Public Map
+        </a>
+        <button id="logoutBtn" class="nav-btn btn-lock" title="Lock Operations Deck">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          Lock Deck
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Stage -->
+    <main class="deck-container">
+
+      <!-- Realtime Alert Banner -->
+      <div class="command-banner" id="systemBanner">
+        <div class="banner-left">
+          <div class="radar-pulse-icon">
+            <span class="radar-ring"></span>
+            <span class="radar-dot"></span>
+          </div>
+          <div>
+            <div class="banner-headline">Tri-Tier Redundant Scraping Topology</div>
+            <div class="banner-subtext" id="bannerSummary">
+              Primary: <strong>KOERI (Kandilli)</strong> &bull; Secondary: <strong>EMSC-CSEM (FDSN Euro-Med)</strong> &bull; Tertiary: <strong>USGS Global</strong>
+            </div>
+          </div>
+        </div>
+        <button id="syncAllBtn" class="btn-sync-all glow-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="sync-icon">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <polyline points="1 20 1 14 7 14"></polyline>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+          <span>Trigger Full Multi-Tier Sync</span>
+        </button>
+      </div>
+
+      <!-- Grid Row 1: Ingestion Matrix -->
+      <section class="deck-section">
+        <div class="section-title-row">
+          <div class="section-title-group">
+            <h3 class="section-heading">Upstream Ingestion Feeds & Telemetry</h3>
+            <p class="section-desc">Real-time health, response latencies, and circuit breaker status for Turkish earthquake feeds.</p>
+          </div>
+          <button id="refreshHealthBtn" class="btn-refresh">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="refresh-icon">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+            </svg>
+            Refresh Telemetry
+          </button>
+        </div>
+
+        <div class="providers-matrix" id="providersGrid">
+          <!-- Dynamically populated by JS -->
+          <div class="skeleton-card">Loading ingestion providers...</div>
+        </div>
+      </section>
+
+      <!-- Grid Row 2: 2023-2026 Historical Backfill Engine -->
+      <section class="deck-section highlight-section">
+        <div class="section-title-row">
+          <div class="section-title-group">
+            <div class="heading-with-chip">
+              <h3 class="section-heading">Historical Data Gap Backfill Engine (2023–2026)</h3>
+              <span class="security-chip">STRICT INSERT OR IGNORE</span>
+            </div>
+            <p class="section-desc">Chunked asynchronous batch ingestion engine utilizing EMSC FDSN & USGS feeds to complete missing records.</p>
+          </div>
+        </div>
+
+        <!-- Presets Row -->
+        <div class="presets-toolbar">
+          <span class="toolbar-label">RANGE PRESETS:</span>
+          <button class="preset-pill" data-start="2023-03-01" data-end="2023-12-31" data-mag="3.0">2023 Gap (Mar-Dec)</button>
+          <button class="preset-pill" data-start="2024-01-01" data-end="2024-12-31" data-mag="3.0">Year 2024</button>
+          <button class="preset-pill" data-start="2025-01-01" data-end="2025-12-31" data-mag="3.0">Year 2025</button>
+          <button class="preset-pill active" data-start="2023-03-01" data-end="2026-08-31" data-mag="3.0">Full 3.5-Year Gap (2023–2026)</button>
+        </div>
+
+        <!-- Backfill Parameters Grid -->
+        <div class="backfill-control-grid">
+          <div class="control-box">
+            <label for="bfStart">START DATE (UTC)</label>
+            <input type="date" id="bfStart" value="2023-03-01">
+          </div>
+          <div class="control-box">
+            <label for="bfEnd">END DATE (UTC)</label>
+            <input type="date" id="bfEnd" value="2026-08-31">
+          </div>
+          <div class="control-box">
+            <label for="bfMag">MAGNITUDE FLOOR</label>
+            <select id="bfMag">
+              <option value="2.5">M ≥ 2.5 (Dense / Extended Catalog)</option>
+              <option value="3.0" selected>M ≥ 3.0 (Recommended Standard)</option>
+              <option value="3.5">M ≥ 3.5 (Significant & Felt Only)</option>
+              <option value="4.0">M ≥ 4.0 (Major Events Only)</option>
+            </select>
+          </div>
+          <div class="control-box">
+            <label for="bfChunk">BATCH SLICE WINDOW</label>
+            <select id="bfChunk">
+              <option value="15">15 Days (Fine-grained queries)</option>
+              <option value="30" selected>30 Days (Optimal throughput)</option>
+              <option value="60">60 Days (Aggressive batch)</option>
+            </select>
+          </div>
+          <div class="control-box action-box">
+            <button id="startBackfillBtn" class="btn-launch-backfill glow-btn">
+              <span class="launch-icon">🚀</span>
+              <span>Launch Backfill Job</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Live Progress Visualizer -->
+        <div class="live-progress-stage">
+          <div class="stage-top">
+            <div class="stage-status-group">
+              <span class="status-indicator-dot"></span>
+              <span id="bfStatusText" class="stage-status">STATUS: IDLE</span>
+            </div>
+            <div class="stage-percent" id="bfPercentText">0.0%</div>
+          </div>
+
+          <div class="gauge-bar-outer">
+            <div id="bfProgressBar" class="gauge-bar-fill" style="width: 0%">
+              <span class="gauge-glint"></span>
+            </div>
+          </div>
+
+          <div class="stage-stats-matrix">
+            <div class="stat-cell">
+              <span class="cell-label">Current Window</span>
+              <span class="cell-val" id="bfCurrentWindow">—</span>
+            </div>
+            <div class="stat-cell">
+              <span class="cell-label">Windows Completed</span>
+              <span class="cell-val" id="bfWindowsCount">0 / 0</span>
+            </div>
+            <div class="stat-cell">
+              <span class="cell-label">Events Fetched</span>
+              <span class="cell-val text-cyan" id="bfFetched">0</span>
+            </div>
+            <div class="stat-cell">
+              <span class="cell-label">Newly Inserted</span>
+              <span class="cell-val text-emerald" id="bfInserted">0</span>
+            </div>
+          </div>
+
+          <!-- Console Terminal Output -->
+          <div class="terminal-container">
+            <div class="terminal-topbar">
+              <div class="terminal-dots">
+                <span></span><span></span><span></span>
+              </div>
+              <span class="terminal-title">ASYNC BACKFILL EVENT LOG STREAM</span>
+              <span class="terminal-live-tag">LIVE</span>
+            </div>
+            <div class="terminal-body" id="backfillLogs">
+              <div class="log-entry log-ready">[System ready for backfill job execution]</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Grid Row 3: Database Telemetry & Storage KPIs -->
+      <section class="deck-section">
+        <div class="section-title-row">
+          <div class="section-title-group">
+            <h3 class="section-heading">Database Telemetry & Storage Optimization</h3>
+            <p class="section-desc">SQLite WAL engine metrics, chronological distribution, and storage defragmentation.</p>
+          </div>
+          <div class="section-action-btns">
+            <button id="vacuumDbBtn" class="btn-tool">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+              </svg>
+              Rebuild B-Trees (Vacuum)
+            </button>
+            <a id="downloadDbBtn" class="btn-tool btn-tool-accent" href="#" target="_blank">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              Export SQLite Snapshot
+            </a>
+          </div>
+        </div>
+
+        <!-- 4 KPI Cards -->
+        <div class="kpi-banner-grid">
+          <div class="kpi-box">
+            <span class="kpi-tag">TOTAL SEISMIC RECORDS</span>
+            <div class="kpi-figure" id="kpiTotal">—</div>
+            <span class="kpi-foot">Verified historical + live</span>
+          </div>
+          <div class="kpi-box">
+            <span class="kpi-tag">EARLIEST EVENT TIME</span>
+            <div class="kpi-figure kpi-figure-sm" id="kpiEarliest">—</div>
+            <span class="kpi-foot">Catalog inception</span>
+          </div>
+          <div class="kpi-box">
+            <span class="kpi-tag">LATEST EVENT DETECTED</span>
+            <div class="kpi-figure kpi-figure-sm" id="kpiLatest">—</div>
+            <span class="kpi-foot text-cyan">Real-time sync anchor</span>
+          </div>
+          <div class="kpi-box">
+            <span class="kpi-tag">DATABASE FOOTPRINT</span>
+            <div class="kpi-figure" id="kpiDbSize">— MB</div>
+            <span class="kpi-foot text-emerald">SQLite WAL Mode Active</span>
+          </div>
+        </div>
+
+        <!-- Breakdown Charts Grid -->
+        <div class="db-analytics-grid">
+          <div class="analytics-card">
+            <div class="card-inner-header">TEMPORAL EVENT DENSITY BY YEAR</div>
+            <div id="yearsContainer" class="years-pill-deck">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <div class="analytics-card">
+            <div class="card-inner-header">MAGNITUDE FREQUENCY PROFILE</div>
+            <div id="magDistContainer" class="mag-frequency-deck">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Grid Row 4: Event Moderation & Manual Override -->
+      <section class="deck-section">
+        <div class="section-title-row">
+          <div class="section-title-group">
+            <h3 class="section-heading">Event Moderation & Verification Console</h3>
+            <p class="section-desc">Search, audit raw seismic vectors, flag anomalous signals, or register manual field station data.</p>
+          </div>
+          <button id="openManualEventBtn" class="btn-tool btn-tool-accent">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Register Verified Event
+          </button>
+        </div>
+
+        <!-- Search Controls -->
+        <div class="filter-deck-bar">
+          <div class="search-input-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="search-svg">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="adminSearchRegion" placeholder="Filter by region (e.g. Kahramanmaras, Izmir)...">
+          </div>
+          <input type="number" id="adminSearchMinMag" placeholder="Min Mag (e.g. 4.0)" step="0.1" class="num-filter">
+          <button id="adminSearchBtn" class="btn-filter">Execute Filter</button>
+          <span class="results-tally" id="tableCountText">Showing 0 events</span>
+        </div>
+
+        <!-- Table Viewport -->
+        <div class="glass-table-container">
+          <table class="ops-table" id="eventsTable">
+            <thead>
+              <tr>
+                <th>ORIGIN TIME (UTC)</th>
+                <th>MAG</th>
+                <th>SCALE</th>
+                <th>LATITUDE / LONGITUDE</th>
+                <th>DEPTH</th>
+                <th>REGION</th>
+                <th>MEASUREMENT SOURCE</th>
+                <th>ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody id="eventsTableBody">
+              <tr><td colspan="8" class="empty-cell">Retrieving records from database...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Manual Event Injection Modal -->
+  <div id="manualEventModal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <div class="dot-live"></div>
+          <h3>Register Verified Seismic Event</h3>
+        </div>
+        <button id="closeManualModalBtn" class="btn-close-modal">✕</button>
+      </div>
+      <form id="manualEventForm" class="modal-form">
+        <div class="form-grid-3">
+          <div class="field-item">
+            <label for="manTime">ORIGIN TIME (UTC)</label>
+            <input type="text" id="manTime" placeholder="YYYY-MM-DD HH:MM:SS" required>
+          </div>
+          <div class="field-item">
+            <label for="manMag">MAGNITUDE</label>
+            <input type="number" id="manMag" step="0.1" min="0.1" max="10.0" placeholder="e.g. 5.2" required>
+          </div>
+          <div class="field-item">
+            <label for="manType">SCALE TYPE</label>
+            <select id="manType">
+              <option value="ML">ML (Local Richter)</option>
+              <option value="MW" selected>MW (Moment Magnitude)</option>
+              <option value="MD">MD (Duration Magnitude)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-grid-3">
+          <div class="field-item">
+            <label for="manLat">LATITUDE (°N)</label>
+            <input type="number" id="manLat" step="0.0001" min="30.0" max="45.0" placeholder="e.g. 37.0744" required>
+          </div>
+          <div class="field-item">
+            <label for="manLon">LONGITUDE (°E)</label>
+            <input type="number" id="manLon" step="0.0001" min="25.0" max="45.0" placeholder="e.g. 37.0872" required>
+          </div>
+          <div class="field-item">
+            <label for="manDepth">DEPTH (KM)</label>
+            <input type="number" id="manDepth" step="0.1" min="0" placeholder="e.g. 10.0" required>
+          </div>
+        </div>
+
+        <div class="field-item">
+          <label for="manRegion">REGION & LOCALITY DESCRIPTION</label>
+          <input type="text" id="manRegion" placeholder="e.g. PAZARCIK - KAHRAMANMARAS (CENTRAL ANATOLIA)" required>
+        </div>
+
+        <div class="modal-actions-row">
+          <button type="button" id="cancelManualModalBtn" class="btn-cancel">Cancel</button>
+          <button type="submit" class="btn-save-event glow-btn">Commit Event to SQLite</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/static/js/admin.js"></script>
+</body>
+</html>

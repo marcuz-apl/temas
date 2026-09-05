@@ -1,6 +1,6 @@
 [project]
 name = "temas"
-version = "2.0.0"
+version = "2.1.0"
 description = "Turkey Earthquake Monitoring and Analysis System"
 authors = [{ name = "marcuz-apl", email = "marcus.zou@icloud.com" }]
 readme = "README.md"
@@ -14,6 +14,10 @@ dependencies = [
     "python-dateutil>=2.9.0",
 ]
 
+[tool.pytest.ini_options]
+pythonpath = ["."]
+
 [build-system]
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
+
