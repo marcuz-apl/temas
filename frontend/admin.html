@@ -165,13 +165,12 @@
 
       <!-- Grid Row 2: 2023-2026 Historical Backfill Engine -->
       <section class="deck-section highlight-section">
-        <div class="section-title-row">
-          <div class="section-title-group">
             <div class="heading-with-chip">
-              <h3 class="section-heading">Historical Data Gap Backfill Engine (2023–2026)</h3>
-              <span class="security-chip">STRICT INSERT OR IGNORE</span>
+              <h3 class="section-heading">Historical Archive & Backfill Utility</h3>
+              <span class="security-chip">ON-DEMAND UTILITY</span>
+              <span class="persisted-badge">✅ 2023–2026 CATALOG PERSISTED IN DATABASE</span>
             </div>
-            <p class="section-desc">Chunked asynchronous batch ingestion engine utilizing EMSC FDSN & USGS feeds to complete missing records.</p>
+            <p class="section-desc">Historical records are <strong>permanently saved in SQLite</strong> (no need to re-run on entry). This tool is only for querying custom ad-hoc external windows.</p>
           </div>
         </div>
 
@@ -393,6 +392,28 @@
               <tr><td colspan="8" class="empty-cell">Retrieving records from database...</td></tr>
             </tbody>
           </table>
+        </div>
+
+        <!-- Pagination Controls Bar -->
+        <div class="table-pagination-bar">
+          <div class="pagination-info">
+            <span id="pageRangeText">Showing 1 – 25 of 0 records</span>
+            <select id="pageSizeSelect" class="page-size-select">
+              <option value="25" selected>25 / page</option>
+              <option value="50">50 / page</option>
+              <option value="100">100 / page</option>
+            </select>
+          </div>
+
+          <div class="pagination-buttons">
+            <button id="btnPageFirst" class="btn-page" title="Go to First Page">⏮ First</button>
+            <button id="btnPagePrev" class="btn-page" title="Previous Page">◀ Prev</button>
+            <span class="page-indicator">
+              Page <strong id="currentPageNum">1</strong> of <span id="totalPagesNum">1</span>
+            </span>
+            <button id="btnPageNext" class="btn-page" title="Next Page">Next ▶</button>
+            <button id="btnPageLast" class="btn-page" title="Go to Last Page">Last ⏭</button>
+          </div>
         </div>
       </section>
 

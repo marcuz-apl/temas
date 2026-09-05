@@ -48,7 +48,7 @@
   const purgeNoiseBtn = document.getElementById('purgeNoiseBtn');
   const downloadDbBtn = document.getElementById('downloadDbBtn');
 
-  // Event Moderation
+  // Event Moderation & Pagination
   const adminSearchRegion = document.getElementById('adminSearchRegion');
   const adminSearchMinMag = document.getElementById('adminSearchMinMag');
   const adminSearchBtn = document.getElementById('adminSearchBtn');
@@ -59,6 +59,20 @@
   const closeManualModalBtn = document.getElementById('closeManualModalBtn');
   const cancelManualModalBtn = document.getElementById('cancelManualModalBtn');
   const manualEventForm = document.getElementById('manualEventForm');
+
+  // Pagination Controls
+  const pageRangeText = document.getElementById('pageRangeText');
+  const pageSizeSelect = document.getElementById('pageSizeSelect');
+  const btnPageFirst = document.getElementById('btnPageFirst');
+  const btnPagePrev = document.getElementById('btnPagePrev');
+  const currentPageNum = document.getElementById('currentPageNum');
+  const totalPagesNum = document.getElementById('totalPagesNum');
+  const btnPageNext = document.getElementById('btnPageNext');
+  const btnPageLast = document.getElementById('btnPageLast');
+
+  let currentPage = 1;
+  let pageSize = 25;
+  let totalEventsCount = 0;
 
   // Sync Result Modal Elements
   const syncResultModal = document.getElementById('syncResultModal');
@@ -541,9 +555,14 @@
           try {
             const res = await adminFetch('/api/admin/db/purge-noise?min_mag=2.0', { method: 'POST' });
             const data = await res.json();
-            showToast('Noise Purge Finished', `Purged ${Number(data.purged_records || 0).toLocaleString()} micro-tremors (< M2.0). Reclaimed ${data.vacuum.saved_kb} KB space`, 'success');
+            const purgedCount = Number(data.purged_records || 0);
+            if (purgedCount > 0) {
+              showToast('Noise Purge Finished', `Purged ${purgedCount.toLocaleString()} micro-tremors (< M2.0). Reclaimed ${data.vacuum.saved_kb} KB space.`, 'success');
+            } else {
+              showToast('Catalog Clean', 'Database is already clean: 0 micro-tremor records (< M2.0) found in catalog.', 'info');
+            }
             await loadDeckData();
-            await loadEventsTable();
+            await loadEventsTable(1);
           } catch (e) {
             showToast('Purge Error', e.message, 'error');
           } finally {
@@ -623,7 +642,7 @@
             });
             if (res.ok) {
               showToast('Event Deleted', `${timeUtc} removed from database`, 'success');
-              await loadEventsTable();
+              await loadEventsTable(currentPage);
               await loadDeckData();
             } else {
               showToast('Delete Failed', 'Record could not be removed', 'error');
@@ -636,12 +655,14 @@
     }
   };
 
-  // Event Moderation Table
-  async function loadEventsTable() {
+  // Event Moderation Table with Full Pagination
+  async function loadEventsTable(page = 1) {
     if (!eventsTableBody) return;
+    currentPage = Math.max(1, page);
     const region = adminSearchRegion ? adminSearchRegion.value.trim() : '';
     const minMag = adminSearchMinMag ? adminSearchMinMag.value : '';
-    let url = `/api/earthquakes?limit=25`;
+    const offset = (currentPage - 1) * pageSize;
+    let url = `/api/earthquakes?limit=${pageSize}&offset=${offset}`;
     if (region) url += `&region=${encodeURIComponent(region)}`;
     if (minMag) url += `&min_magnitude=${encodeURIComponent(minMag)}`;
 
@@ -650,9 +671,28 @@
     try {
       const res = await fetch(url);
       const data = await res.json();
-      if (tableCountText) {
-        tableCountText.textContent = `Showing ${data.count} of ${data.total} matches`;
+      totalEventsCount = data.total || 0;
+      const totalPages = Math.max(1, Math.ceil(totalEventsCount / pageSize));
+      if (currentPage > totalPages && totalPages > 0) {
+        currentPage = totalPages;
       }
+
+      const startIdx = totalEventsCount === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+      const endIdx = Math.min(currentPage * pageSize, totalEventsCount);
+
+      if (tableCountText) {
+        tableCountText.textContent = `Showing ${startIdx.toLocaleString()} – ${endIdx.toLocaleString()} of ${totalEventsCount.toLocaleString()} matches`;
+      }
+      if (pageRangeText) {
+        pageRangeText.textContent = `Showing ${startIdx.toLocaleString()} – ${endIdx.toLocaleString()} of ${totalEventsCount.toLocaleString()} records`;
+      }
+      if (currentPageNum) currentPageNum.textContent = currentPage.toString();
+      if (totalPagesNum) totalPagesNum.textContent = totalPages.toString();
+
+      if (btnPageFirst) btnPageFirst.disabled = currentPage <= 1;
+      if (btnPagePrev) btnPagePrev.disabled = currentPage <= 1;
+      if (btnPageNext) btnPageNext.disabled = currentPage >= totalPages;
+      if (btnPageLast) btnPageLast.disabled = currentPage >= totalPages;
 
       if (!data.items || !data.items.length) {
         eventsTableBody.innerHTML = '<tr><td colspan="8" class="empty-cell">No matching seismic records found.</td></tr>';
@@ -684,9 +724,43 @@
     }
   }
 
-  if (adminSearchBtn) adminSearchBtn.addEventListener('click', loadEventsTable);
+  // Search & Filter listeners
+  if (adminSearchBtn) adminSearchBtn.addEventListener('click', () => loadEventsTable(1));
   if (adminSearchRegion) {
-    adminSearchRegion.addEventListener('keypress', (e) => { if (e.key === 'Enter') loadEventsTable(); });
+    adminSearchRegion.addEventListener('keypress', (e) => { if (e.key === 'Enter') loadEventsTable(1); });
+  }
+  if (adminSearchMinMag) {
+    adminSearchMinMag.addEventListener('change', () => loadEventsTable(1));
+  }
+
+  // Pagination navigation listeners
+  if (btnPageFirst) {
+    btnPageFirst.addEventListener('click', () => {
+      if (currentPage > 1) loadEventsTable(1);
+    });
+  }
+  if (btnPagePrev) {
+    btnPagePrev.addEventListener('click', () => {
+      if (currentPage > 1) loadEventsTable(currentPage - 1);
+    });
+  }
+  if (btnPageNext) {
+    btnPageNext.addEventListener('click', () => {
+      const totalPages = Math.max(1, Math.ceil(totalEventsCount / pageSize));
+      if (currentPage < totalPages) loadEventsTable(currentPage + 1);
+    });
+  }
+  if (btnPageLast) {
+    btnPageLast.addEventListener('click', () => {
+      const totalPages = Math.max(1, Math.ceil(totalEventsCount / pageSize));
+      if (currentPage < totalPages) loadEventsTable(totalPages);
+    });
+  }
+  if (pageSizeSelect) {
+    pageSizeSelect.addEventListener('change', (e) => {
+      pageSize = parseInt(e.target.value, 10) || 25;
+      loadEventsTable(1);
+    });
   }
 
   // Manual Event Injection Modal
