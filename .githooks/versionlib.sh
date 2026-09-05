@@ -24,7 +24,7 @@ validate_identifier() {
 detect_bump_type() {
   msg=$1
   case "$msg" in
-    *BREAKING\ CHANGE*|*!:\ *) echo "major" ;;
+    *BREAKING\ CHANGE*|*!:\ *) echo "major_requires_approval" ;;
     feat:*|feat\(*\):*)        echo "minor" ;;
     fix:*|fix\(*\):*|perf:*)   echo "patch" ;;
     *)                         echo "build" ;;
@@ -39,7 +39,13 @@ bump_semver() {
   p=$(echo "$raw" | cut -d. -f3)
 
   case "$bump" in
-    major) echo "v$((m + 1)).0.0" ;;
+    major)
+      [ "${ALFAZEN_MAJOR_APPROVED:-0}" = "1" ] || die "Major version bump (m) requires explicit user approval. Set ALFAZEN_MAJOR_APPROVED=1 to proceed."
+      echo "v$((m + 1)).0.0"
+      ;;
+    major_requires_approval)
+      die "Major version bump (m) detected. Major version increments require explicit user approval. Set ALFAZEN_MAJOR_APPROVED=1 to proceed, or stage as minor/patch."
+      ;;
     minor) echo "v${m}.$((n + 1)).0" ;;
     patch) echo "v${m}.${n}.$((p + 1))" ;;
     *)     echo "v${m}.${n}.${p}" ;;
