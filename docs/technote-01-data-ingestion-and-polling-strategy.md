@@ -23,7 +23,7 @@ This technical note documents the design mindset, seismological physics, provide
   Early proof-of-concept scripts in `legacy/testlab` utilized a simplistic `* * * * *` Linux cron entry that executed a scraper script once every minute. This was acceptable for local 10-minute experimentation on a single laptop but was **never intended for sustained production ingestion**.
 - **Modern Production Architecture (TEMAS v2.1)**:
   The active asynchronous background scheduler in `backend/ingestion/scheduler.py` defaults to **180 seconds (3 minutes)**:
-  $$\text{Interval} = 180\text{ seconds}$$
+  - **Production Cadence**: `Interval = 180 seconds (3 minutes)`
   This is dynamically configurable via the environment variable `TEMAS_SYNC_INTERVAL`.
 
 ### 2.2 Distinguishing Background Ingestion from UI Telemetry
@@ -50,8 +50,8 @@ Earthquake detection is constrained by the physics of seismic wave propagation a
 [Public Ingestion Endpoint] (KOERI / EMSC / USGS)
 ```
 
-1. **Travel Time**: P-waves travel at roughly $6\text{–}8\text{ km/s}$ and S-waves at $3.5\text{–}4.5\text{ km/s}$. For an earthquake in eastern Anatolia to register across enough regional stations to triangulate coordinates and depth, several tens of seconds elapse.
-2. **Inversion & Review**: Automated phase picking and grid search/non-linear inversion take another $60\text{–}120\text{ seconds}$.
+1. **Travel Time**: P-waves travel at roughly 6–8 km/s and S-waves at 3.5–4.5 km/s. For an earthquake in eastern Anatolia to register across enough regional stations to triangulate coordinates and depth, several tens of seconds elapse.
+2. **Inversion & Review**: Automated phase picking and grid search/non-linear inversion take another 60–120 seconds.
 3. **Publication Lag**: Public feeds publish new preliminary events roughly **2 to 5 minutes** post-origin.
 4. **Diminishing Returns**: Polling every 30 or 60 seconds returns identical payload bytes over 95% of the time, consuming outbound bandwidth and server CPU without obtaining new event data.
 
@@ -62,7 +62,7 @@ Earthquake detection is constrained by the physics of seismic wave propagation a
 | Provider | Endpoint Type | Publication Latency | Requery Tolerance & Fair-Use Policy |
 | :--- | :--- | :--- | :--- |
 | **KOERI**<br>*(Kandilli Observatory, Boğaziçi Univ)* | Plain HTTP GET to text file (`lasteq.asp`, ~500 rows) | 2 – 5 minutes | **Safe at 3–5 min**. KOERI runs on university academic network infrastructure (`boun.edu.tr`). Querying every few seconds could trigger web application firewall (WAF) IP blocks. At 1 query per 180 seconds with standard user-agent headers, footprint is ~50 KB/query—completely safe and non-intrusive. |
-| **EMSC-CSEM**<br>*(Euro-Med Seismological Centre)* | FDSN Standard REST Web Service (`/fdsnws/event/1/query`) | 1 – 3 minutes | **Designed for Machine Consumption**. EMSC guidelines explicitly request polling intervals $\ge 60\text{ seconds}$. TEMAS's 180-second cadence operates strictly within EMSC's fair-use mandate. |
+| **EMSC-CSEM**<br>*(Euro-Med Seismological Centre)* | FDSN Standard REST Web Service (`/fdsnws/event/1/query`) | 1 – 3 minutes | **Designed for Machine Consumption**. EMSC guidelines explicitly request polling intervals ≥ 60 seconds. TEMAS's 180-second cadence operates strictly within EMSC's fair-use mandate. |
 | **USGS**<br>*(United States Geological Survey)* | FDSN GeoJSON API Feeds | ~1 minute | **Global Enterprise CDN**. USGS infrastructure processes tens of thousands of automated API queries per second worldwide. A request every 3 minutes is completely imperceptible. |
 
 ---

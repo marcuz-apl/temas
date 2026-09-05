@@ -19,19 +19,19 @@ This note documents the seismological, data modeling, and SQLite storage decisio
 
 ---
 
-## 2. The $M < 2.0$ Seismological Noise Cut-Off
+## 2. The M < 2.0 Seismological Noise Cut-Off
 
 ### 2.1 The Physics of Micro-Tremors
 In the Richter/Moment magnitude scale, magnitude is logarithmic:
-- An $M2.0$ earthquake releases roughly **1,000 times less energy** than an $M4.0$ event and **32,000 times less energy** than an $M5.0$ event.
-- Events below $M2.0$ (micro-earthquakes) are rarely, if ever, felt by human beings. They are recorded exclusively by ultra-sensitive seismometers located in quiet boreholes or remote mountainous stations.
+- An **M2.0** earthquake releases roughly **1,000 times less energy** than an **M4.0** event and **32,000 times less energy** than an **M5.0** event.
+- Events below **M2.0** (micro-earthquakes) are rarely, if ever, felt by human beings. They are recorded exclusively by ultra-sensitive seismometers located in quiet boreholes or remote mountainous stations.
 - In active tectonic zones like the North Anatolian Fault (NAF) and East Anatolian Fault (EAF), dozens of micro-events occur daily due to geothermal activity, quarry blasts, and minor crustal stress relaxation.
 
 ### 2.2 Civil Protection & Storage Trade-offs
-1. **Civil Emergency Impact**: Micro-tremors below $M2.0$ pose zero structural risk and trigger no civil defense or public warning responses.
-2. **Database Bloat**: Retaining $M < 2.0$ records accounts for over **60% to 75%** of raw table rows while contributing zero utility to regional risk maps.
+1. **Civil Emergency Impact**: Micro-tremors below **M2.0** pose zero structural risk and trigger no civil defense or public warning responses.
+2. **Database Bloat**: Retaining **M < 2.0** records accounts for over **60% to 75%** of raw table rows while contributing zero utility to regional risk maps.
 3. **Multi-Tier Filtering Policy**:
-   - **KOERI scraper**: Discards records with magnitude $< 2.0$ during stream parsing.
+   - **KOERI scraper**: Discards records with magnitude < 2.0 during stream parsing.
    - **EMSC scraper**: Configured with `min_mag=2.5`.
    - **USGS scraper**: Passes `minmagnitude=2.0`.
    - **Database Ingestion**: `insert_earthquakes()` enforces `magnitude >= 2.0` at the persistence boundary.
@@ -45,12 +45,12 @@ In the Richter/Moment magnitude scale, magnitude is logarithmic:
 When an earthquake occurs in or near Turkey:
 - **KOERI** solves the event using its dense local Turkish station network.
 - **EMSC** receives data from multiple European and Mediterranean institutions and publishes its own solution.
-- **USGS** computes global teleseismic inversion solutions for events $\ge M4.0$.
+- **USGS** computes global teleseismic inversion solutions for events ≥ M4.0.
 
 Because each agency uses slightly different station subsets, crustal velocity models, and arrival pickers:
-- Origin times can differ by $\pm 1\text{ to }3\text{ seconds}$.
-- Epicentral coordinates can differ by $0.01^\circ\text{ to }0.05^\circ$ ($\sim 1\text{–}5\text{ km}$).
-- Calculated magnitudes can differ by $\pm 0.1\text{–}0.3$.
+- Origin times can differ by ±1 to 3 seconds.
+- Epicentral coordinates can differ by 0.01° to 0.05° (~1–5 km).
+- Calculated magnitudes can differ by ±0.1 to 0.3.
 
 However, when multiple agencies forward the *same* underlying network solution or when batch syncs are triggered, identical coordinates, origin times, and magnitudes can be ingested.
 
@@ -65,7 +65,7 @@ TEMAS implements a two-stage deduplication architecture:
    This schema-enforced constraint prevents identical reports from the same provider from ever inserting duplicate rows.
 
 2. **Operator Deduplication Endpoint (`POST /api/admin/db/deduplicate`)**:
-   A deterministic SQL window function partitions events by origin time, rounded spatial coordinates ($\pm 0.05^\circ$), and magnitude ($\pm 0.2$), retaining only the highest-fidelity or primary local agency report (`KOERI > EMSC > USGS`) and safely deleting redundant entries.
+   A deterministic SQL window function partitions events by origin time, rounded spatial coordinates (±0.05°), and magnitude (±0.2), retaining only the highest-fidelity or primary local agency report (`KOERI > EMSC > USGS`) and safely deleting redundant entries.
 
 ---
 

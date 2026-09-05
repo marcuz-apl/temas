@@ -23,7 +23,9 @@ As the TEMAS platform evolved from an automated prototype into an operational ob
 
 ### 2.1 The Inception Credential: `Tema$2023`
 The default administrator master passkey is officially designated as:
-$$\mathbf{Tema\$2023}$$
+
+> **Default Master Passkey**: `Tema$2023`
+
 This honors the birth year of the TEMAS project (founded following the catastrophic February 2023 Kahramanmaraş earthquake sequence to advance open, real-time seismic awareness in Turkey).
 
 ### 2.2 Dynamic Password Management Architecture
