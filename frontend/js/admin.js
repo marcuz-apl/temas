@@ -344,14 +344,138 @@
     }
   });
 
-  // Global Sync Button
+  // Sync Result Popup Elements
+  const syncResultModal = document.getElementById('syncResultModal');
+  const closeSyncModalBtn = document.getElementById('closeSyncModalBtn');
+  const okSyncModalBtn = document.getElementById('okSyncModalBtn');
+  const syncModalFetched = document.getElementById('syncModalFetched');
+  const syncModalInserted = document.getElementById('syncModalInserted');
+  const syncModalLatency = document.getElementById('syncModalLatency');
+  const syncModalProviders = document.getElementById('syncModalProviders');
+  const purgeNoiseBtn = document.getElementById('purgeNoiseBtn');
+
+  function closeSyncModal() {
+    if (syncResultModal) syncResultModal.classList.add('hidden');
+  }
+
+  if (closeSyncModalBtn) closeSyncModalBtn.addEventListener('click', closeSyncModal);
+  if (okSyncModalBtn) okSyncModalBtn.addEventListener('click', closeSyncModal);
+
+  function showSyncModal(result, providerName = null) {
+    if (!syncResultModal) return;
+
+    if (providerName) {
+      syncModalFetched.textContent = Number(result.fetched || 0).toLocaleString();
+      syncModalInserted.textContent = Number(result.inserted || 0).toLocaleString();
+      syncModalLatency.textContent = `${result.latency_ms || 0} ms`;
+
+      const isSuccess = result.status === 'success';
+      syncModalProviders.innerHTML = `
+        <div class="sync-prov-item">
+          <div class="sync-prov-info">
+            <div class="sync-prov-name">
+              <span>${providerName.toUpperCase()}</span>
+              <span class="prov-badge ${isSuccess ? 'badge-online' : 'badge-error'}">${result.status}</span>
+            </div>
+            <div class="sync-prov-meta">${result.message || 'On-demand single provider ingestion complete'}</div>
+          </div>
+          <div class="sync-prov-metrics">
+            <div class="sync-metric-pill">
+              <span class="sync-m-label">LATENCY</span>
+              <span class="sync-m-val text-cyan">${result.latency_ms || 0} ms</span>
+            </div>
+            <div class="sync-metric-pill">
+              <span class="sync-m-label">FETCHED</span>
+              <span class="sync-m-val">${result.fetched || 0}</span>
+            </div>
+            <div class="sync-metric-pill">
+              <span class="sync-m-label">STORED (M≥2.0)</span>
+              <span class="sync-m-val text-emerald">+${result.inserted || 0}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    } else {
+      syncModalFetched.textContent = Number(result.fetched || 0).toLocaleString();
+      syncModalInserted.textContent = Number(result.inserted || 0).toLocaleString();
+
+      const provs = result.providers || {};
+      let maxLatency = 0;
+      let provHtml = '';
+
+      Object.keys(provs).forEach((key) => {
+        const p = provs[key];
+        if (p.latency_ms && p.latency_ms > maxLatency) maxLatency = p.latency_ms;
+        const isSuccess = p.status === 'success';
+        provHtml += `
+          <div class="sync-prov-item">
+            <div class="sync-prov-info">
+              <div class="sync-prov-name">
+                <span>${key.toUpperCase()}</span>
+                <span class="prov-badge ${isSuccess ? 'badge-online' : 'badge-error'}">${p.status}</span>
+              </div>
+              <div class="sync-prov-meta">${p.message || 'Telemetry synchronized & verified'}</div>
+            </div>
+            <div class="sync-prov-metrics">
+              <div class="sync-metric-pill">
+                <span class="sync-m-label">LATENCY</span>
+                <span class="sync-m-val text-cyan">${p.latency_ms || 0} ms</span>
+              </div>
+              <div class="sync-metric-pill">
+                <span class="sync-m-label">FETCHED</span>
+                <span class="sync-m-val">${p.fetched || 0}</span>
+              </div>
+              <div class="sync-metric-pill">
+                <span class="sync-m-label">STORED (M≥2.0)</span>
+                <span class="sync-m-val text-emerald">+${p.inserted || 0}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      syncModalLatency.textContent = `${maxLatency || 0} ms`;
+      syncModalProviders.innerHTML = provHtml || '<div class="text-muted">No provider details available.</div>';
+    }
+
+    syncResultModal.classList.remove('hidden');
+  }
+
+  // Purge Sub-Threshold Noise (< M2.0)
+  if (purgeNoiseBtn) {
+    purgeNoiseBtn.addEventListener('click', async () => {
+      if (!confirm('Purge all micro-tremors below magnitude 2.0 (ambient noise) and defragment database storage?')) return;
+      purgeNoiseBtn.disabled = true;
+      purgeNoiseBtn.textContent = 'Purging noise...';
+      try {
+        const res = await adminFetch('/api/admin/db/purge-noise?min_mag=2.0', { method: 'POST' });
+        const data = await res.json();
+        alert(`Noise purge complete! Purged ${Number(data.purged_records || 0).toLocaleString()} micro-tremors (< M2.0). Reclaimed ${data.vacuum.saved_kb} KB disk space.`);
+        await loadDeckData();
+        await loadEventsTable();
+      } catch (e) {
+        alert('Purge failed: ' + e.message);
+      } finally {
+        purgeNoiseBtn.disabled = false;
+        purgeNoiseBtn.innerHTML = `
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+          Purge Noise (&lt; M2.0)
+        `;
+      }
+    });
+  }
+
+  // Global Sync Button (Client-Side Popup)
   syncAllBtn.addEventListener('click', async () => {
     syncAllBtn.disabled = true;
     syncAllBtn.textContent = 'Syncing all sources...';
     try {
       const res = await adminFetch('/api/admin/sync/all', { method: 'POST' });
       const data = await res.json();
-      alert(`Sync finished! Fetched: ${data.fetched}, Newly inserted: ${data.inserted}.`);
+      showSyncModal(data);
       await loadDeckData();
       await loadEventsTable();
     } catch (e) {
@@ -364,13 +488,13 @@
 
   refreshHealthBtn.addEventListener('click', loadDeckData);
 
-  // Sync specific provider
+  // Sync specific provider (Client-Side Popup)
   window.temasAdmin = {
     async syncProvider(providerName) {
       try {
         const res = await adminFetch(`/api/admin/sync/${providerName}`, { method: 'POST' });
         const data = await res.json();
-        alert(`[${providerName.toUpperCase()}] Fetched: ${data.fetched}, Inserted: ${data.inserted}, Latency: ${data.latency_ms}ms`);
+        showSyncModal(data, providerName);
         await loadDeckData();
         await loadEventsTable();
       } catch (e) {

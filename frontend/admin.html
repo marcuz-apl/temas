@@ -278,6 +278,13 @@
             <p class="section-desc">SQLite WAL engine metrics, chronological distribution, and storage defragmentation.</p>
           </div>
           <div class="section-action-btns">
+            <button id="purgeNoiseBtn" class="btn-tool btn-tool-amber" title="Purge micro-tremors below magnitude 2.0 and defragment database">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+              Purge Noise (&lt; M2.0)
+            </button>
             <button id="vacuumDbBtn" class="btn-tool">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
@@ -447,9 +454,49 @@
           <button type="submit" class="btn-save-event glow-btn">Commit Event to SQLite</button>
         </div>
       </form>
+  <!-- Client-Side Synchronization Report Popup Modal -->
+  <div id="syncResultModal" class="modal-backdrop hidden">
+    <div class="modal-card sync-report-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <div class="dot-live"></div>
+          <h3>TELEMETRY SYNCHRONIZATION REPORT</h3>
+        </div>
+        <button id="closeSyncModalBtn" class="btn-close-modal">✕</button>
+      </div>
+
+      <!-- Sync Metrics Banner -->
+      <div class="sync-summary-banner">
+        <div class="sync-stat-item">
+          <span class="s-label">TOTAL EVENTS FETCHED</span>
+          <span class="s-val text-cyan" id="syncModalFetched">0</span>
+        </div>
+        <div class="sync-stat-item">
+          <span class="s-label">NEWLY STORED (M ≥ 2.0)</span>
+          <span class="s-val text-emerald" id="syncModalInserted">0</span>
+        </div>
+        <div class="sync-stat-item">
+          <span class="s-label">ROUND-TRIP LATENCY</span>
+          <span class="s-val" id="syncModalLatency">0 ms</span>
+        </div>
+        <div class="sync-stat-item">
+          <span class="s-label">SEISMIC NOISE FILTER</span>
+          <span class="s-val text-amber">Active (&lt; M2.0 Discarded)</span>
+        </div>
+      </div>
+
+      <!-- Per-Provider Breakdown Matrix -->
+      <div class="sync-providers-list" id="syncModalProviders">
+        <!-- Dynamically rendered by JS -->
+      </div>
+
+      <div class="modal-actions-row">
+        <button id="okSyncModalBtn" class="btn-save-event glow-btn full-width">Acknowledge & Dismiss</button>
+      </div>
     </div>
   </div>
 
   <script src="/static/js/admin.js"></script>
 </body>
 </html>
+

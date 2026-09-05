@@ -77,6 +77,10 @@ def parse_lasteq_pre(pre_text: str) -> List[Dict[str, Any]]:
                 mag = float(mag_md)
                 magtype = "MD"
 
+            # Filter out meaningless micro-tremor noise below M < 2.0
+            if mag < 2.0:
+                continue
+
             # Region and attribute
             attribute = parts[-1] if len(parts) >= 10 and parts[-1] in ["Quick", "Automatic", "İlksel", "Revize"] else ""
             region_end = -1 if attribute else len(parts)
@@ -121,6 +125,11 @@ def parse_events_table(html_content: str) -> List[Dict[str, Any]]:
             # Date format: YYYY/MM/DD HH:MM:SS -> YYYY-MM-DD HH:MM:SS
             origintimeutc = cols[0].text.strip().replace("/", "-")
             mag = float(cols[1].text.strip())
+
+            # Filter out meaningless micro-tremor noise below M < 2.0
+            if mag < 2.0:
+                continue
+
             magtype = cols[2].text.strip() or "ML"
             lat = parse_clean_coord(cols[3].text.strip())
             lon = parse_clean_coord(cols[4].text.strip())

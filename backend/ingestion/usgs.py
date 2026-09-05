@@ -57,6 +57,8 @@ async def fetch_usgs_earthquakes(timeout_sec: float = 12.0) -> List[Dict[str, An
                 origintimeutc = utc_dt.strftime("%Y-%m-%d %H:%M:%S")
 
                 mag = float(props.get("mag") or 0.0)
+                if mag < 2.0:
+                    continue
                 magtype = props.get("magType", "Mw").upper()
                 place = props.get("place") or "Turkey Region (USGS)"
 

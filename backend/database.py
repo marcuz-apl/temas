@@ -51,9 +51,18 @@ def insert_earthquakes(records: List[Dict[str, Any]]) -> int:
     """
     with get_db_connection() as conn:
         for r in records:
+            try:
+                mag = float(r.get("magnitude", 0.0))
+            except Exception:
+                continue
+
+            # Seismological noise filter: discard micro-tremors below M < 2.0
+            if mag < 2.0:
+                continue
+
             cursor = conn.execute(sql, (
                 str(r["origintimeutc"]),
-                float(r["magnitude"]),
+                mag,
                 str(r.get("magtype", "ML")),
                 float(r["latitude"]),
                 float(r["longitude"]),
@@ -214,7 +223,7 @@ def get_admin_stats() -> Dict[str, Any]:
         """).fetchall()
         by_year = [{"year": r["year"], "count": r["cnt"], "max_mag": r["max_mag"]} for r in years_rows]
 
-        # Magnitude classes
+        # Magnitude classes (Threshold floor M >= 2.0)
         mag_dist_rows = conn.execute("""
             SELECT 
                 SUM(CASE WHEN magnitude >= 7.0 THEN 1 ELSE 0 END) as m7_plus,
@@ -222,7 +231,8 @@ def get_admin_stats() -> Dict[str, Any]:
                 SUM(CASE WHEN magnitude >= 5.0 AND magnitude < 6.0 THEN 1 ELSE 0 END) as m5_59,
                 SUM(CASE WHEN magnitude >= 4.0 AND magnitude < 5.0 THEN 1 ELSE 0 END) as m4_49,
                 SUM(CASE WHEN magnitude >= 3.0 AND magnitude < 4.0 THEN 1 ELSE 0 END) as m3_39,
-                SUM(CASE WHEN magnitude < 3.0 THEN 1 ELSE 0 END) as m_under3
+                SUM(CASE WHEN magnitude >= 2.0 AND magnitude < 3.0 THEN 1 ELSE 0 END) as m2_29,
+                SUM(CASE WHEN magnitude < 2.0 THEN 1 ELSE 0 END) as m_sub2
             FROM quaketk
         """).fetchone()
 
@@ -250,9 +260,30 @@ def get_admin_stats() -> Dict[str, Any]:
             "M5.0-5.9": mag_dist_rows["m5_59"] or 0,
             "M4.0-4.9": mag_dist_rows["m4_49"] or 0,
             "M3.0-3.9": mag_dist_rows["m3_39"] or 0,
-            "< M3.0": mag_dist_rows["m_under3"] or 0
+            "M2.0-2.9": mag_dist_rows["m2_29"] or 0,
+            "< M2.0 (Noise)": mag_dist_rows["m_sub2"] or 0
         },
         "sources": sources
+    }
+
+
+def purge_subthreshold_earthquakes(min_mag: float = 2.0) -> Dict[str, Any]:
+    """
+    Purges sub-threshold micro-tremors below min_mag (default < 2.0) from the database
+    and defragments the SQLite file via VACUUM.
+    """
+    with get_db_connection() as conn:
+        count_row = conn.execute("SELECT COUNT(*) as cnt FROM quaketk WHERE magnitude < ?", (min_mag,)).fetchone()
+        deleted_count = count_row["cnt"] or 0
+        conn.execute("DELETE FROM quaketk WHERE magnitude < ?", (min_mag,))
+        conn.commit()
+
+    vacuum_res = vacuum_database()
+    return {
+        "status": "success",
+        "purged_records": deleted_count,
+        "threshold": min_mag,
+        "vacuum": vacuum_res
     }
 
 

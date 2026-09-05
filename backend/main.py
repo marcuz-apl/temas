@@ -18,6 +18,7 @@ from backend.database import (
     vacuum_database,
     delete_earthquake,
     insert_manual_earthquake,
+    purge_subthreshold_earthquakes,
     DB_PATH
 )
 from backend.ingestion.scheduler import (
@@ -270,6 +271,12 @@ async def admin_download_db(_: bool = Depends(verify_admin_key)):
 async def admin_vacuum_db(_: bool = Depends(verify_admin_key)):
     """Runs VACUUM and ANALYZE on SQLite database to optimize disk footprint and index trees."""
     return vacuum_database()
+
+
+@app.post("/api/admin/db/purge-noise")
+async def admin_purge_noise(min_mag: float = Query(2.0, ge=1.0, le=5.0), _: bool = Depends(verify_admin_key)):
+    """Purges meaningless micro-tremor noise below min_mag (e.g. M < 2.0) and defragments storage."""
+    return purge_subthreshold_earthquakes(min_mag=min_mag)
 
 
 @app.post("/api/admin/earthquakes")

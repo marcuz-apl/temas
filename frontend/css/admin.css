@@ -1416,3 +1416,137 @@ button {
     grid-template-columns: 1fr;
   }
 }
+
+/* Tool Buttons & Amber Accents */
+.btn-tool-amber {
+  background: rgba(245, 158, 11, 0.12) !important;
+  color: #fbbf24 !important;
+  border-color: rgba(245, 158, 11, 0.35) !important;
+}
+
+.btn-tool-amber:hover {
+  background: rgba(245, 158, 11, 0.25) !important;
+  color: #fff !important;
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.3) !important;
+}
+
+/* Sync Report Popup Window */
+.sync-report-card {
+  max-width: 640px;
+  background: linear-gradient(155deg, rgba(13, 20, 38, 0.98), rgba(7, 11, 22, 0.99));
+  border: 1px solid var(--border-active);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.85), 0 0 45px var(--cyan-glow);
+  animation: modalPop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalPop {
+  0% { transform: scale(0.94); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.sync-summary-banner {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.85rem;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 1.15rem;
+  margin-bottom: 1.5rem;
+}
+
+.sync-stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.s-label {
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.s-val {
+  font-size: 1.15rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: #fff;
+}
+
+.text-amber {
+  color: #fbbf24 !important;
+}
+
+/* Sync Providers List */
+.sync-providers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin-bottom: 1.75rem;
+}
+
+.sync-prov-item {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 0.9rem 1.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  transition: all 0.2s;
+}
+
+.sync-prov-item:hover {
+  border-color: var(--border-active);
+  background: rgba(15, 23, 42, 0.85);
+}
+
+.sync-prov-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.sync-prov-name {
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sync-prov-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.sync-prov-metrics {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  text-align: right;
+}
+
+.sync-metric-pill {
+  display: flex;
+  flex-direction: column;
+}
+
+.sync-m-label {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.sync-m-val {
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+

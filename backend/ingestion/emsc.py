@@ -32,7 +32,7 @@ def parse_emsc_feature(feature: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         origintimeutc = time_str[:19].replace("T", " ")
 
     mag = props.get("mag")
-    if mag is None:
+    if mag is None or float(mag) < 2.0:
         return None
 
     lat = props.get("lat")

@@ -79,14 +79,23 @@ def test_frontend_serving():
 def test_admin_frontend_serving():
     res = client.get("/admin")
     assert res.status_code == 200
-    assert "Admin Control Deck" in res.text
+    assert "Observatory Operations Deck" in res.text
     assert "authModal" in res.text
+    assert "syncResultModal" in res.text
 
     res_admin_css = client.get("/static/css/admin.css")
     assert res_admin_css.status_code == 200
 
     res_admin_js = client.get("/static/js/admin.js")
     assert res_admin_js.status_code == 200
+
+def test_admin_purge_noise():
+    res = client.post("/api/admin/db/purge-noise?min_mag=2.0", headers={"X-Admin-Key": ADMIN_KEY})
+    assert res.status_code == 200
+    data = res.json()
+    assert data["status"] == "success"
+    assert "purged_records" in data
+
 
 # ==========================================
 # ADMIN & MULTI-SOURCE TESTS
