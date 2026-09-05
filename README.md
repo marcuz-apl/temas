@@ -1,128 +1,145 @@
-# Turkey Earthquake Monitoring and Analysis System
+# Turkey Earthquake Monitoring and Analysis System (TEMAS)
 
-### May God bless Turkish and Syrian people! And all the lucks go to the rescuers.
+### *May God bless Turkish and Syrian people! And all the lucks go to the rescuers.*
 
+---
 
+**TEMAS** (**T**urkey **E**arthquake **M**onitoring and **A**nalysis **S**ystem) is a high-availability, real-time seismic observatory platform and historical earthquake catalog for Turkey, Syria, and the Aegean/East Mediterranean seismic zones. 
 
-Project: **TEMAS** - **T**urkey **E**arthquake **M**onitoring and **A**nalysis **S**ystem
+Founded following the devastating February 6, 2023 Kahramanmaraş earthquake sequence, TEMAS bridges the gap between public seismic awareness and rigorous geoscientific analysis.
 
-Latest Version: 2.0.0  |  Released: September 2026  |  by: marcuz-apl
+- **Current Release**: `v2.8.1` (September 2026)
+- **Author**: marcuz-apl
+- **License**: Educational & Open Scientific Use (Data copyright Boğaziçi Univ. / KOERI)
 
-## Project Features
+---
 
-* **Real-Time Seismic Ingestion**: Asynchronously fetches earthquake events from Kandilli Observatory (KOERI) with automatic background sync every 3 minutes.
-* **Preserved Historical Record**: Retains the complete, precious dataset from the February 2023 Kahramanmaraş earthquake sequence onwards.
-* **Decoupled Architecture**: High-performance Python FastAPI backend + modern Single Page Application (zero iframes).
-* **Interactive Geospatial Intelligence**: Vector Leaflet map with CartoDB Dark Matter tiles, logarithmic energy-scaled epicenters, fault line overlays (PB2002), and live magnitude filtering.
-* **Exportable Intelligence**: Instant one-click CSV and GeoJSON export for researchers and observers.
-* **Alfazen Versioning**: Adopts `versioning-alfazen` protocol with automated Git hooks.
+## Key System Capabilities
 
-## Toolsets
+- **Resilient Multi-Source Ingestion**: Asynchronously aggregates seismic feeds across three redundant tiers:
+  1. **KOERI** (*Boğaziçi University Kandilli Observatory*) — Primary local Turkish network.
+  2. **EMSC-CSEM** (*Euro-Med Seismological Centre*) — Secondary FDSN regional network.
+  3. **USGS** (*United States Geological Survey*) — Tertiary global teleseismic network.
+- **Continuous 2021–2026 Historical Archive**: Over **12,600 verified earthquake records** (M ≥ 2.0) permanently persisted and indexed in SQLite with zero cloud dependencies.
+- **Seismological Noise Purge**: Automatically discards sub-threshold micro-tremors (M < 2.0) to eliminate storage bloat and focus on actionable civil events.
+- **Schema-Enforced Deduplication**: Deterministic window partitioning and composite unique constraints (`uq_quaketk_event`) prevent duplicate event ingestion across multi-agency feeds.
+- **Observatory Operations Deck (`/admin`)**:
+  - Real-time client-side sync telemetry popups with provider-level round-trip latency cards.
+  - Multi-vector catalog filtering (by **Measurement Source**, **Magnitude Scale**, and **Region**).
+  - Deterministic table pagination (`⏮ First`, `◀ Prev`, `Next ▶`, `Last ⏭`).
+  - WAL database checkpointing (`PRAGMA wal_checkpoint(TRUNCATE)`) and B-Tree defragmentation (`VACUUM`).
+  - Dynamic admin authentication and passkey management modal.
+- **Interactive Public Geospatial Map**:
+  - Zero-iframe responsive Single Page Application.
+  - Vector Leaflet map rendered on CartoDB Dark Matter tiles.
+  - Logarithmic energy-scaled hypocenters and depth color-coding.
+  - Active tectonic fault line overlays (PB2002 plate boundary model) and provincial administrative boundaries.
+  - One-click dataset export to CSV and GeoJSON.
+- **Alfazen Versioning**: Managed under `versioning-alfazen` with automated Conventional Commits semantic bumping.
 
-```text
-1. Backend: Python 3.11+ / FastAPI / Uvicorn / Async HTTPX
-2. Persistence: SQLite with WAL mode and B-Tree indexing
-3. Frontend: Modern ESM / Leaflet.js / CartoDB Dark Matter / CSS Glassmorphism
-4. DevOps: Docker / Docker Compose (port 4070)
-```
+---
+
+## Technology Stack
+
+| Layer | Technologies |
+| :--- | :--- |
+| **Backend** | Python 3.11+, FastAPI, Uvicorn, Async HTTPX, AnyIO |
+| **Database** | SQLite3 in Write-Ahead Logging (WAL) mode with multi-column B-Tree indexes |
+| **Frontend** | Vanilla ESM JavaScript, Semantic HTML5, CSS Glassmorphism, Leaflet.js |
+| **Mapping & GIS** | CartoDB Dark Matter, PB2002 Plate Boundaries GeoJSON, Turkey Province Boundaries |
+| **DevOps** | Docker, Docker Compose, Automated Git Versioning Hooks |
+
+---
 
 ## Quickstart
 
 ### Option 1: Docker Compose (Recommended)
 
 ```bash
+# Clone the repository
+git clone https://github.com/marcuz-apl/temas.git
+cd temas
+
+# Build and start the container in background
 docker compose up -d --build
 ```
-Open **http://localhost:4070** in your browser.
+Access the application:
+- **Public Map**: [http://localhost:4070](http://localhost:4070)
+- **Admin Operations Deck**: [http://localhost:4070/admin](http://localhost:4070/admin)
+
+---
 
 ### Option 2: Local Python Environment
 
 ```bash
+# 1. Create and activate Python virtual environment
 python3 -m venv .venv
 source .venv/bin/activate
+
+# 2. Install dependencies
 pip install -r requirements.txt
 
-# Run server on port 4070
-uvicorn backend.main:app --host 0.0.0.0 --port 4070
+# 3. Launch Uvicorn ASGI server
+uvicorn backend.main:app --host 0.0.0.0 --port 4070 --reload
 ```
 Open **http://localhost:4070** in your browser.
 
-1. **Docker-Pull** method:
+---
 
-   1A) pull down the very Docker image:
+## Administrative Operations Deck (`/admin`)
 
-   ```shell
-   docker pull marcuszou/temas:0.8.0
-   ```
+The Operations Deck provides administrative oversight, manual event injection, provider failover control, and database maintenance:
 
-   1B) run the docker image into a container while mapping "**./web**" folder on host to "**/app**" folder in the Docker container:
+- **URL**: `http://localhost:4070/admin`
+- **Default Master Passkey**: `Tema$2023` (marks the inception year of the TEMAS project)
+- **Dynamic Password Management**: Operators can update the passkey at any time via the **Password** button in the top deck bar. New passkeys persist in SQLite without server restarts.
+- **Configurable Cadence**: Upstream background sync interval defaults to 180 seconds and can be adjusted via:
+  ```bash
+  export TEMAS_SYNC_INTERVAL=300  # Sets 5-minute sync cadence
+  ```
 
-   ```bash
-   docker run -d -p 8001:80 --name "TEMAS-0.8.0" -v ./web:/app -t temas:0.8.0
-   ```
-   
-   1C) then you can launch a web browser to browse to - http://localhost:8001 to enjoy the project.
+---
 
-   
+## Technical Documentation & Architecture Notes
 
-   **Note**: the web server and job runner (the daily scrapper) have been configured such that everything is running smoothly and automatically unless you shut down the docker container.
+Detailed architectural rationale, seismological design considerations, and operational protocols are documented in the [`docs/`](docs/) directory:
 
-   
+- **[Milestone Changelog (`docs/CHANGELOG.md`)](docs/CHANGELOG.md)**: Full semantic progression from the 2023 prototypes (`v0.1.0`) to the modern platform (`v2.8.1`).
+- **[TECHNOTE-01: Ingestion Cadence & Upstream Courtesy](docs/technote-01-data-ingestion-and-polling-strategy.md)**: Seismological wave arrival delays, solver latencies, and provider fair-use policies.
+- **[TECHNOTE-02: Catalog Hygiene & Storage Optimization](docs/technote-02-seismic-catalog-hygiene-and-storage.md)**: Noise filtering cut-off (M < 2.0), multi-agency deduplication, and SQLite WAL checkpointing.
+- **[TECHNOTE-03: Security & Operator Ergonomics](docs/technote-03-security-and-administrative-operations.md)**: Dynamic authentication architecture and client-side mission-control telemetry.
 
-3. **Fork-n-Dock** method:
-   
-   3A) Clone the very repo:
-   
-   ```
-   git clone https://github.com/marcuz-apl/temas.git
-   ```
-   
-   3B) enter into the project folder and build a docker image:
-   
-   ```
-   cd temas-main
-   docker build --no-cache -t mytemas .
-   ```
-   
-   3C) Run the docker image into a container:
-   
-   ```
-   docker run -d -p 8001:80 --name "TEMAS" -v /web:/app -t mytemas
-   ```
-   
-   3D) then you can launch a web browser to browse to - http://localhost:8001 to enjoy the project.
+---
 
-## Special Technical Report when Dockerizing the Project
+## Historical Prototype Notes (2023 Inception Series)
 
- You may fork my project to your own space to play around and there are some observations to be noted as below:
+During initial proof-of-concept development in February–March 2023, TEMAS was tested under early containerized environments:
 
-* The small-sized `alpine` variant of Python docker images are kinda problematic due to (1) not updating Python to 3.10.6, but 3.10.0 and (2) lack of some core libraries leading to unable to install the `pandas` library (which is unbearable).
+<details>
+<summary>Click to expand Legacy Docker & Containerization Observations</summary>
 
-* Then the best smaller docker image shall be: `Python-3.10.6-slim` (45 MB only for downloading), which need you to schedule the `cron` job on the host though. 
+- The lightweight `alpine` Python variants encountered compilation issues with `pandas` in early 2023, leading to the adoption of `python:3.10-slim`.
+- The original prototype ran a daily cron scraper inside an Nginx container on port `8001`.
+- These legacy experiments are preserved in the `legacy/` directory for historical reference, while production operations have transitioned to the high-performance async FastAPI architecture on port `4070`.
+</details>
 
-* Eventually we are able to run the cron job within nginx Docker container, which ease our tasks extremely.
-
-  
-
-## Versions & Changelog
-
-Full version history from the 2023 prototype inception (`v0.1.0`) through the current modern production release (`v2.8.1`) is documented in **[docs/CHANGELOG.md](docs/CHANGELOG.md)**.
+---
 
 ## Live Earthquake Maps
 
-* Bubble Map
+### Real-Time Epicenter Map
+![Bubble Map](resources/live-earthquake-map-1.png)
 
-![bubble-map](resources/live-earthquake-map-1.png)
+### Seismic Intensity Heat Map
+![Heat Map](resources/live-earthquake-map-2.png)
 
-* Heat Map
+---
 
-![heat-map](resources/live-earthquake-map-2.png)
+## Credits & Acknowledgments
 
-## Credits
+- **[Kandilli Observatory and Earthquake Research Institute (KOERI, 1868)](http://www.koeri.boun.edu.tr/new/en)** — Boğaziçi University
+- **[European-Mediterranean Seismological Centre (EMSC-CSEM)](https://www.emsc-csem.org/)**
+- **[United States Geological Survey (USGS)](https://earthquake.usgs.gov/)**
+- **[Peter Bird (PB2002)](https://peterbird.name/oldFTP/PB2002/)** — Global Tectonic Plate Boundaries
 
-[KANDiLLi OBSERVATORY AND EARTHQUAKE RESEARCH INSTITUTE (1868)](http://www.koeri.boun.edu.tr/new/en)
-
-[KANDiLLi Observatory Interactive Earthquake Map](http://udim.koeri.boun.edu.tr/zeqmap/)
-
-This project is for educational purposes only. The copyrights of the data and values are exclusively owned by Boğaziçi University and Kandilli Observatory.
-
+*This project is dedicated to educational, humanitarian, and open scientific research. The copyrights and intellectual property of seismic observations belong to their respective originating institutions.*
