@@ -235,7 +235,15 @@
           <h3>Seismic Intelligence & Gutenberg-Richter Analytics</h3>
           <p class="modal-subtitle">Real-time catalog distribution, focal depth profiles, regional clustering, and multi-network telemetry</p>
         </div>
-        <button id="btn-close-analytics" class="btn btn-sm" style="padding: 6px 12px; font-weight: bold;">✕ Close</button>
+        <div class="analytics-header-actions">
+          <button id="btn-export-analytics-pdf" class="btn btn-sm btn-report" title="Generate 1-Page Official PDF Bulletin">
+            <span>📄 Export PDF</span>
+          </button>
+          <button id="btn-export-analytics-png" class="btn btn-sm btn-report" title="Download High-Resolution PNG Snapshot">
+            <span>📸 Export PNG</span>
+          </button>
+          <button id="btn-close-analytics" class="btn btn-sm" style="padding: 6px 12px; font-weight: bold;">✕ Close</button>
+        </div>
       </div>
       <div class="modal-body">
         <div class="analytics-grid">
@@ -291,6 +299,8 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <!-- Leaflet Heatmap Plugin -->
   <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+  <!-- HTML2Canvas Client-side Image Export -->
+  <script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
   <!-- Application Entry Point -->
   <script type="module" src="/static/js/app.js?v=2.1.2"></script>

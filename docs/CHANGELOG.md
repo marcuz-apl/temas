@@ -31,12 +31,24 @@ v2.1.0 (Baseline Architecture)
   │
   └─► v2.9.0 (Feat: Left Sidebar Full-Height Vertical Scroll & 30s Idle Auto-Hide with Edge Peek)
         │
-        └─► v2.9.1 (Fix/Feat: Map Drift Prevention, Large Analytics Deck, Auto-Deduplication on Sync, Clean Visitor Header)
+        ├─► v2.9.1 (Fix/Feat: Map Drift Prevention, Large Analytics Deck, Auto-Deduplication on Sync, Clean Visitor Header)
+        │
+        └─► v2.9.2 (Feat/Fix: 1-Page PDF & PNG Analytics Export, Expanded Sidebar Card Height & Content)
 ```
 
 ---
 
 ## Milestone Change Log Details
+
+### [v2.9.2] — 2026-09-05
+**Feat/Fix: 1-Page PDF & PNG Analytics Export, Expanded Sidebar Card Height & Content**
+- **Type**: `feat(analytics)` / `fix(ui)`
+- **Scope**: `frontend/index.html`, `frontend/css/style.css`, `frontend/js/app.js`
+- **Key Deliverables**:
+  - **1-Page Printable PDF & PNG Export**: Equipped the Analytics observatory deck with dedicated `📄 Export PDF` (tailored `@media print` executive A4 landscape single-page layout) and `📸 Export PNG` (high-res 2x retina snapshot via `html2canvas`) buttons for instant report generation.
+  - **Expanded Sidebar Card Geometry**: Enhanced `.event-card` with generous `min-height: 86px`, relaxed 2-line title clamping (`line-clamp: 2`), larger magnitude pills (`48x48px`), and structured metadata pill tags for timestamp, hypocentral depth, and reporting network source (KOERI / EMSC / USGS).
+
+---
 
 ### [v2.9.1] — 2026-09-05
 **Fix/Feat: Map Drift Prevention, Large Analytics Deck, Auto-Deduplication on Sync, Clean Visitor Header**

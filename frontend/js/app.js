@@ -220,6 +220,12 @@ class TemasApp {
 
     const exportGeoJsonBtn = document.getElementById('btn-export-geojson');
     if (exportGeoJsonBtn) exportGeoJsonBtn.addEventListener('click', () => this.exportGeoJson());
+
+    const exportPdfBtn = document.getElementById('btn-export-analytics-pdf');
+    if (exportPdfBtn) exportPdfBtn.addEventListener('click', () => this.exportAnalyticsPdf());
+
+    const exportPngBtn = document.getElementById('btn-export-analytics-png');
+    if (exportPngBtn) exportPngBtn.addEventListener('click', () => this.exportAnalyticsPng());
   }
 
   /**
@@ -642,6 +648,7 @@ class TemasApp {
         const mag = parseFloat(eq.magnitude) || 0;
         const color = getMagnitudeColor(mag);
         const timeDisplay = (eq.eventtime || eq.origintimeutc).substring(5, 16);
+        const sourceLabel = (eq.measmethod || 'KOERI').toUpperCase().split('-')[0];
 
         return `
           <div class="event-card" data-time="${eq.origintimeutc}" style="--card-severity-color: ${color}">
@@ -652,9 +659,9 @@ class TemasApp {
             <div class="event-details">
               <div class="event-region" title="${eq.region}">${eq.region}</div>
               <div class="event-meta">
-                <span class="event-time">${timeDisplay}</span>
-                <span>•</span>
-                <span>${eq.depthkm} km depth</span>
+                <span class="event-meta-pill"><span style="opacity: 0.65;">⏱</span> ${timeDisplay}</span>
+                <span class="event-meta-pill"><span style="opacity: 0.65;">⬇</span> ${eq.depthkm} km</span>
+                <span class="event-meta-pill source-tag">${sourceLabel}</span>
               </div>
             </div>
           </div>
@@ -844,6 +851,50 @@ class TemasApp {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  }
+
+  /**
+   * Triggers single-page printable PDF bulletin generation via tailored print styles.
+   */
+  exportAnalyticsPdf() {
+    this.showToast('Preparing 1-Page Printable PDF Bulletin...', 'info');
+    setTimeout(() => {
+      window.print();
+    }, 300);
+  }
+
+  /**
+   * Captures high-resolution PNG snapshot of the 4-panel Analytics deck.
+   */
+  async exportAnalyticsPng() {
+    const dialog = document.querySelector('.modal-analytics-dialog');
+    if (!dialog) return;
+
+    if (typeof window.html2canvas === 'undefined') {
+      return this.showToast('Snapshot engine is still initializing, please retry in a second.', 'warning');
+    }
+
+    this.showToast('Rendering high-resolution PNG graphic...', 'info');
+    try {
+      const canvas = await window.html2canvas(dialog, {
+        scale: 2, // Crisp 2x retina rendering
+        backgroundColor: '#0b1120',
+        useCORS: true,
+        logging: false
+      });
+
+      const link = document.createElement('a');
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').substring(0, 19);
+      link.download = `TEMAS2_Seismic_Analytics_${timestamp}.png`;
+      link.href = canvas.toDataURL('image/png');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      this.showToast('📸 Analytics PNG exported successfully!', 'success');
+    } catch (err) {
+      console.error('PNG export failed:', err);
+      this.showToast(`PNG export error: ${err.message}`, 'error');
+    }
   }
 }
 
