@@ -23,16 +23,30 @@ v2.1.0 (Baseline Architecture)
   │     │
   │     └─► v2.7.1 (Fix: Update Default Admin Credential to Tema$2023)
   │
-  └─► v2.8.0 (Feat: Ingestion Scheduler Hardening & Configurable TEMAS_SYNC_INTERVAL)
-        │
-        ├─► v2.8.1 (Fix: Technical Documentation Markdown KaTeX/MathJax Syntax Cleanup)
-        │
-        └─► v2.8.2 (Fix: Main Window Brand Calibration to TEMAS 2 Gen2)
+  ├─► v2.8.0 (Feat: Ingestion Scheduler Hardening & Configurable TEMAS_SYNC_INTERVAL)
+  │     │
+  │     ├─► v2.8.1 (Fix: Technical Documentation Markdown KaTeX/MathJax Syntax Cleanup)
+  │     │
+  │     └─► v2.8.2 (Fix: Main Window Brand Calibration to TEMAS 2 Gen2)
+  │
+  └─► v2.9.0 (Feat: Left Sidebar Full-Height Vertical Scroll & 30s Idle Auto-Hide with Edge Peek)
 ```
 
 ---
 
 ## Milestone Change Log Details
+
+### [v2.9.0] — 2026-09-05
+**Feat: Left Sidebar Full-Height Vertical Scroll & 30s Idle Auto-Hide with Edge Peek**
+- **Type**: `feat(ui)`
+- **Scope**: `frontend/css/style.css`, `frontend/index.html`, `frontend/js/app.js`
+- **Key Deliverables**:
+  - **Full-Height Vertical Scroll**: Configured `.feed-list` with `flex: 1 1 auto`, `min-height: 0`, custom glassmorphic cyan scrollbars, and `padding-bottom: 72px` ensuring the very last seismic feed card is fully viewable without clipping.
+  - **30-Second Idle Auto-Hide**: Implemented inactivity monitor that automatically collapses the sidebar after 30 seconds of user idle time, maximizing map viewport real estate.
+  - **Edge-Hover Peek / Wake**: Introduced `#sidebar-hover-zone` with a glowing futuristic chevron indicator along the left edge that smoothly reveals the sidebar when hovering or clicking, with auto-wake on direct interaction.
+  - **Repo Cleanliness**: Verified `.venv/` virtual environment is strictly untracked in Git.
+
+---
 
 ### [v2.8.2] — 2026-09-05
 **Fix: Main Window Brand Calibration to TEMAS 2 (Gen2 Platform)**

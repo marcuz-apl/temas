@@ -134,15 +134,10 @@ class TemasApp {
       });
     }
 
-    // Sidebar Collapse / Expand Toggle
+    // Sidebar Collapse / Expand Toggle & 30s Idle Auto-Hide
     const sidebarToggle = document.getElementById('btn-toggle-sidebar');
     const sidebar = document.querySelector('.sidebar');
-    if (sidebarToggle && sidebar) {
-      sidebarToggle.addEventListener('click', () => {
-        sidebar.classList.toggle('collapsed');
-        setTimeout(() => this.mapEngine.map.invalidateSize(), 300);
-      });
-    }
+    this.initSidebarAutoHide(sidebar, sidebarToggle);
 
     // Fullscreen Toggle
     const fsBtn = document.getElementById('btn-fullscreen');
@@ -223,6 +218,99 @@ class TemasApp {
 
     const exportGeoJsonBtn = document.getElementById('btn-export-geojson');
     if (exportGeoJsonBtn) exportGeoJsonBtn.addEventListener('click', () => this.exportGeoJson());
+  }
+
+  /**
+   * Initializes 30-second idle auto-hiding of the left sidebar with
+   * edge-hover slide out / peek behavior.
+   */
+  initSidebarAutoHide(sidebar, sidebarToggle) {
+    if (!sidebar) return;
+
+    let idleTimer = null;
+    let hoverLeaveTimer = null;
+    let isHoveringSidebar = false;
+    const IDLE_TIMEOUT_MS = 30000; // 30 seconds
+
+    const hoverZone = document.getElementById('sidebar-hover-zone');
+
+    const resetIdleTimer = () => {
+      if (idleTimer) clearTimeout(idleTimer);
+
+      idleTimer = setTimeout(() => {
+        if (!isHoveringSidebar && !sidebar.classList.contains('collapsed')) {
+          sidebar.classList.add('auto-hidden');
+          if (hoverZone) hoverZone.classList.remove('hidden');
+          setTimeout(() => this.mapEngine?.map?.invalidateSize(), 350);
+        }
+      }, IDLE_TIMEOUT_MS);
+    };
+
+    const wakeSidebar = () => {
+      sidebar.classList.remove('auto-hidden', 'hover-peek');
+      if (hoverZone) hoverZone.classList.add('hidden');
+      resetIdleTimer();
+      setTimeout(() => this.mapEngine?.map?.invalidateSize(), 350);
+    };
+
+    // User activity anywhere in the window resets the 30s idle timer
+    ['mousemove', 'mousedown', 'keydown', 'touchstart', 'wheel', 'scroll'].forEach((evt) => {
+      window.addEventListener(evt, resetIdleTimer, { passive: true });
+    });
+
+    // Hovering the left edge zone peeks the sidebar back out smoothly
+    if (hoverZone) {
+      hoverZone.addEventListener('mouseenter', () => {
+        if (hoverLeaveTimer) clearTimeout(hoverLeaveTimer);
+        sidebar.classList.add('hover-peek');
+      });
+      hoverZone.addEventListener('click', wakeSidebar);
+    }
+
+    // Hovering the sidebar keeps it open and prevents auto-hiding while reading
+    sidebar.addEventListener('mouseenter', () => {
+      isHoveringSidebar = true;
+      if (hoverLeaveTimer) clearTimeout(hoverLeaveTimer);
+      if (sidebar.classList.contains('auto-hidden')) {
+        sidebar.classList.add('hover-peek');
+      }
+    });
+
+    // Leaving the sidebar resets timer and re-hides if in auto-hidden mode
+    sidebar.addEventListener('mouseleave', () => {
+      isHoveringSidebar = false;
+      if (sidebar.classList.contains('auto-hidden')) {
+        hoverLeaveTimer = setTimeout(() => {
+          sidebar.classList.remove('hover-peek');
+        }, 350);
+      }
+      resetIdleTimer();
+    });
+
+    // Toggle button still works manually to collapse or wake
+    if (sidebarToggle) {
+      sidebarToggle.addEventListener('click', () => {
+        if (sidebar.classList.contains('auto-hidden')) {
+          wakeSidebar();
+        } else {
+          sidebar.classList.toggle('collapsed');
+          if (sidebar.classList.contains('collapsed') && hoverZone) {
+            hoverZone.classList.add('hidden');
+          }
+          setTimeout(() => this.mapEngine?.map?.invalidateSize(), 350);
+        }
+        resetIdleTimer();
+      });
+    }
+
+    // Interacting with the feed also refreshes idle status
+    const feedList = document.getElementById('feed-list');
+    if (feedList) {
+      feedList.addEventListener('click', () => resetIdleTimer());
+    }
+
+    // Arm initial 30s idle countdown
+    resetIdleTimer();
   }
 
   async refreshAll() {
