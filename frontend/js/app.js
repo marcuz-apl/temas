@@ -103,6 +103,19 @@ class TemasApp {
       heatToggle.addEventListener('change', (e) => this.mapEngine.setHeatmapVisibility(e.target.checked));
     }
 
+    // Make Floating Controls Mobile & Draggable
+    const layerControlsBox = document.getElementById('layer-controls');
+    const layerDragHandle = document.getElementById('layer-drag-handle');
+    this.initDraggable(layerControlsBox, layerDragHandle);
+
+    const legendBox = document.getElementById('map-legend');
+    const legendDragHandle = document.getElementById('legend-drag-handle');
+    this.initDraggable(legendBox, legendDragHandle);
+
+    const filterBar = document.getElementById('filter-bar');
+    const filterDragHandle = document.getElementById('filter-drag-handle');
+    this.initDraggable(filterBar, filterDragHandle);
+
     // Reset Map View
     const resetMapBtn = document.getElementById('btn-reset-map');
     if (resetMapBtn) {
@@ -249,7 +262,8 @@ class TemasApp {
         if (!isHoveringSidebar && !sidebar.classList.contains('collapsed')) {
           sidebar.classList.add('auto-hidden');
           if (hoverZone) hoverZone.classList.remove('hidden');
-          setTimeout(() => this.mapEngine?.invalidateMapSize(true), 350);
+          setTimeout(() => this.mapEngine?.invalidateMapSize(true), 120);
+          setTimeout(() => this.mapEngine?.invalidateMapSize(true), 360);
         }
       }, IDLE_TIMEOUT_MS);
     };
@@ -258,7 +272,8 @@ class TemasApp {
       sidebar.classList.remove('auto-hidden', 'hover-peek');
       if (hoverZone) hoverZone.classList.add('hidden');
       resetIdleTimer();
-      setTimeout(() => this.mapEngine?.invalidateMapSize(true), 350);
+      setTimeout(() => this.mapEngine?.invalidateMapSize(true), 120);
+      setTimeout(() => this.mapEngine?.invalidateMapSize(true), 360);
     };
 
     // User activity anywhere in the window resets the 30s idle timer
@@ -305,7 +320,8 @@ class TemasApp {
           if (sidebar.classList.contains('collapsed') && hoverZone) {
             hoverZone.classList.add('hidden');
           }
-          setTimeout(() => this.mapEngine?.invalidateMapSize(true), 350);
+          setTimeout(() => this.mapEngine?.invalidateMapSize(true), 120);
+          setTimeout(() => this.mapEngine?.invalidateMapSize(true), 360);
         }
         resetIdleTimer();
       });
@@ -317,8 +333,106 @@ class TemasApp {
       feedList.addEventListener('click', () => resetIdleTimer());
     }
 
+    // Auto-hidden by default on initial load (hover to reveal)
+    sidebar.classList.add('auto-hidden');
+    if (hoverZone) hoverZone.classList.remove('hidden');
+    setTimeout(() => this.mapEngine?.invalidateMapSize(true), 150);
+
     // Arm initial 30s idle countdown
     resetIdleTimer();
+  }
+
+  /**
+   * Makes floating elements smoothly draggable across the viewport (mouse and touch),
+   * constrained within parent boundaries without jumping or disappearing offscreen.
+   */
+  initDraggable(element, handle) {
+    if (!element || !handle) return;
+
+    // Prevent Leaflet map from capturing drag and scroll events on the floating widget
+    if (window.L && window.L.DomEvent) {
+      window.L.DomEvent.disableClickPropagation(element);
+      window.L.DomEvent.disableScrollPropagation(element);
+    }
+
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+    let initialLeft = 0;
+    let initialTop = 0;
+
+    const onPointerDown = (e) => {
+      // Ignore clicks on form inputs, buttons, or checkboxes
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.target.closest('label')) return;
+
+      e.stopPropagation();
+
+      isDragging = true;
+      const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+      const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+
+      startX = clientX;
+      startY = clientY;
+
+      // Calculate initial position relative to offsetParent (NOT window viewport)
+      const parentRect = element.offsetParent ? element.offsetParent.getBoundingClientRect() : { left: 0, top: 0 };
+      const elRect = element.getBoundingClientRect();
+      initialLeft = elRect.left - parentRect.left;
+      initialTop = elRect.top - parentRect.top;
+
+      // Clear right, bottom, and transform styling so absolute left/top take effect seamlessly
+      element.style.right = 'auto';
+      element.style.bottom = 'auto';
+      element.style.transform = 'none';
+      element.style.left = `${initialLeft}px`;
+      element.style.top = `${initialTop}px`;
+      element.classList.add('dragging');
+
+      const onPointerMove = (moveEvent) => {
+        if (!isDragging) return;
+        if (moveEvent.cancelable && moveEvent.type.startsWith('touch')) {
+          moveEvent.preventDefault();
+        }
+
+        const curX = moveEvent.type.startsWith('touch') ? moveEvent.touches[0].clientX : moveEvent.clientX;
+        const curY = moveEvent.type.startsWith('touch') ? moveEvent.touches[0].clientY : moveEvent.clientY;
+
+        const dx = curX - startX;
+        const dy = curY - startY;
+
+        let newLeft = initialLeft + dx;
+        let newTop = initialTop + dy;
+
+        const pWidth = element.offsetParent ? element.offsetParent.clientWidth : window.innerWidth;
+        const pHeight = element.offsetParent ? element.offsetParent.clientHeight : window.innerHeight;
+        const maxLeft = pWidth - elRect.width - 8;
+        const maxTop = pHeight - elRect.height - 8;
+
+        newLeft = Math.max(8, Math.min(newLeft, maxLeft));
+        newTop = Math.max(8, Math.min(newTop, maxTop));
+
+        element.style.left = `${newLeft}px`;
+        element.style.top = `${newTop}px`;
+      };
+
+      const onPointerUp = () => {
+        if (!isDragging) return;
+        isDragging = false;
+        element.classList.remove('dragging');
+        document.removeEventListener('mousemove', onPointerMove);
+        document.removeEventListener('mouseup', onPointerUp);
+        document.removeEventListener('touchmove', onPointerMove);
+        document.removeEventListener('touchend', onPointerUp);
+      };
+
+      document.addEventListener('mousemove', onPointerMove);
+      document.addEventListener('mouseup', onPointerUp);
+      document.addEventListener('touchmove', onPointerMove, { passive: false });
+      document.addEventListener('touchend', onPointerUp);
+    };
+
+    handle.addEventListener('mousedown', onPointerDown);
+    handle.addEventListener('touchstart', onPointerDown, { passive: true });
   }
 
   async refreshAll() {
@@ -864,7 +978,8 @@ class TemasApp {
   }
 
   /**
-   * Captures high-resolution PNG snapshot of the 4-panel Analytics deck.
+   * Captures high-resolution PNG snapshot auto-fitted into 1-page A4/Letter Landscape
+   * rendered in a crisp, executive white publication bulletin format.
    */
   async exportAnalyticsPng() {
     const dialog = document.querySelector('.modal-analytics-dialog');
@@ -874,26 +989,71 @@ class TemasApp {
       return this.showToast('Snapshot engine is still initializing, please retry in a second.', 'warning');
     }
 
-    this.showToast('Rendering high-resolution PNG graphic...', 'info');
+    this.showToast('Rendering 1-Page White A4/Letter Bulletin (2x Retina)...', 'info');
+
+    // 1. Clone the dialog into an isolated sandbox to prevent viewport clipping and theme contamination
+    const clone = dialog.cloneNode(true);
+    clone.classList.remove('modal-dialog', 'modal-analytics-dialog');
+    clone.classList.add('export-a4-snapshot');
+
+    // Remove buttons from the header in the snapshot
+    const headerActions = clone.querySelector('.analytics-header-actions');
+    if (headerActions) headerActions.remove();
+
+    // Add an official bulletin footer
+    const nowTrt = new Date().toLocaleString('tr-TR', { timeZone: 'Europe/Istanbul' });
+    const footer = document.createElement('div');
+    footer.className = 'bulletin-footer';
+    footer.innerHTML = `
+      <span>TEMAS 2 &bull; Türkiye Earthquake Monitoring &amp; Analytics System</span>
+      <span>Official Seismic Bulletin &bull; Generated: ${nowTrt} (TRT)</span>
+      <span>Standard A4 / US Letter Landscape &bull; 2828&times;2000 Ultra-HD</span>
+    `;
+    clone.appendChild(footer);
+
+    // 2. Wrap in an isolated export container
+    const sandbox = document.createElement('div');
+    sandbox.id = 'snapshot-sandbox';
+    sandbox.style.cssText = `
+      position: fixed;
+      left: -99999px;
+      top: 0;
+      width: 1414px;
+      height: 1000px;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #ffffff;
+      z-index: -9999;
+    `;
+    sandbox.appendChild(clone);
+    document.body.appendChild(sandbox);
+
     try {
-      const canvas = await window.html2canvas(dialog, {
-        scale: 2, // Crisp 2x retina rendering
-        backgroundColor: '#0b1120',
+      const canvas = await window.html2canvas(clone, {
+        width: 1414,
+        height: 1000,
+        scale: 2, // 2828x2000px high-DPI output
+        backgroundColor: '#ffffff',
         useCORS: true,
         logging: false
       });
 
       const link = document.createElement('a');
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-').substring(0, 19);
-      link.download = `TEMAS2_Seismic_Analytics_${timestamp}.png`;
+      link.download = `TEMAS2_Seismic_Bulletin_${timestamp}.png`;
       link.href = canvas.toDataURL('image/png');
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      this.showToast('📸 Analytics PNG exported successfully!', 'success');
+      this.showToast('📸 1-Page White A4/Letter Landscape PNG exported successfully!', 'success');
     } catch (err) {
       console.error('PNG export failed:', err);
       this.showToast(`PNG export error: ${err.message}`, 'error');
+    } finally {
+      if (sandbox && sandbox.parentNode) {
+        sandbox.parentNode.removeChild(sandbox);
+      }
     }
   }
 }

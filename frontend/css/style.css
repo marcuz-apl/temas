@@ -224,8 +224,8 @@ header {
   z-index: 500;
   transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), margin-left 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   flex-shrink: 0;
-  height: 100%;
-  max-height: 100%;
+  height: calc(100vh - 64px);
+  max-height: calc(100vh - 64px);
   overflow: hidden;
   position: relative;
 }
@@ -330,35 +330,37 @@ header {
 
 /* Feed List Scroll Container */
 .feed-list {
-  flex: 1 1 auto;
+  flex: 1 1 0;
+  height: 0;
   min-height: 0; /* CRITICAL: Enables flex child to scroll properly */
-  overflow-y: auto;
+  overflow-y: scroll !important; /* Force permanent scroller visibility right from initial boot */
   overflow-x: hidden;
-  padding: 12px 12px 72px 12px; /* Generous bottom padding to ensure final card is fully visible */
+  padding: 14px 12px 72px 12px;
   display: flex;
   flex-direction: column;
   gap: 10px;
   scrollbar-width: thin;
-  scrollbar-color: rgba(56, 189, 248, 0.45) rgba(15, 23, 42, 0.6);
+  scrollbar-color: rgba(56, 189, 248, 0.65) rgba(15, 23, 42, 0.7);
 }
 
 .feed-list::-webkit-scrollbar {
-  width: 7px;
+  width: 8px;
+  display: block !important;
 }
 
 .feed-list::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.6);
+  background: rgba(15, 23, 42, 0.75);
   border-radius: 4px;
 }
 
 .feed-list::-webkit-scrollbar-thumb {
-  background: rgba(56, 189, 248, 0.35);
+  background: rgba(56, 189, 248, 0.5);
   border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .feed-list::-webkit-scrollbar-thumb:hover {
-  background: rgba(56, 189, 248, 0.75);
+  background: rgba(56, 189, 248, 0.9);
 }
 
 .event-card {
@@ -488,6 +490,19 @@ header {
   width: 100%;
   height: 100%;
   z-index: 10;
+  background: #090d16;
+}
+
+.leaflet-container {
+  background: #090d16 !important;
+}
+
+:fullscreen,
+:fullscreen body,
+:fullscreen .app-container,
+:fullscreen .map-viewport,
+:fullscreen #map {
+  background: #090d16 !important;
 }
 
 /* ==========================================================================
@@ -510,6 +525,27 @@ header {
   z-index: 400;
   box-shadow: var(--shadow-lg);
   max-width: 90%;
+  touch-action: none;
+}
+
+.filter-drag-handle {
+  cursor: grab;
+  color: #38bdf8;
+  font-size: 0.95rem;
+  padding: 0 4px;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  opacity: 0.65;
+  transition: opacity 0.2s ease;
+}
+
+.filter-drag-handle:hover {
+  opacity: 1;
+}
+
+.filter-drag-handle:active {
+  cursor: grabbing;
 }
 
 .filter-group {
@@ -607,32 +643,69 @@ header {
 /* ==========================================================================
    Map Legend & Layer Toggles
    ========================================================================== */
+/* Magnitude Scale Legend (Draggable / Mobile Floating Box) */
 .map-legend {
   position: absolute;
   bottom: 24px;
   right: 24px;
   background: var(--bg-glass);
   backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  padding: 12px 16px;
-  z-index: 400;
+  padding: 0;
+  z-index: 800;
   box-shadow: var(--shadow-lg);
   font-size: 0.75rem;
+  user-select: none;
+  touch-action: none;
+  min-width: 175px;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-.legend-title {
+.map-legend.dragging {
+  opacity: 0.94;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7);
+  border-color: #38bdf8;
+  cursor: grabbing;
+}
+
+.legend-drag-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  cursor: grab;
+}
+
+.legend-drag-header:active {
+  cursor: grabbing;
+}
+
+.legend-drag-header .drag-icon {
+  color: #38bdf8;
+  font-size: 0.9rem;
+  letter-spacing: -1px;
+}
+
+.legend-drag-header .legend-drag-title {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   font-weight: 700;
   color: var(--text-secondary);
-  margin-bottom: 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
 }
 
 .legend-items {
+  padding: 10px 14px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
 }
 
 .legend-item {
@@ -655,18 +728,65 @@ header {
   border-radius: 2px;
 }
 
-/* Toggle Layers Widget */
+/* Toggle Layers Widget (Draggable / Mobile Floating Box) */
 .layer-controls {
   position: absolute;
   top: 80px;
   right: 24px;
   background: var(--bg-glass);
   backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  padding: 10px 14px;
-  z-index: 400;
+  padding: 0;
+  z-index: 450;
   box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  min-width: 175px;
+  user-select: none;
+  touch-action: none;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.layer-controls.dragging {
+  opacity: 0.94;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7);
+  border-color: #38bdf8;
+  cursor: grabbing;
+}
+
+.layer-drag-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  cursor: grab;
+}
+
+.layer-drag-header:active {
+  cursor: grabbing;
+}
+
+.layer-drag-header .drag-icon {
+  color: #38bdf8;
+  font-size: 0.9rem;
+  letter-spacing: -1px;
+}
+
+.layer-drag-header .layer-drag-title {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.layer-controls-body {
+  padding: 10px 14px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -676,10 +796,14 @@ header {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.75rem;
+  font-size: 0.76rem;
   color: var(--text-secondary);
   cursor: pointer;
   user-select: none;
+}
+
+.toggle-item:hover {
+  color: var(--text-primary);
 }
 
 .toggle-item input[type="checkbox"] {
@@ -1211,82 +1335,419 @@ header {
 }
 
 /* ==========================================================================
-   One-Page Executive PDF Printable Bulletin (@media print)
+   Executive A4/Letter Landscape Snapshot Bulletin (Clean White Paper Theme)
+   ========================================================================== */
+.export-a4-snapshot {
+  width: 1414px !important;
+  min-width: 1414px !important;
+  max-width: 1414px !important;
+  height: 1000px !important;
+  min-height: 1000px !important;
+  max-height: 1000px !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  padding: 30px 40px !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  overflow: hidden !important;
+  font-family: var(--font-sans) !important;
+}
+
+.export-a4-snapshot .modal-header {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  padding: 0 0 14px 0 !important;
+  border-bottom: 2.5px solid #0f172a !important;
+  margin-bottom: 16px !important;
+}
+
+.export-a4-snapshot .modal-title-group h3 {
+  color: #0f172a !important;
+  font-size: 1.5rem !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.02em !important;
+  margin: 0 0 4px 0 !important;
+}
+
+.export-a4-snapshot .modal-subtitle {
+  color: #475569 !important;
+  font-size: 0.85rem !important;
+  margin: 0 !important;
+}
+
+.export-a4-snapshot .modal-body {
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+.export-a4-snapshot .analytics-grid {
+  flex: 1 !important;
+  display: grid !important;
+  grid-template-columns: 1.15fr 1fr !important;
+  grid-template-rows: 1fr 1fr !important;
+  gap: 16px !important;
+  height: 100% !important;
+  max-height: 100% !important;
+}
+
+.export-a4-snapshot .analytics-card {
+  background: #f8fafc !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 8px !important;
+  padding: 16px 20px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  overflow: hidden !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+.export-a4-snapshot .card-title-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-bottom: 10px !important;
+  padding-bottom: 8px !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+.export-a4-snapshot .card-title-row h4 {
+  color: #0f172a !important;
+  font-size: 0.86rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  margin: 0 !important;
+}
+
+.export-a4-snapshot .analytics-badge {
+  font-size: 0.75rem !important;
+  font-family: var(--font-mono) !important;
+  padding: 3px 8px !important;
+  background: #e0f2fe !important;
+  color: #0369a1 !important;
+  border: 1px solid #7dd3fc !important;
+  border-radius: 4px !important;
+  font-weight: 700 !important;
+}
+
+.export-a4-snapshot .chart-bars {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+}
+
+.export-a4-snapshot .chart-bar-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  font-size: 0.82rem !important;
+}
+
+.export-a4-snapshot .chart-bar-label {
+  width: 90px !important;
+  font-family: var(--font-mono) !important;
+  font-size: 0.78rem !important;
+  color: #334155 !important;
+  font-weight: 600 !important;
+}
+
+.export-a4-snapshot .chart-bar-track {
+  flex: 1 !important;
+  height: 14px !important;
+  background: #e2e8f0 !important;
+  border-radius: 7px !important;
+  overflow: hidden !important;
+}
+
+.export-a4-snapshot .chart-bar-count {
+  width: 55px !important;
+  text-align: right !important;
+  font-family: var(--font-mono) !important;
+  font-size: 0.82rem !important;
+  color: #0f172a !important;
+  font-weight: 700 !important;
+}
+
+.export-a4-snapshot .depth-stats,
+.export-a4-snapshot .region-stats,
+.export-a4-snapshot .source-stats {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 7px !important;
+}
+
+.export-a4-snapshot .depth-stat-row,
+.export-a4-snapshot .region-row,
+.export-a4-snapshot .source-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 6px 12px !important;
+  background: #f1f5f9 !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 6px !important;
+  font-size: 0.8rem !important;
+  color: #0f172a !important;
+}
+
+.export-a4-snapshot .depth-stat-row span:first-child,
+.export-a4-snapshot .region-name,
+.export-a4-snapshot .source-name {
+  color: #0f172a !important;
+  font-weight: 600 !important;
+}
+
+.export-a4-snapshot .depth-stat-row span:last-child,
+.export-a4-snapshot .region-count,
+.export-a4-snapshot .source-count {
+  color: #0f172a !important;
+  font-family: var(--font-mono) !important;
+  font-weight: 700 !important;
+}
+
+.export-a4-snapshot .region-bar-wrap {
+  flex: 1 !important;
+  max-width: 160px !important;
+  margin: 0 12px !important;
+}
+
+.export-a4-snapshot .region-bar-track {
+  height: 8px !important;
+  background: #cbd5e1 !important;
+  border-radius: 4px !important;
+  overflow: hidden !important;
+}
+
+.export-a4-snapshot .region-bar-fill {
+  background: #0284c7 !important;
+  height: 100% !important;
+  border-radius: 4px !important;
+}
+
+.export-a4-snapshot .source-share-pct {
+  color: #64748b !important;
+  font-size: 0.75rem !important;
+  font-family: var(--font-mono) !important;
+  margin-left: 6px !important;
+}
+
+.export-a4-snapshot .bulletin-footer {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-top: 14px !important;
+  padding-top: 8px !important;
+  border-top: 1px solid #cbd5e1 !important;
+  font-size: 0.74rem !important;
+  color: #64748b !important;
+  font-family: var(--font-mono) !important;
+}
+
+.export-a4-snapshot .analytics-header-actions {
+  display: none !important;
+}
+
+/* ==========================================================================
+   One-Page Executive PDF Printable Bulletin (A4 & Letter Landscape)
    ========================================================================== */
 @media print {
   @page {
-    size: A4 landscape;
-    margin: 10mm;
+    size: landscape;
+    margin: 6mm;
   }
 
-  body {
+  *, *::before, *::after {
+    box-sizing: border-box !important;
+  }
+
+  html, body {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
     background: #ffffff !important;
     color: #0f172a !important;
-    overflow: visible !important;
+    page-break-after: avoid !important;
+    page-break-inside: avoid !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
-  header, .sidebar, .sidebar-hover-zone, .map-viewport, .filter-bar, .timeline-bar, #table-modal, .toast {
+  header, .sidebar, .sidebar-hover-zone, .map-viewport, .filter-bar, .timeline-bar, .app-layout, #table-modal, .toast, #toast-container {
     display: none !important;
   }
 
-  .modal-backdrop {
+  #analytics-modal.modal-backdrop {
     display: block !important;
-    position: static !important;
+    position: relative !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 100% !important;
     background: #ffffff !important;
     backdrop-filter: none !important;
     padding: 0 !important;
     margin: 0 !important;
-    width: 100% !important;
-    height: auto !important;
+    overflow: hidden !important;
+    page-break-inside: avoid !important;
+    page-break-after: avoid !important;
   }
 
   .modal-analytics-dialog {
-    max-width: 100% !important;
     width: 100% !important;
-    height: auto !important;
-    max-height: none !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    box-sizing: border-box !important;
+    border: none !important;
+    box-shadow: none !important;
     background: #ffffff !important;
     color: #0f172a !important;
-    box-shadow: none !important;
-    border: 1px solid #cbd5e1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    padding: 2mm 4mm !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    page-break-inside: avoid !important;
+    page-break-after: avoid !important;
   }
 
   .analytics-header-actions {
     display: none !important;
   }
 
+  .modal-header {
+    padding: 0 0 4px 0 !important;
+    border-bottom: 2px solid #0f172a !important;
+    margin-bottom: 4px !important;
+  }
+
   .modal-title-group h3 {
     color: #0f172a !important;
+    font-size: 1.1rem !important;
+    margin: 0 !important;
+    font-weight: 800 !important;
   }
 
   .modal-subtitle {
     color: #475569 !important;
+    font-size: 0.7rem !important;
+    margin: 2px 0 0 0 !important;
+  }
+
+  .modal-body {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 4px 0 0 0 !important;
+    overflow: hidden !important;
+  }
+
+  .analytics-grid {
+    flex: 1 !important;
+    display: grid !important;
+    grid-template-columns: 1.15fr 1fr !important;
+    grid-template-rows: 1fr 1fr !important;
+    gap: 8px !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    overflow: hidden !important;
   }
 
   .analytics-card {
     background: #f8fafc !important;
-    border: 1px solid #e2e8f0 !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 6px !important;
+    padding: 6px 10px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    overflow: hidden !important;
     box-shadow: none !important;
-    color: #0f172a !important;
-    break-inside: avoid;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  .card-title-row {
+    margin-bottom: 4px !important;
+    padding-bottom: 4px !important;
+    border-bottom: 1px solid #e2e8f0 !important;
   }
 
   .card-title-row h4 {
-    color: #1e293b !important;
+    color: #0f172a !important;
+    font-size: 0.78rem !important;
+    margin: 0 !important;
+  }
+
+  .analytics-badge {
+    font-size: 0.68rem !important;
+    padding: 1px 6px !important;
+    background: #e0f2fe !important;
+    color: #0369a1 !important;
+    border-color: #7dd3fc !important;
+  }
+
+  .chart-bars {
+    gap: 4px !important;
+  }
+
+  .chart-bar-row {
+    gap: 6px !important;
+    font-size: 0.7rem !important;
+  }
+
+  .chart-bar-label {
+    width: 85px !important;
+    font-size: 0.68rem !important;
+    color: #334155 !important;
   }
 
   .chart-bar-track {
+    height: 10px !important;
     background: #e2e8f0 !important;
   }
 
-  .depth-stat-row, .region-row, .source-row {
-    background: #f1f5f9 !important;
+  .chart-bar-count {
+    width: 50px !important;
+    font-size: 0.7rem !important;
     color: #0f172a !important;
-    border-color: #cbd5e1 !important;
+  }
+
+  .depth-stats, .region-stats, .source-stats {
+    gap: 4px !important;
+  }
+
+  .depth-stat-row, .region-row, .source-row {
+    padding: 3px 6px !important;
+    background: #f1f5f9 !important;
+    border-radius: 4px !important;
+    font-size: 0.72rem !important;
+    color: #0f172a !important;
   }
 
   .region-name, .source-name {
     color: #0f172a !important;
+  }
+
+  .region-bar-wrap {
+    max-width: 140px !important;
+  }
+
+  .region-bar-track {
+    height: 6px !important;
+    background: #cbd5e1 !important;
   }
 }
 

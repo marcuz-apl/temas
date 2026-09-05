@@ -62,12 +62,7 @@ export class TemasMap {
       minZoom: 4,
       maxZoom: 15,
       zoomControl: false,
-      trackResize: false, // Prevent Leaflet's internal resize from panning towards Arctic Ocean [0,0]
-      maxBounds: [
-        [28.0, 18.0], // Southwest boundary
-        [49.0, 52.0]  // Northeast boundary
-      ],
-      maxBoundsViscosity: 0.95
+      trackResize: false // Handled cleanly via window resize & fullscreenchange listeners
     });
 
     // Handle window resize and fullscreen toggles cleanly without drift
@@ -78,6 +73,15 @@ export class TemasMap {
       setTimeout(() => this.invalidateMapSize(true), 120);
       setTimeout(() => this.invalidateMapSize(true), 350);
     });
+
+    // Automatically observe map viewport size changes (e.g. sidebar collapse, auto-hide, peek)
+    const mapContainer = document.getElementById(this.containerId);
+    if (mapContainer && window.ResizeObserver) {
+      this.resizeObserver = new ResizeObserver(() => {
+        this.invalidateMapSize(true);
+      });
+      this.resizeObserver.observe(mapContainer);
+    }
 
     // Zoom control in top-right
     L.control.zoom({ position: 'topright' }).addTo(this.map);
@@ -108,6 +112,7 @@ export class TemasMap {
 
     this.markerLayerGroup.addTo(this.map);
     this.faultLayerGroup.addTo(this.map);
+    this.provinceLayerGroup.addTo(this.map); // Active by default
   }
 
   loadTectonicBoundaries(geojsonData) {
@@ -338,15 +343,13 @@ export class TemasMap {
     const currentCenter = this.map.getCenter();
     const currentZoom = this.map.getZoom();
 
-    // Disable pan and animation during invalidation to avoid zero-size pan offsets
-    this.map.invalidateSize({ pan: false, animate: false });
+    // Invalidate size with pan: true so Leaflet recomputes viewport offset and fetches newly exposed tiles
+    this.map.invalidateSize({ pan: true, animate: false });
 
     if (preserveCenter && currentCenter && !isNaN(currentCenter.lat) && !isNaN(currentCenter.lng)) {
-      // Bounds check: If coordinates drifted outside Mediterranean/Turkey bounds (e.g. lat > 50 or < 28)
-      if (currentCenter.lat > 50 || currentCenter.lat < 28 || currentCenter.lng < 18 || currentCenter.lng > 52) {
+      // Bounds check: Only restore if coordinates drifted to Arctic/extreme poles
+      if (currentCenter.lat > 70 || currentCenter.lat < 10) {
         this.map.setView([38.9637, 35.2433], currentZoom || 6, { animate: false });
-      } else {
-        this.map.setView(currentCenter, currentZoom, { animate: false });
       }
     }
   }

@@ -33,12 +33,27 @@ v2.1.0 (Baseline Architecture)
         │
         ├─► v2.9.1 (Fix/Feat: Map Drift Prevention, Large Analytics Deck, Auto-Deduplication on Sync, Clean Visitor Header)
         │
-        └─► v2.9.2 (Feat/Fix: 1-Page PDF & PNG Analytics Export, Expanded Sidebar Card Height & Content)
+        ├─► v2.9.2 (Feat/Fix: 1-Page PDF & PNG Analytics Export, Expanded Sidebar Card Height & Content)
+        │
+        └─► v2.9.3 (Feat/Fix: Default Auto-Hidden Sidebar, Draggable Map Widgets, Clean White A4/Letter PNG Export)
 ```
 
 ---
 
 ## Milestone Change Log Details
+
+### [v2.9.3] — 2026-09-05
+**Feat/Fix: Default Auto-Hidden Sidebar, Draggable Map Widgets, Clean White A4/Letter PNG Export**
+- **Type**: `feat(ui)` / `fix(analytics)`
+- **Scope**: `frontend/index.html`, `frontend/css/style.css`, `frontend/js/app.js`, `frontend/js/map.js`
+- **Key Deliverables**:
+  - **Auto-Hidden Left Sidebar by Default**: The seismic feed boots hidden on load to provide an expansive edge-to-edge map viewport; hovering the left edge trigger zone peeks the feed drawer smoothly on demand without altering map dimensions.
+  - **Draggable Floating Widgets**: Equipped both "Map Layers" and "Magnitude Scale" legend with draggable header handles (`⋮⋮`) and boundary containment, preventing widgets from disappearing off-screen and blocking Leaflet map pan propagation during drags.
+  - **Clean White 1-Page A4/Letter PNG Export**: Replaced the dark modal snapshot with an isolated sandbox clone rendered in an official executive white paper bulletin format (`.export-a4-snapshot`) at 1414×1000px base (2828×2000px 2x Retina output), perfectly auto-fitting standard landscape paper.
+  - **Map Resize & Black-Out Elimination**: Added `ResizeObserver` to `#map` and calibrated `invalidateMapSize(true)` with `pan: true` to guarantee all tiles are continuously loaded across the entire expanded viewport.
+  - **Neutral Sync Button**: Harmonized the top-right `⚡ Sync` button with clean glass styling, removing the prominent emergency red gradient.
+
+---
 
 ### [v2.9.2] — 2026-09-05
 **Feat/Fix: 1-Page PDF & PNG Analytics Export, Expanded Sidebar Card Height & Content**

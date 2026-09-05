@@ -70,7 +70,7 @@
       <button id="btn-fullscreen" class="btn" title="Toggle Fullscreen">
         <span>⛶</span>
       </button>
-      <button id="btn-sync" class="btn btn-primary" title="Fetch live updates from KOERI, EMSC & USGS">
+      <button id="btn-sync" class="btn" title="Fetch live updates from KOERI, EMSC & USGS">
         <span>⚡ Sync</span>
       </button>
     </div>
@@ -80,10 +80,10 @@
   <div class="app-container">
 
     <!-- Left Screen Edge Hover Trigger Zone (reveals auto-hidden sidebar on hover) -->
-    <div id="sidebar-hover-zone" class="sidebar-hover-zone hidden" title="Hover to reveal seismic feed"></div>
+    <div id="sidebar-hover-zone" class="sidebar-hover-zone" title="Hover to reveal seismic feed"></div>
 
-    <!-- Left Sidebar: Chronological Seismic Feed -->
-    <aside class="sidebar">
+    <!-- Left Sidebar: Chronological Seismic Feed (Auto-Hidden by default) -->
+    <aside class="sidebar auto-hidden">
       <div class="sidebar-header">
         <h2>Seismic Events</h2>
         <span class="feed-counter" id="feed-count">Loading...</span>
@@ -98,7 +98,8 @@
       <div id="map"></div>
 
       <!-- Floating Filter Control Drawer -->
-      <div class="filter-bar">
+      <div class="filter-bar" id="filter-bar">
+        <div class="filter-drag-handle" id="filter-drag-handle" title="Drag to reposition toolbar">⋮⋮</div>
         <div class="filter-group">
           <span class="filter-label">Time:</span>
           <div class="pill-select">
@@ -125,20 +126,26 @@
         </div>
       </div>
 
-      <!-- Floating Layer Controls -->
-      <div class="layer-controls">
-        <label class="toggle-item">
-          <input type="checkbox" id="toggle-faults" checked>
-          <span>Tectonic Fault Lines</span>
-        </label>
-        <label class="toggle-item">
-          <input type="checkbox" id="toggle-provinces">
-          <span>Turkish Provinces</span>
-        </label>
-        <label class="toggle-item">
-          <input type="checkbox" id="toggle-heatmap">
-          <span>Seismic HeatMap</span>
-        </label>
+      <!-- Floating Layer Controls (Draggable / Mobile) -->
+      <div class="layer-controls" id="layer-controls">
+        <div class="layer-drag-header" id="layer-drag-handle" title="Drag to reposition anywhere on map">
+          <span class="drag-icon">⋮⋮</span>
+          <span class="layer-drag-title">Map Layers</span>
+        </div>
+        <div class="layer-controls-body">
+          <label class="toggle-item">
+            <input type="checkbox" id="toggle-faults" checked>
+            <span>Tectonic Fault Lines</span>
+          </label>
+          <label class="toggle-item">
+            <input type="checkbox" id="toggle-provinces" checked>
+            <span>Turkish Provinces</span>
+          </label>
+          <label class="toggle-item">
+            <input type="checkbox" id="toggle-heatmap">
+            <span>Seismic HeatMap</span>
+          </label>
+        </div>
       </div>
 
       <!-- Floating Bottom Timeline Playback Bar -->
@@ -160,9 +167,12 @@
         <button id="btn-reset-map" class="btn btn-sm" title="Reset Map View">↺ Center</button>
       </div>
 
-      <!-- Magnitude Scale Legend -->
-      <div class="map-legend">
-        <div class="legend-title">Magnitude Scale</div>
+      <!-- Magnitude Scale Legend (Draggable / Mobile Floating Box) -->
+      <div class="map-legend" id="map-legend">
+        <div class="legend-drag-header" id="legend-drag-handle" title="Drag to reposition anywhere on map">
+          <span class="drag-icon">⋮⋮</span>
+          <span class="legend-drag-title">Magnitude Scale</span>
+        </div>
         <div class="legend-items">
           <div class="legend-item">
             <span class="legend-dot" style="background: #10b981;"></span>
