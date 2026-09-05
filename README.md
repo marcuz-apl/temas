@@ -104,29 +104,9 @@ Open **http://localhost:4070** in your browser.
 
   
 
-## Versions
+## Versions & Changelog
 
-* v0.8.0 build 2023-03-17 - Dockerfile tuned and nginx docker container added. Schedule the app-updater.py on the Host.
-
-* v0.7.2 build 2023-03-13 - Changes on the job scheduler, .ignore files and finalizing. Pushed to github and cloud.
-
-* v0.7.1 build 2023-03-12 - Scheduled a Data Updater and dockerized the project into a cloud service.
-
-* v0.7.0 build 2023-03-11 - Tried to add Choropleth map, but lack of decent geojson file, re-org the project files and folders.
-
-* v0.6.0 build 2023-03-10 - Split the jobs and Bootstrapped a landing page and other pages for the project.
-
-* v0.5.0 build 2023-03-09 - Organized the all-in-one Jupyter Notebook: db-reader + scrapper + merger + mapper.
-
-* v0.4.1 build 2023-03-08 - Scraping the multiple pages from sc3.koeri.boun.edu.tr/events/events{i}.html was successful.
-
-* v0.4.0 build 2023-03-07 - Scraping the first page from sc3.koeri.boun.edu.tr/events/events.html was successful.
-
-* v0.3.0 build 2023-03-04 - Created a SQLite3 db and saved the dataframe of Historic data into it.
-
-* v0.2.1.build.2023-02-27 - Merged Historic and real-time data into one local dataframe.
-* v0.2.0.build.2023-02-26 - Historic dataset added (from 16 Jan 2023).
-* v0.1.0.build.2023-02-13 - First release - current 500 datapoints only.
+Full version history from the 2023 prototype inception (`v0.1.0`) through the current modern production release (`v2.8.1`) is documented in **[docs/CHANGELOG.md](docs/CHANGELOG.md)**.
 
 ## Live Earthquake Maps
 

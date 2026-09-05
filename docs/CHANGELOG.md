@@ -1,10 +1,10 @@
 # TEMAS Version Milestone Calibration & Changelog
 
-This document establishes the official semantic version history of the **TEMAS (Turkey Earthquake Monitoring & Alert System)** project, calibrating the engineering progression across the 9 distinct functional milestones from `v2.1.0` through `v2.8.1`.
+This document establishes the official semantic version history of the **TEMAS (Turkey Earthquake Monitoring & Alert System)** project, chronicling the journey from the original 2023 Dockerized prototype series (`v0.1.0` – `v0.8.0`) through the modern 2026 production observatory platform (`v2.1.0` – `v2.8.1`).
 
 ---
 
-## Semantic Version Progression Matrix
+## Semantic Version Progression Matrix (Modern Series)
 
 ```
 v2.1.0 (Baseline Architecture)
@@ -149,3 +149,47 @@ v2.1.0 (Baseline Architecture)
   - Replaced legacy Docker/PHP scripts with unified FastAPI async backend and Leaflet-based Vanilla JS frontend.
   - Integrated SQLite WAL mode with automated multi-source ingestion (KOERI, EMSC, USGS).
   - Built cybersecurity-styled dark operations deck with health telemetry, manual event injection, and live map feeds.
+
+---
+
+## Historical Prototype Series (v0.x — Inception 2023)
+
+The early experimental milestones and Dockerized prototypes created during the birth year of TEMAS (February–March 2023):
+
+### [v0.8.0] — 2023-03-17
+- Tuned Dockerfile and added Nginx container proxy.
+- Configured host-level scheduling for `app-updater.py`.
+
+### [v0.7.2] — 2023-03-13
+- Upgraded job scheduler, standardized `.gitignore` rules, and pushed production release to cloud container registry.
+
+### [v0.7.1] — 2023-03-12
+- Automated continuous data updater and containerized the service for cloud hosting.
+
+### [v0.7.0] — 2023-03-11
+- Attempted initial choropleth regional map layer; restructured project folder hierarchy and data directories.
+
+### [v0.6.0] — 2023-03-10
+- Modularized background scraping jobs and bootstrapped initial public landing and visualization pages.
+
+### [v0.5.0] — 2023-03-09
+- Assembled all-in-one Jupyter notebook pipeline: database reader, scraper, data frame merger, and cartographic mapper.
+
+### [v0.4.1] — 2023-03-08
+- Implemented multi-page pagination scraper for KOERI historical events (`sc3.koeri.boun.edu.tr/events/events{i}.html`).
+
+### [v0.4.0] — 2023-03-07
+- Completed first automated HTML table scraping pipeline against KOERI live bulletin.
+
+### [v0.3.0] — 2023-03-04
+- Established initial SQLite3 database schema and persisted Pandas DataFrame of historical earthquakes into local storage.
+
+### [v0.2.1] — 2023-02-27
+- Integrated historical and real-time feeds into a unified local DataFrame structure.
+
+### [v0.2.0] — 2023-02-26
+- Incorporated initial deep historical dataset spanning from January 16, 2023 onward.
+
+### [v0.1.0] — 2023-02-13
+- **Initial Project Birth**: First prototype release following the February 6, 2023 Kahramanmaraş earthquake sequence; ingested initial 500 real-time seismic data points from Kandilli Observatory.
+
