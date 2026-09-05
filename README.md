@@ -66,7 +66,7 @@ Two ways to use my project (**Method #1 is preferred** since it's just a piece o
    3A) Clone the very repo:
    
    ```
-   git clone https://github.com/marcuszou/temas.git
+   git clone https://github.com/marcuz-apl/temas.git
    ```
    
    3B) enter into the project folder and build a docker image:
