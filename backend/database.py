@@ -94,6 +94,8 @@ def query_earthquakes(
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
     region: Optional[str] = None,
+    measmethod: Optional[str] = None,
+    magtype: Optional[str] = None,
     min_depth: Optional[float] = None,
     max_depth: Optional[float] = None,
     limit: int = 500,
@@ -118,6 +120,12 @@ def query_earthquakes(
     if region:
         where_clauses.append("region LIKE ?")
         params.append(f"%{region.strip()}%")
+    if measmethod:
+        where_clauses.append("measmethod LIKE ?")
+        params.append(f"%{measmethod.strip()}%")
+    if magtype:
+        where_clauses.append("UPPER(magtype) = UPPER(?)")
+        params.append(magtype.strip())
 
     where_sql = " AND ".join(where_clauses)
 

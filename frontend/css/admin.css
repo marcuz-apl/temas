@@ -1256,13 +1256,14 @@ button {
 .filter-deck-bar {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.85rem;
   margin-bottom: 1.25rem;
 }
 
 .search-input-wrap {
   position: relative;
-  flex: 1;
+  flex: 1 1 240px;
   max-width: 380px;
   display: flex;
   align-items: center;
@@ -1278,24 +1279,61 @@ button {
 
 .search-input-wrap input {
   padding-left: 2.35rem !important;
+  width: 100%;
+}
+
+.select-filter {
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  color: #fff;
+  padding: 0.65rem 0.95rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  flex: 0 1 auto;
+}
+
+.select-filter:focus {
+  border-color: var(--cyan);
 }
 
 .num-filter {
-  max-width: 160px;
+  max-width: 130px;
+  flex: 0 1 auto;
 }
 
 .btn-filter {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-secondary);
-  padding: 0.72rem 1.25rem;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: var(--cyan);
+  padding: 0.65rem 1.15rem;
   border-radius: 8px;
   font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .btn-filter:hover {
-  color: #fff;
-  border-color: var(--cyan);
+  background: var(--cyan);
+  color: #000;
+}
+
+.btn-reset-filter {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-dim);
+  padding: 0.65rem 0.95rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-reset-filter:hover {
+  background: rgba(244, 63, 94, 0.12);
+  border-color: var(--rose);
+  color: var(--rose);
 }
 
 .results-tally {
@@ -1303,6 +1341,7 @@ button {
   font-size: 0.8rem;
   color: var(--text-dim);
   font-family: var(--font-mono);
+  white-space: nowrap;
 }
 
 /* Glass Table Viewport */

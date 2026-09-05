@@ -39,6 +39,24 @@ def test_earthquakes_filter():
     for item in data["items"]:
         assert item["magnitude"] >= 4.5
 
+    # Filter by measurement source
+    res_source = client.get("/api/earthquakes?measmethod=EMSC&limit=5")
+    assert res_source.status_code == 200
+    for item in res_source.json()["items"]:
+        assert "EMSC" in item["measmethod"]
+
+    # Filter by scale (magtype)
+    res_scale = client.get("/api/earthquakes?magtype=ML&limit=5")
+    assert res_scale.status_code == 200
+    for item in res_scale.json()["items"]:
+        assert item["magtype"].upper() == "ML"
+
+    # Filter by region
+    res_reg = client.get("/api/earthquakes?region=Izmir&limit=5")
+    assert res_reg.status_code == 200
+    for item in res_reg.json()["items"]:
+        assert "izmir" in item["region"].lower()
+
 def test_stats():
     res = client.get("/api/stats")
     assert res.status_code == 200

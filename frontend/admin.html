@@ -368,17 +368,41 @@
           </button>
         </div>
 
-        <!-- Search Controls -->
+        <!-- Search & Multi-Field Filtering Controls -->
         <div class="filter-deck-bar">
           <div class="search-input-wrap">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="search-svg">
               <circle cx="11" cy="11" r="8"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
-            <input type="text" id="adminSearchRegion" placeholder="Filter by region (e.g. Kahramanmaras, Izmir)...">
+            <input type="text" id="adminSearchRegion" placeholder="Filter Region (e.g. Kahramanmaras, Izmir, Marmara)...">
           </div>
-          <input type="number" id="adminSearchMinMag" placeholder="Min Mag (e.g. 4.0)" step="0.1" class="num-filter">
+          <select id="adminSearchSource" class="select-filter" title="Filter by Measurement Source">
+            <option value="">All Measurement Sources</option>
+            <option value="EMSC-EMSC">EMSC-EMSC (Euro-Med Seismological Center)</option>
+            <option value="RETMC">RETMC (KOERI Real-Time Motion)</option>
+            <option value="A">A (KOERI Automatic Solution)</option>
+            <option value="EMSC-AFAD">EMSC-AFAD (AFAD via EMSC)</option>
+            <option value="EMSC-KOERI">EMSC-KOERI (Kandilli via EMSC)</option>
+            <option value="EMSC-THE">EMSC-THE (Thessaloniki Aegean)</option>
+            <option value="EMSC-NOA">EMSC-NOA (Athens Observatory)</option>
+            <option value="USGS">USGS (USGS NEIC Global)</option>
+            <option value="M">M (KOERI Manual Reviewed)</option>
+            <option value="MANUAL-OPERATOR">MANUAL-OPERATOR (Admin Injected)</option>
+          </select>
+          <select id="adminSearchScale" class="select-filter" title="Filter by Magnitude Scale">
+            <option value="">All Scales (ML, Mw, MB...)</option>
+            <option value="ML">ML (Local / Richter)</option>
+            <option value="Mw">Mw (Moment Magnitude)</option>
+            <option value="MB">MB (Body Wave)</option>
+            <option value="MLv">MLv (Local Vertical)</option>
+            <option value="mb">mb (Short-period Body)</option>
+            <option value="Mwp">Mwp (P-wave Moment)</option>
+            <option value="MC">MC (Coda Duration)</option>
+          </select>
+          <input type="number" id="adminSearchMinMag" placeholder="Min Mag (e.g. 3.0)" step="0.1" class="num-filter" title="Minimum Magnitude Floor">
           <button id="adminSearchBtn" class="btn-filter">Execute Filter</button>
+          <button id="adminResetFilterBtn" class="btn-reset-filter" title="Clear All Filters">✕ Reset</button>
           <span class="results-tally" id="tableCountText">Showing 0 events</span>
         </div>
 

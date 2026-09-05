@@ -136,6 +136,8 @@ async def get_earthquakes(
     min_depth: Optional[float] = Query(None, ge=0.0),
     max_depth: Optional[float] = Query(None, ge=0.0),
     region: Optional[str] = Query(None, description="Fuzzy match region or province name"),
+    measmethod: Optional[str] = Query(None, description="Filter measurement source / agency"),
+    magtype: Optional[str] = Query(None, description="Filter magnitude scale (e.g. ML, Mw, MB)"),
     limit: int = Query(500, ge=1, le=5000),
     offset: int = Query(0, ge=0),
 ):
@@ -148,6 +150,8 @@ async def get_earthquakes(
         min_depth=min_depth,
         max_depth=max_depth,
         region=region,
+        measmethod=measmethod,
+        magtype=magtype,
         limit=limit,
         offset=offset
     )

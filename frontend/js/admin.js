@@ -52,8 +52,11 @@
 
   // Event Moderation & Pagination
   const adminSearchRegion = document.getElementById('adminSearchRegion');
+  const adminSearchSource = document.getElementById('adminSearchSource');
+  const adminSearchScale = document.getElementById('adminSearchScale');
   const adminSearchMinMag = document.getElementById('adminSearchMinMag');
   const adminSearchBtn = document.getElementById('adminSearchBtn');
+  const adminResetFilterBtn = document.getElementById('adminResetFilterBtn');
   const eventsTableBody = document.getElementById('eventsTableBody');
   const tableCountText = document.getElementById('tableCountText');
   const openManualEventBtn = document.getElementById('openManualEventBtn');
@@ -690,16 +693,21 @@
     }
   };
 
-  // Event Moderation Table with Full Pagination
+  // Event Moderation Table with Full Pagination & Multi-Vector Filters
   async function loadEventsTable(page = 1) {
     if (!eventsTableBody) return;
     currentPage = Math.max(1, page);
     const region = adminSearchRegion ? adminSearchRegion.value.trim() : '';
     const minMag = adminSearchMinMag ? adminSearchMinMag.value : '';
+    const source = adminSearchSource ? adminSearchSource.value.trim() : '';
+    const scale = adminSearchScale ? adminSearchScale.value.trim() : '';
     const offset = (currentPage - 1) * pageSize;
+
     let url = `/api/earthquakes?limit=${pageSize}&offset=${offset}`;
     if (region) url += `&region=${encodeURIComponent(region)}`;
     if (minMag) url += `&min_magnitude=${encodeURIComponent(minMag)}`;
+    if (source) url += `&measmethod=${encodeURIComponent(source)}`;
+    if (scale) url += `&magtype=${encodeURIComponent(scale)}`;
 
     eventsTableBody.innerHTML = '<tr><td colspan="8" class="empty-cell">Retrieving records from database...</td></tr>';
 
@@ -766,6 +774,21 @@
   }
   if (adminSearchMinMag) {
     adminSearchMinMag.addEventListener('change', () => loadEventsTable(1));
+  }
+  if (adminSearchSource) {
+    adminSearchSource.addEventListener('change', () => loadEventsTable(1));
+  }
+  if (adminSearchScale) {
+    adminSearchScale.addEventListener('change', () => loadEventsTable(1));
+  }
+  if (adminResetFilterBtn) {
+    adminResetFilterBtn.addEventListener('click', () => {
+      if (adminSearchRegion) adminSearchRegion.value = '';
+      if (adminSearchSource) adminSearchSource.value = '';
+      if (adminSearchScale) adminSearchScale.value = '';
+      if (adminSearchMinMag) adminSearchMinMag.value = '';
+      loadEventsTable(1);
+    });
   }
 
   // Pagination navigation listeners
