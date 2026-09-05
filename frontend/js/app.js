@@ -841,6 +841,7 @@ class TemasApp {
     if (!toast) {
       toast = document.createElement('div');
       toast.id = 'public-toast';
+      toast.className = 'toast public-toast';
       toast.style.cssText = `
         position: fixed;
         bottom: 2rem;
@@ -1075,7 +1076,12 @@ class TemasApp {
     const snapBtn = document.getElementById('btn-map-snapshot');
     if (snapBtn) snapBtn.classList.add('active');
 
-    this.showToast('Capturing frontpage snapshot (2x Retina)...', 'info');
+    // Immediately hide any currently visible toast so it never appears in the frame
+    const existingToast = document.getElementById('public-toast');
+    if (existingToast) {
+      existingToast.style.opacity = '0';
+      existingToast.style.display = 'none';
+    }
 
     try {
       // Brief pause to allow any pending UI transitions to settle
@@ -1089,7 +1095,12 @@ class TemasApp {
         allowTaint: false,
         logging: false,
         onclone: (clonedDoc) => {
-          // Ensure brand title and text elements render without any background box artifacts
+          // 1. Strictly remove all toast notifications and modals from the cloned snapshot DOM
+          const pToast = clonedDoc.getElementById('public-toast');
+          if (pToast) pToast.remove();
+          clonedDoc.querySelectorAll('.toast, .public-toast, #public-toast, #toast-container, #toastContainer').forEach((t) => t.remove());
+
+          // 2. Ensure brand title text renders without any background box artifacts
           const brandH1 = clonedDoc.querySelector('.brand-text h1');
           if (brandH1) {
             brandH1.style.background = 'none';
@@ -1098,10 +1109,73 @@ class TemasApp {
             brandH1.style.webkitTextFillColor = 'initial';
             brandH1.style.color = '#ffffff';
           }
+
+          // 3. Replace timeline scrubber range input with a crisp vector track and thumb
+          const clonedScrubber = clonedDoc.getElementById('timeline-scrubber');
+          if (clonedScrubber) {
+            const val = Number(clonedScrubber.value) || 0;
+            const max = Number(clonedScrubber.max) || 100;
+            const pct = Math.min(100, Math.max(0, (val / max) * 100));
+
+            const trackWrapper = clonedDoc.createElement('div');
+            trackWrapper.style.cssText = 'flex: 1; height: 6px; background: rgba(255, 255, 255, 0.18); border-radius: 3px; position: relative; display: flex; align-items: center; margin: 0 4px;';
+
+            const fillBar = clonedDoc.createElement('div');
+            fillBar.style.cssText = `position: absolute; left: 0; top: 0; height: 100%; width: ${pct}%; background: #38bdf8; border-radius: 3px;`;
+
+            const thumb = clonedDoc.createElement('div');
+            thumb.style.cssText = `position: absolute; left: calc(${pct}% - 7px); width: 14px; height: 14px; background: #ffffff; border: 2.5px solid #38bdf8; border-radius: 50%; box-shadow: 0 0 6px rgba(56, 189, 248, 0.8);`;
+
+            trackWrapper.appendChild(fillBar);
+            trackWrapper.appendChild(thumb);
+            clonedScrubber.parentNode.replaceChild(trackWrapper, clonedScrubber);
+          }
+
+          // 4. Replace magnitude filter range slider with a crisp vector track and thumb
+          const clonedMag = clonedDoc.getElementById('mag-filter');
+          if (clonedMag) {
+            const val = Number(clonedMag.value) || 3.0;
+            const min = Number(clonedMag.min) || 0;
+            const max = Number(clonedMag.max) || 7;
+            const pct = Math.min(100, Math.max(0, ((val - min) / (max - min)) * 100));
+
+            const trackWrapper = clonedDoc.createElement('div');
+            trackWrapper.style.cssText = 'width: 90px; height: 6px; background: rgba(255, 255, 255, 0.18); border-radius: 3px; position: relative; display: flex; align-items: center;';
+
+            const fillBar = clonedDoc.createElement('div');
+            fillBar.style.cssText = `position: absolute; left: 0; top: 0; height: 100%; width: ${pct}%; background: #ef4444; border-radius: 3px;`;
+
+            const thumb = clonedDoc.createElement('div');
+            thumb.style.cssText = `position: absolute; left: calc(${pct}% - 7px); width: 14px; height: 14px; background: #ffffff; border: 2.5px solid #ef4444; border-radius: 50%; box-shadow: 0 0 6px rgba(239, 68, 68, 0.8);`;
+
+            trackWrapper.appendChild(fillBar);
+            trackWrapper.appendChild(thumb);
+            clonedMag.parentNode.replaceChild(trackWrapper, clonedMag);
+          }
+
+          // 5. Replace playback speed select with a sleek, compact badge
+          const clonedSpeed = clonedDoc.getElementById('playback-speed');
+          if (clonedSpeed) {
+            const selectedText = clonedSpeed.options[clonedSpeed.selectedIndex]?.text || '5x Speed';
+            const badge = clonedDoc.createElement('div');
+            badge.style.cssText = 'background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.15); color: #cbd5e1; border-radius: 4px; padding: 2px 7px; font-size: 0.68rem; font-family: inherit; font-weight: 500; white-space: nowrap; display: flex; align-items: center; gap: 4px;';
+            badge.innerHTML = `<span>${selectedText}</span><span style="font-size: 0.48rem; opacity: 0.7;">▼</span>`;
+            clonedSpeed.parentNode.replaceChild(badge, clonedSpeed);
+          }
         },
         ignoreElements: (el) => {
-          // Exclude transient toasts, active modals, or hover trigger zones
-          if (el.classList && (el.classList.contains('toast') || el.id === 'toast-container' || el.classList.contains('modal-backdrop'))) {
+          // Strictly exclude toasts, modals, tooltips, or edge hover triggers
+          if (
+            el.id === 'public-toast' ||
+            el.id === 'toast-container' ||
+            el.id === 'toastContainer' ||
+            (el.classList && (
+              el.classList.contains('toast') ||
+              el.classList.contains('public-toast') ||
+              el.classList.contains('modal-backdrop') ||
+              el.classList.contains('sidebar-hover-zone')
+            ))
+          ) {
             return true;
           }
           return false;
