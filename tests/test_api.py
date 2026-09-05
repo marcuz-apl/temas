@@ -161,6 +161,15 @@ def test_admin_checkpoint_wal():
     assert "wal_after_mb" in data
     assert data["wal_after_mb"] == 0.0
 
+
+def test_admin_deduplicate():
+    res = client.post("/api/admin/db/deduplicate", headers={"X-Admin-Key": ADMIN_KEY})
+    assert res.status_code == 200
+    data = res.json()
+    assert data["status"] == "success"
+    assert "purged_duplicates" in data
+    assert "remaining_unique" in data
+
 def test_admin_manual_event_lifecycle():
     event_payload = {
         "origintimeutc": "2024-06-15 14:30:00",

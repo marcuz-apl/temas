@@ -47,6 +47,7 @@
   const magDistContainer = document.getElementById('magDistContainer');
   const flushWalBtn = document.getElementById('flushWalBtn');
   const vacuumDbBtn = document.getElementById('vacuumDbBtn');
+  const deduplicateDbBtn = document.getElementById('deduplicateDbBtn');
   const purgeNoiseBtn = document.getElementById('purgeNoiseBtn');
   const downloadDbBtn = document.getElementById('downloadDbBtn');
 
@@ -573,6 +574,44 @@
                 <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
               </svg>
               Rebuild B-Trees (Vacuum)
+            `;
+          }
+        }
+      });
+    });
+  }
+
+  // Deduplicate Catalog
+  if (deduplicateDbBtn) {
+    deduplicateDbBtn.addEventListener('click', () => {
+      showConfirmDialog({
+        title: 'DEDUPLICATE SEISMIC CATALOG',
+        message: 'Scan the database, purge all identical duplicate records, and enforce the UNIQUE index constraint? This guarantees zero duplicates across all years.',
+        confirmText: 'Remove Duplicates',
+        onConfirm: async () => {
+          deduplicateDbBtn.disabled = true;
+          deduplicateDbBtn.textContent = 'Deduplicating...';
+          try {
+            const res = await adminFetch('/api/admin/db/deduplicate', { method: 'POST' });
+            const data = await res.json();
+            const purged = Number(data.purged_duplicates || 0);
+            if (purged > 0) {
+              showToast('Duplicates Removed', `Purged ${purged.toLocaleString()} duplicate records. ${Number(data.remaining_unique || 0).toLocaleString()} unique events remaining.`, 'success');
+            } else {
+              showToast('Catalog Pristine', 'No duplicate records found. All events are 100% unique.', 'info');
+            }
+            await loadDeckData();
+            await loadEventsTable(1);
+          } catch (e) {
+            showToast('Deduplication Error', e.message, 'error');
+          } finally {
+            deduplicateDbBtn.disabled = false;
+            deduplicateDbBtn.innerHTML = `
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              Remove Duplicates
             `;
           }
         }

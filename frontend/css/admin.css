@@ -1095,6 +1095,17 @@ button {
   color: #000;
 }
 
+.btn-tool-purple {
+  background: rgba(168, 85, 247, 0.12);
+  color: #c084fc;
+  border-color: rgba(168, 85, 247, 0.35);
+}
+
+.btn-tool-purple:hover {
+  background: #a855f7;
+  color: #fff;
+}
+
 .kpi-banner-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

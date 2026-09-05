@@ -32,10 +32,11 @@ def init_db():
                 PRIMARY KEY (origintimeutc, latitude, longitude)
             )
         """)
-        # Create indexes for fast filtering
+        # Create indexes for fast filtering & duplicate prevention
         conn.execute("CREATE INDEX IF NOT EXISTS idx_quaketk_time ON quaketk (origintimeutc DESC)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_quaketk_mag ON quaketk (magnitude DESC)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_quaketk_region ON quaketk (region)")
+        conn.execute("CREATE UNIQUE INDEX IF NOT EXISTS uq_quaketk_event ON quaketk (origintimeutc, latitude, longitude, measmethod)")
 
 
 def insert_earthquakes(records: List[Dict[str, Any]]) -> int:
@@ -352,4 +353,35 @@ def insert_manual_earthquake(record: Dict[str, Any]) -> bool:
     """Manually inserts a verified seismic record."""
     inserted = insert_earthquakes([record])
     return inserted > 0
+
+
+def deduplicate_earthquakes() -> Dict[str, Any]:
+    """
+    Deletes duplicate earthquake entries by keeping only the earliest rowid
+    for identical (origintimeutc, latitude, longitude, measmethod), ensures the
+    UNIQUE index exists, and defragments storage via VACUUM.
+    """
+    with get_db_connection() as conn:
+        before_count = conn.execute("SELECT COUNT(*) FROM quaketk").fetchone()[0]
+        cursor = conn.execute("""
+            DELETE FROM quaketk 
+            WHERE rowid NOT IN (
+                SELECT MIN(rowid) 
+                FROM quaketk 
+                GROUP BY origintimeutc, latitude, longitude, measmethod
+            )
+        """)
+        purged = cursor.rowcount
+        conn.execute("CREATE UNIQUE INDEX IF NOT EXISTS uq_quaketk_event ON quaketk (origintimeutc, latitude, longitude, measmethod)")
+        conn.commit()
+        after_count = conn.execute("SELECT COUNT(*) FROM quaketk").fetchone()[0]
+
+    vacuum_res = vacuum_database()
+    return {
+        "status": "success",
+        "purged_duplicates": purged,
+        "total_before": before_count,
+        "remaining_unique": after_count,
+        "vacuum": vacuum_res
+    }
 

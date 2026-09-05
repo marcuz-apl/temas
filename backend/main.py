@@ -17,6 +17,7 @@ from backend.database import (
     get_admin_stats,
     vacuum_database,
     checkpoint_wal_database,
+    deduplicate_earthquakes,
     delete_earthquake,
     insert_manual_earthquake,
     purge_subthreshold_earthquakes,
@@ -282,6 +283,12 @@ async def admin_vacuum_db(_: bool = Depends(verify_admin_key)):
 async def admin_checkpoint_wal(_: bool = Depends(verify_admin_key)):
     """Flushes committed transactions and truncates SQLite .db-wal file to 0 bytes."""
     return checkpoint_wal_database()
+
+
+@app.post("/api/admin/db/deduplicate")
+async def admin_deduplicate_db(_: bool = Depends(verify_admin_key)):
+    """Deletes duplicate seismic records, enforces UNIQUE index constraint, and defragments storage."""
+    return deduplicate_earthquakes()
 
 
 @app.post("/api/admin/db/purge-noise")
