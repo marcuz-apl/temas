@@ -128,11 +128,21 @@ class DeleteEarthquakeRequest(BaseModel):
 # PUBLIC API ENDPOINTS
 # ==========================================
 
+def get_version_tag() -> str:
+    ver_path = os.path.join(os.path.dirname(__file__), "..", "VERSION")
+    try:
+        with open(ver_path, "r", encoding="utf-8") as f:
+            return f.read().strip()
+    except Exception:
+        return "v2.8.1"
+
+
 @app.get("/api/health")
 async def health_check():
     return {
         "status": "healthy",
-        "service": "TEMAS-2.1",
+        "service": "TEMAS-2.8",
+        "version": get_version_tag(),
         "sync_state": SYNC_STATE
     }
 

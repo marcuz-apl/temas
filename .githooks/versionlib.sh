@@ -21,11 +21,38 @@ validate_identifier() {
   [ "$bdate" -le "$today" ] || die "future-dated BUILD in '$id'"
 }
 
+detect_bump_type() {
+  msg=$1
+  case "$msg" in
+    *BREAKING\ CHANGE*|*!:\ *) echo "major" ;;
+    feat:*|feat\(*\):*)        echo "minor" ;;
+    fix:*|fix\(*\):*|perf:*)   echo "patch" ;;
+    *)                         echo "build" ;;
+  esac
+}
+
+bump_semver() {
+  ver=$1; bump=$2
+  raw=${ver#v}
+  m=$(echo "$raw" | cut -d. -f1)
+  n=$(echo "$raw" | cut -d. -f2)
+  p=$(echo "$raw" | cut -d. -f3)
+
+  case "$bump" in
+    major) echo "v$((m + 1)).0.0" ;;
+    minor) echo "v${m}.$((n + 1)).0" ;;
+    patch) echo "v${m}.${n}.$((p + 1))" ;;
+    *)     echo "v${m}.${n}.${p}" ;;
+  esac
+}
+
 next_identifier() {
-  old=$1; today=$2
+  old=$1; today=$2; bump=${3:-build}
   case $old in *+*) ver=${old%+*}; build=${old#*+} ;; *-*) ver=${old%-*}; build=${old#*-} ;; esac
   bdate=${build%?}
   bctr=${build#??????}
+
+  ver=$(bump_semver "$ver" "$bump")
 
   if [ "$bdate" != "$today" ]; then
     nctr=1
@@ -40,3 +67,4 @@ next_identifier() {
   fi
   printf '%s+%s%s\n' "$ver" "$today" "$nctr"
 }
+

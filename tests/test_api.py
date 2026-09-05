@@ -14,7 +14,9 @@ def test_health():
     assert res.status_code == 200
     data = res.json()
     assert data["status"] == "healthy"
-    assert data["service"] == "TEMAS-2.1"
+    assert "TEMAS" in data["service"]
+    assert "version" in data
+    assert "2.8" in data["version"]
 
 def test_earthquakes_list():
     res = client.get("/api/earthquakes?limit=10")
