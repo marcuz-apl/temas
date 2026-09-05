@@ -1,0 +1,13 @@
+services:
+  temas:
+    build: .
+    container_name: temas-2.0
+    restart: unless-stopped
+    ports:
+      - "4070:4070"
+    volumes:
+      # Preserve SQLite database across container upgrades
+      - ./data:/app/data
+    environment:
+      - TEMAS_DB_PATH=/app/data/eq-turkey.db
+      - PYTHONUNBUFFERED=1

@@ -1,0 +1,10 @@
+#!/bin/sh
+HOOKDIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+. "$HOOKDIR/versionlib.sh"
+
+old=$(read_version)
+validate_identifier "$old"
+new=$(next_identifier "$old" "$(utc_yymmdd)") || exit 1
+
+printf '%s\n' "$new" > "$VERSION_FILE"
+git add -- "$VERSION_FILE"

@@ -6,38 +6,46 @@
 
 Project: **TEMAS** - **T**urkey **E**arthquake **M**onitoring and **A**nalysis **S**ystem
 
-Latest Version: 0.8.0  |  Released: 17 March 2023  |  by: Marcus Zou
-
-
+Latest Version: 2.0.0  |  Released: September 2026  |  by: marcuz-apl
 
 ## Project Features
 
-* This full-stack project is to keep tracking and visualize the earthquake events in Turkey, from January 2023 onwards. 
-* The data table and maps shall be updated in a real-time fashion (every 2 hours or per your plan) and automatically.
-* It's alive at https://temas.corunsol.net.
-
-## Technical Intro
-
-* The project landing page is: `index.html` while `app-updater.py` is a task to be scheduled every day.
-* The `tuner_all-in-one_koeri_data.ipynb` is a debugging Jupyter notebook where I made the `app-updater.py` accordingly. Feel free to go through the steps out there.
-* Made special edition of Docker image: **temas:0.8.0** (nginx as web server + cron).
-* The original dataset (the base and the update) are mainly obtained from [Automatic Solutions page of Kandilli Observatory](http://www.koeri.boun.edu.tr/sismo/2/latest-earthquakes/automatic-solutions/).
-* If the Automatic Solutions page stops updating, the alternative source is the [last earthquake snapshot](http://www.koeri.boun.edu.tr/scripts/lasteq.asp).
+* **Real-Time Seismic Ingestion**: Asynchronously fetches earthquake events from Kandilli Observatory (KOERI) with automatic background sync every 3 minutes.
+* **Preserved Historical Record**: Retains the complete, precious dataset from the February 2023 Kahramanmaraş earthquake sequence onwards.
+* **Decoupled Architecture**: High-performance Python FastAPI backend + modern Single Page Application (zero iframes).
+* **Interactive Geospatial Intelligence**: Vector Leaflet map with CartoDB Dark Matter tiles, logarithmic energy-scaled epicenters, fault line overlays (PB2002), and live magnitude filtering.
+* **Exportable Intelligence**: Instant one-click CSV and GeoJSON export for researchers and observers.
+* **Alfazen Versioning**: Adopts `versioning-alfazen` protocol with automated Git hooks.
 
 ## Toolsets
 
+```text
+1. Backend: Python 3.11+ / FastAPI / Uvicorn / Async HTTPX
+2. Persistence: SQLite with WAL mode and B-Tree indexing
+3. Frontend: Modern ESM / Leaflet.js / CartoDB Dark Matter / CSS Glassmorphism
+4. DevOps: Docker / Docker Compose (port 4070)
 ```
- 1. Python (3.10.6) + Folium library + Web Scraping technology
- 2. Back-end databasing (SQLite3, will seek mySQL if the dataset gets big in the future)
- 3. Bootstrapping the index.html
- 4. Docker deployment
+
+## Quickstart
+
+### Option 1: Docker Compose (Recommended)
+
+```bash
+docker compose up -d --build
 ```
+Open **http://localhost:4070** in your browser.
 
+### Option 2: Local Python Environment
 
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 
-## How to Make Use of the Project
-
-Two ways to use my project (**Method #1 is preferred** since it's just a piece of cake):
+# Run server on port 4070
+uvicorn backend.main:app --host 0.0.0.0 --port 4070
+```
+Open **http://localhost:4070** in your browser.
 
 1. **Docker-Pull** method:
 

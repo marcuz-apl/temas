@@ -1,29 +1,33 @@
-# Base image
-FROM nginx:stable
-LABEL maintainer="https://github.com/marcuszou/"
+FROM python:3.11-slim
 
-# Update, install cron and some utilities
-RUN apt-get update && apt-get install -y python3 nano cron
+LABEL maintainer="https://github.com/marcuz-apl/temas"
+LABEL description="TEMAS 2.0 - Turkey Earthquake Monitoring & Analysis System"
 
-# Copy files to work directory
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PORT=4070
+
 WORKDIR /app
-COPY . .
 
-# Create cron job
-RUN touch /app/cron.log
-RUN crontab /app/mycrontab
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
-# Organize nginx html folder
-RUN rm -rf /usr/share/nginx/html/*
-COPY ../web/ /usr/share/nginx/html/
+# Install Python requirements
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-## please tune the parameters in the confiles
-## /etc/nginx/nginx.conf 
-## /etc/nginx/conf.d/default.conf
+# Copy application source code
+COPY backend/ ./backend/
+COPY frontend/ ./frontend/
+COPY data/ ./data/
+COPY VERSION pyproject.toml README.md ./
 
-# Ops on entrypoint-wrapper
-RUN chmod +x /app/entrypoint-wrapper.sh
-ENTRYPOINT ["/app/entrypoint-wrapper.sh"]
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:4070/api/health || exit 1
 
-# Have to reset CMD since it gets cleared when we set ENTRYPOINT
-CMD ["nginx", "-g", "daemon off;"]
+EXPOSE 4070
+
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "4070"]
