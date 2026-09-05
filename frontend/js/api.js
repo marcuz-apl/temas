@@ -31,6 +31,12 @@ export async function fetchTectonicBoundaries() {
   return await res.json();
 }
 
+export async function fetchProvinceBoundaries() {
+  const res = await fetch(`${API_BASE}/boundaries/provinces`);
+  if (!res.ok) throw new Error(`Failed to fetch province boundaries: ${res.statusText}`);
+  return await res.json();
+}
+
 export async function triggerManualSync() {
   const res = await fetch(`${API_BASE}/sync`, { method: 'POST' });
   if (!res.ok) throw new Error(`Failed to trigger sync: ${res.statusText}`);

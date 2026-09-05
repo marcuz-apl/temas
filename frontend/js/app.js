@@ -2,20 +2,27 @@
  * TEMAS 2.0 - Main Application Controller
  */
 
-import { fetchEarthquakes, fetchStats, fetchTectonicBoundaries, triggerManualSync } from './api.js';
+import { fetchEarthquakes, fetchStats, fetchTectonicBoundaries, fetchProvinceBoundaries, triggerManualSync } from './api.js';
 import { TemasMap, getMagnitudeColor } from './map.js';
 
 class TemasApp {
   constructor() {
     this.state = {
       earthquakes: [],
+      sortedChronological: [],
       stats: null,
       selectedEvent: null,
       filters: {
         min_magnitude: 3.0,
         preset: 'all',
         region: '',
-        limit: 1000
+        limit: 1500
+      },
+      playback: {
+        isPlaying: false,
+        timer: null,
+        currentIndex: 0,
+        speed: 5
       }
     };
 
@@ -31,6 +38,11 @@ class TemasApp {
     fetchTectonicBoundaries()
       .then((geojson) => this.mapEngine.loadTectonicBoundaries(geojson))
       .catch((err) => console.warn('Could not load tectonic boundaries:', err));
+
+    // Load Turkish province boundaries
+    fetchProvinceBoundaries()
+      .then((geojson) => this.mapEngine.loadProvinceBoundaries(geojson))
+      .catch((err) => console.warn('Could not load province boundaries:', err));
 
     // Initial load
     await this.refreshAll();
@@ -57,6 +69,7 @@ class TemasApp {
         btn.classList.add('active');
         const preset = btn.dataset.preset;
         this.state.filters.preset = preset;
+        this.stopPlayback();
         this.loadEarthquakes();
       });
     });
@@ -74,11 +87,50 @@ class TemasApp {
       });
     }
 
-    // Tectonic Fault Line Layer Toggle
+    // Layer Toggles
     const faultToggle = document.getElementById('toggle-faults');
     if (faultToggle) {
-      faultToggle.addEventListener('change', (e) => {
-        this.mapEngine.setTectonicVisibility(e.target.checked);
+      faultToggle.addEventListener('change', (e) => this.mapEngine.setTectonicVisibility(e.target.checked));
+    }
+
+    const provToggle = document.getElementById('toggle-provinces');
+    if (provToggle) {
+      provToggle.addEventListener('change', (e) => this.mapEngine.setProvinceVisibility(e.target.checked));
+    }
+
+    const heatToggle = document.getElementById('toggle-heatmap');
+    if (heatToggle) {
+      heatToggle.addEventListener('change', (e) => this.mapEngine.setHeatmapVisibility(e.target.checked));
+    }
+
+    // Reset Map View
+    const resetMapBtn = document.getElementById('btn-reset-map');
+    if (resetMapBtn) {
+      resetMapBtn.addEventListener('click', () => this.mapEngine.resetView());
+    }
+
+    // Timeline Playback Controls
+    const playBtn = document.getElementById('btn-playback-toggle');
+    if (playBtn) {
+      playBtn.addEventListener('click', () => this.togglePlayback());
+    }
+
+    const scrubber = document.getElementById('timeline-scrubber');
+    if (scrubber) {
+      scrubber.addEventListener('input', (e) => {
+        const percent = parseInt(e.target.value, 10);
+        this.setPlaybackProgress(percent);
+      });
+    }
+
+    const speedSelect = document.getElementById('playback-speed');
+    if (speedSelect) {
+      speedSelect.addEventListener('change', (e) => {
+        this.state.playback.speed = parseInt(e.target.value, 10);
+        if (this.state.playback.isPlaying) {
+          this.stopPlayback();
+          this.startPlayback();
+        }
       });
     }
 
@@ -107,16 +159,31 @@ class TemasApp {
       });
     }
 
-    // Export Buttons
-    const exportCsvBtn = document.getElementById('btn-export-csv');
-    if (exportCsvBtn) {
-      exportCsvBtn.addEventListener('click', () => this.exportCsv());
+    // Analytics Modal
+    const analyticsBtn = document.getElementById('btn-analytics');
+    const analyticsModal = document.getElementById('analytics-modal');
+    const closeAnalyticsBtn = document.getElementById('btn-close-analytics');
+
+    if (analyticsBtn && analyticsModal) {
+      analyticsBtn.addEventListener('click', () => {
+        this.renderAnalytics();
+        analyticsModal.classList.add('open');
+      });
     }
 
-    const exportGeoJsonBtn = document.getElementById('btn-export-geojson');
-    if (exportGeoJsonBtn) {
-      exportGeoJsonBtn.addEventListener('click', () => this.exportGeoJson());
+    if (closeAnalyticsBtn && analyticsModal) {
+      closeAnalyticsBtn.addEventListener('click', () => analyticsModal.classList.remove('open'));
+      analyticsModal.addEventListener('click', (e) => {
+        if (e.target === analyticsModal) analyticsModal.classList.remove('open');
+      });
     }
+
+    // Export Buttons
+    const exportCsvBtn = document.getElementById('btn-export-csv');
+    if (exportCsvBtn) exportCsvBtn.addEventListener('click', () => this.exportCsv());
+
+    const exportGeoJsonBtn = document.getElementById('btn-export-geojson');
+    if (exportGeoJsonBtn) exportGeoJsonBtn.addEventListener('click', () => this.exportGeoJson());
   }
 
   async refreshAll() {
@@ -159,16 +226,178 @@ class TemasApp {
     try {
       const data = await fetchEarthquakes(queryParams);
       this.state.earthquakes = data.items || [];
+      // Chronologically sorted for playback
+      this.state.sortedChronological = [...this.state.earthquakes].sort(
+        (a, b) => a.origintimeutc.localeCompare(b.origintimeutc)
+      );
+
       this.renderFeed(this.state.earthquakes);
       this.mapEngine.renderEarthquakes(this.state.earthquakes);
 
       const countEl = document.getElementById('feed-count');
       if (countEl) countEl.textContent = `${this.state.earthquakes.length} Events`;
+
+      // Reset scrubber to 100%
+      const scrubber = document.getElementById('timeline-scrubber');
+      const dateDisplay = document.getElementById('timeline-date-display');
+      if (scrubber) scrubber.value = 100;
+      if (dateDisplay) dateDisplay.textContent = 'All Records Visible';
     } catch (err) {
       console.error('Failed loading earthquakes:', err);
     }
   }
 
+  /* ==========================================================================
+     Timeline Playback Engine
+     ========================================================================== */
+  togglePlayback() {
+    if (this.state.playback.isPlaying) {
+      this.stopPlayback();
+    } else {
+      this.startPlayback();
+    }
+  }
+
+  startPlayback() {
+    if (!this.state.sortedChronological.length) return;
+    this.state.playback.isPlaying = true;
+    const playIcon = document.getElementById('playback-icon');
+    const playLabel = document.getElementById('playback-label');
+    if (playIcon) playIcon.textContent = '⏸';
+    if (playLabel) playLabel.textContent = 'Pause';
+
+    const scrubber = document.getElementById('timeline-scrubber');
+    if (scrubber && parseInt(scrubber.value, 10) >= 100) {
+      scrubber.value = 0;
+      this.state.playback.currentIndex = 0;
+    }
+
+    const intervalMs = Math.max(40, 500 / this.state.playback.speed);
+
+    this.state.playback.timer = setInterval(() => {
+      const total = this.state.sortedChronological.length;
+      if (this.state.playback.currentIndex >= total - 1) {
+        this.stopPlayback();
+        return;
+      }
+
+      this.state.playback.currentIndex += Math.max(1, Math.floor(total / 100));
+      if (this.state.playback.currentIndex >= total) {
+        this.state.playback.currentIndex = total - 1;
+      }
+
+      const percent = Math.floor((this.state.playback.currentIndex / (total - 1)) * 100);
+      if (scrubber) scrubber.value = percent;
+      this.renderPlaybackFrame();
+    }, intervalMs);
+  }
+
+  stopPlayback() {
+    this.state.playback.isPlaying = false;
+    clearInterval(this.state.playback.timer);
+    const playIcon = document.getElementById('playback-icon');
+    const playLabel = document.getElementById('playback-label');
+    if (playIcon) playIcon.textContent = '▶';
+    if (playLabel) playLabel.textContent = 'Play';
+  }
+
+  setPlaybackProgress(percent) {
+    const total = this.state.sortedChronological.length;
+    if (!total) return;
+    this.state.playback.currentIndex = Math.floor((percent / 100) * (total - 1));
+    this.renderPlaybackFrame();
+  }
+
+  renderPlaybackFrame() {
+    const total = this.state.sortedChronological.length;
+    if (!total) return;
+    const currentEvent = this.state.sortedChronological[this.state.playback.currentIndex];
+    if (!currentEvent) return;
+
+    const maxTime = currentEvent.origintimeutc;
+    this.mapEngine.renderEarthquakes(this.state.earthquakes, maxTime);
+
+    const dateDisplay = document.getElementById('timeline-date-display');
+    if (dateDisplay) {
+      dateDisplay.textContent = `Date: ${(currentEvent.eventtime || currentEvent.origintimeutc).substring(0, 16)} TRT`;
+    }
+  }
+
+  /* ==========================================================================
+     Analytics Visualizations
+     ========================================================================== */
+  renderAnalytics() {
+    const quakes = this.state.earthquakes;
+    const magChart = document.getElementById('analytics-mag-chart');
+    const depthSummary = document.getElementById('analytics-depth-summary');
+    if (!magChart || !depthSummary) return;
+
+    // Magnitude bins
+    const bins = {
+      '< 3.0': { count: 0, color: '#10b981' },
+      '3.0–3.9': { count: 0, color: '#38bdf8' },
+      '4.0–4.9': { count: 0, color: '#f59e0b' },
+      '5.0–5.9': { count: 0, color: '#f97316' },
+      '6.0–6.9': { count: 0, color: '#ef4444' },
+      '≥ 7.0': { count: 0, color: '#ec4899' }
+    };
+
+    let shallow = 0; // < 10 km
+    let intermediate = 0; // 10 - 30 km
+    let deep = 0; // > 30 km
+
+    quakes.forEach((eq) => {
+      const mag = parseFloat(eq.magnitude) || 0;
+      const d = parseFloat(eq.depthkm) || 0;
+
+      if (mag < 3.0) bins['< 3.0'].count++;
+      else if (mag < 4.0) bins['3.0–3.9'].count++;
+      else if (mag < 5.0) bins['4.0–4.9'].count++;
+      else if (mag < 6.0) bins['5.0–5.9'].count++;
+      else if (mag < 7.0) bins['6.0–6.9'].count++;
+      else bins['≥ 7.0'].count++;
+
+      if (d < 10) shallow++;
+      else if (d <= 30) intermediate++;
+      else deep++;
+    });
+
+    const maxCount = Math.max(1, ...Object.values(bins).map((b) => b.count));
+
+    magChart.innerHTML = Object.entries(bins)
+      .map(([label, data]) => {
+        const pct = Math.round((data.count / maxCount) * 100);
+        return `
+          <div class="chart-bar-row">
+            <span class="chart-bar-label">${label}</span>
+            <div class="chart-bar-track">
+              <div class="chart-bar-fill" style="width: ${pct}%; background: ${data.color}"></div>
+            </div>
+            <span class="chart-bar-count">${data.count}</span>
+          </div>
+        `;
+      })
+      .join('');
+
+    depthSummary.innerHTML = `
+      <div class="depth-stat-row">
+        <span>Shallow Focal Depth (&lt; 10 km)</span>
+        <strong style="color: #ef4444">${shallow} events (${Math.round((shallow / (quakes.length || 1)) * 100)}%)</strong>
+      </div>
+      <div class="depth-stat-row">
+        <span>Intermediate Depth (10 – 30 km)</span>
+        <strong style="color: #f59e0b">${intermediate} events (${Math.round((intermediate / (quakes.length || 1)) * 100)}%)</strong>
+      </div>
+      <div class="depth-stat-row">
+        <span>Deep Focal Depth (&gt; 30 km)</span>
+        <strong style="color: #38bdf8">${deep} events (${Math.round((deep / (quakes.length || 1)) * 100)}%)</strong>
+      </div>
+    `;
+  }
+
+  /* ==========================================================================
+     KPI & Feed Rendering
+     ========================================================================== */
   renderKPIs(stats) {
     const elTotal = document.getElementById('kpi-total');
     const elMax = document.getElementById('kpi-max');
@@ -197,7 +426,7 @@ class TemasApp {
     }
 
     container.innerHTML = items
-      .slice(0, 150) // render first 150 for smooth scrolling
+      .slice(0, 150)
       .map((eq) => {
         const mag = parseFloat(eq.magnitude) || 0;
         const color = getMagnitudeColor(mag);
@@ -222,22 +451,17 @@ class TemasApp {
       })
       .join('');
 
-    // Attach click listeners to cards
     container.querySelectorAll('.event-card').forEach((card) => {
       card.addEventListener('click', () => {
         const timeId = card.dataset.time;
         const eq = this.state.earthquakes.find((e) => e.origintimeutc === timeId);
-        if (eq) {
-          this.handleEventSelect(eq, card);
-        }
+        if (eq) this.handleEventSelect(eq, card);
       });
     });
   }
 
   handleEventSelect(eq, cardElement = null) {
     this.state.selectedEvent = eq;
-
-    // Highlight active card
     document.querySelectorAll('.event-card').forEach((c) => c.classList.remove('active'));
     if (cardElement) {
       cardElement.classList.add('active');
@@ -248,7 +472,6 @@ class TemasApp {
         matchingCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
     }
-
     this.mapEngine.focusEarthquake(eq);
   }
 

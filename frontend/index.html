@@ -55,6 +55,9 @@
 
     <!-- Header Actions -->
     <div class="header-actions">
+      <button id="btn-analytics" class="btn" title="View Seismic Analytics">
+        <span>📈 Analytics</span>
+      </button>
       <button id="btn-table-view" class="btn" title="View Full Data Table">
         <span>📊 Data Table</span>
       </button>
@@ -116,6 +119,33 @@
           <input type="checkbox" id="toggle-faults" checked>
           <span>Tectonic Fault Lines</span>
         </label>
+        <label class="toggle-item">
+          <input type="checkbox" id="toggle-provinces">
+          <span>Turkish Provinces</span>
+        </label>
+        <label class="toggle-item">
+          <input type="checkbox" id="toggle-heatmap">
+          <span>Seismic HeatMap</span>
+        </label>
+      </div>
+
+      <!-- Floating Bottom Timeline Playback Bar -->
+      <div class="timeline-bar" id="timeline-bar">
+        <button id="btn-playback-toggle" class="btn btn-sm" title="Play/Pause Chronological Animation">
+          <span id="playback-icon">▶</span> <span id="playback-label">Play</span>
+        </button>
+        <div class="timeline-scrubber-wrapper">
+          <input type="range" id="timeline-scrubber" min="0" max="100" value="100" step="1">
+        </div>
+        <div class="timeline-meta">
+          <span id="timeline-date-display">All Records Visible</span>
+        </div>
+        <select id="playback-speed" class="timeline-speed-select" title="Playback Speed">
+          <option value="1">1x Speed</option>
+          <option value="5" selected>5x Speed</option>
+          <option value="15">15x Speed</option>
+        </select>
+        <button id="btn-reset-map" class="btn btn-sm" title="Reset Map View">↺ Center</button>
       </div>
 
       <!-- Magnitude Scale Legend -->
@@ -185,8 +215,36 @@
     </div>
   </div>
 
+  <!-- Analytics Modal -->
+  <div class="modal-backdrop" id="analytics-modal">
+    <div class="modal-dialog" style="max-width: 800px;">
+      <div class="modal-header">
+        <h3>Seismic Intelligence & Gutenberg-Richter Analytics</h3>
+        <button id="btn-close-analytics" class="btn btn-sm" style="padding: 4px 8px;">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="analytics-grid">
+          <div class="analytics-card">
+            <h4>Magnitude Distribution (Gutenberg-Richter)</h4>
+            <div id="analytics-mag-chart" class="chart-bars">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+          <div class="analytics-card">
+            <h4>Depth Breakdown</h4>
+            <div id="analytics-depth-summary" class="depth-stats">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <!-- Leaflet Heatmap Plugin -->
+  <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
 
   <!-- Application Entry Point -->
   <script type="module" src="/static/js/app.js"></script>

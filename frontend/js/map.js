@@ -1,5 +1,5 @@
 /**
- * TEMAS 2.0 - Geospatial Map Engine (Leaflet + CartoDB)
+ * TEMAS 2.0 - Geospatial Map Engine (Leaflet + CartoDB + Heatmap)
  */
 
 export function getMagnitudeColor(mag) {
@@ -22,7 +22,10 @@ export class TemasMap {
     this.markers = new Map();
     this.markerLayerGroup = L.layerGroup();
     this.faultLayerGroup = L.layerGroup();
-    this.activePopupMarker = null;
+    this.provinceLayerGroup = L.layerGroup();
+    this.heatLayerGroup = L.layerGroup();
+    this.heatLayer = null;
+    this.currentEarthquakes = [];
 
     this.initMap();
   }
@@ -85,23 +88,86 @@ export class TemasMap {
     }).addTo(this.faultLayerGroup);
   }
 
+  loadProvinceBoundaries(geojsonData) {
+    this.provinceLayerGroup.clearLayers();
+    L.geoJSON(geojsonData, {
+      style: {
+        color: '#38bdf8',
+        weight: 1.0,
+        opacity: 0.45,
+        fillColor: '#38bdf8',
+        fillOpacity: 0.03
+      },
+      onEachFeature: (feature, layer) => {
+        const name = feature.properties?.shapeName || feature.properties?.name || 'Province';
+        layer.bindTooltip(`Province: <strong>${name}</strong>`, { sticky: true });
+        layer.on({
+          mouseover: (e) => e.target.setStyle({ weight: 2, opacity: 0.9, fillOpacity: 0.1 }),
+          mouseout: (e) => e.target.setStyle({ weight: 1.0, opacity: 0.45, fillOpacity: 0.03 })
+        });
+      }
+    }).addTo(this.provinceLayerGroup);
+  }
+
   setTectonicVisibility(visible) {
     if (visible) {
-      if (!this.map.hasLayer(this.faultLayerGroup)) {
-        this.map.addLayer(this.faultLayerGroup);
-      }
+      if (!this.map.hasLayer(this.faultLayerGroup)) this.map.addLayer(this.faultLayerGroup);
     } else {
-      if (this.map.hasLayer(this.faultLayerGroup)) {
-        this.map.removeLayer(this.faultLayerGroup);
-      }
+      if (this.map.hasLayer(this.faultLayerGroup)) this.map.removeLayer(this.faultLayerGroup);
     }
   }
 
-  renderEarthquakes(earthquakes) {
+  setProvinceVisibility(visible) {
+    if (visible) {
+      if (!this.map.hasLayer(this.provinceLayerGroup)) this.map.addLayer(this.provinceLayerGroup);
+    } else {
+      if (this.map.hasLayer(this.provinceLayerGroup)) this.map.removeLayer(this.provinceLayerGroup);
+    }
+  }
+
+  setHeatmapVisibility(visible) {
+    if (visible) {
+      if (!this.map.hasLayer(this.heatLayerGroup)) {
+        this.updateHeatMap(this.currentEarthquakes);
+        this.map.addLayer(this.heatLayerGroup);
+      }
+    } else {
+      if (this.map.hasLayer(this.heatLayerGroup)) this.map.removeLayer(this.heatLayerGroup);
+    }
+  }
+
+  updateHeatMap(earthquakes) {
+    if (!window.L || !L.heatLayer) return;
+    const points = earthquakes
+      .map((eq) => [
+        parseFloat(eq.latitude),
+        parseFloat(eq.longitude),
+        Math.min(1.0, Math.pow(parseFloat(eq.magnitude) / 7.0, 2))
+      ])
+      .filter((pt) => !isNaN(pt[0]) && !isNaN(pt[1]));
+
+    if (this.heatLayer) {
+      this.heatLayerGroup.removeLayer(this.heatLayer);
+    }
+    this.heatLayer = L.heatLayer(points, {
+      radius: 28,
+      blur: 18,
+      maxZoom: 10,
+      gradient: { 0.2: '#38bdf8', 0.5: '#f59e0b', 0.8: '#ef4444', 1.0: '#ec4899' }
+    });
+    this.heatLayer.addTo(this.heatLayerGroup);
+  }
+
+  renderEarthquakes(earthquakes, maxTime = null) {
+    this.currentEarthquakes = earthquakes;
     this.markerLayerGroup.clearLayers();
     this.markers.clear();
 
-    earthquakes.forEach((eq) => {
+    const filtered = maxTime
+      ? earthquakes.filter((e) => e.origintimeutc <= maxTime)
+      : earthquakes;
+
+    filtered.forEach((eq) => {
       const lat = parseFloat(eq.latitude);
       const lon = parseFloat(eq.longitude);
       const mag = parseFloat(eq.magnitude);
@@ -160,6 +226,10 @@ export class TemasMap {
       marker.addTo(this.markerLayerGroup);
       this.markers.set(eq.origintimeutc, marker);
     });
+
+    if (this.map.hasLayer(this.heatLayerGroup)) {
+      this.updateHeatMap(filtered);
+    }
   }
 
   focusEarthquake(eq, zoom = 9) {
