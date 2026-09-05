@@ -89,18 +89,21 @@ export class TemasMap {
     // Esri World Dark Gray Base (100% Free, NO API key, zero watermarks)
     this.darkBase = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
       attribution: 'Tiles &copy; Esri &mdash; USGS, NOAA',
-      maxZoom: 16
+      maxZoom: 16,
+      crossOrigin: true
     }).addTo(this.map);
 
     // Esri Dark Reference Labels Overlay
     this.darkLabels = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
-      maxZoom: 16
+      maxZoom: 16,
+      crossOrigin: true
     }).addTo(this.map);
 
     // Alternative OpenStreetMap Standard (100% Free)
     this.osmTiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors',
-      maxZoom: 19
+      maxZoom: 19,
+      crossOrigin: true
     });
 
     // Layer control to switch basemaps

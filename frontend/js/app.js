@@ -168,6 +168,12 @@ class TemasApp {
       });
     }
 
+    // Frontpage Map Snapshot (Camera button)
+    const mapSnapshotBtn = document.getElementById('btn-map-snapshot');
+    if (mapSnapshotBtn) {
+      mapSnapshotBtn.addEventListener('click', () => this.captureFrontpageSnapshot());
+    }
+
     // Seismic Audio Alerts Toggle
     const audioBtn = document.getElementById('btn-toggle-audio');
     const audioIcon = document.getElementById('audio-icon');
@@ -1054,6 +1060,57 @@ class TemasApp {
       if (sandbox && sandbox.parentNode) {
         sandbox.parentNode.removeChild(sandbox);
       }
+    }
+  }
+
+  /**
+   * Captures a high-resolution PNG snapshot of the active frontpage
+   * including live earthquakes, fault lines, provinces, and telemetry widgets.
+   */
+  async captureFrontpageSnapshot() {
+    if (typeof window.html2canvas === 'undefined') {
+      return this.showToast('Snapshot engine is still initializing, please retry in a second.', 'warning');
+    }
+
+    const snapBtn = document.getElementById('btn-map-snapshot');
+    if (snapBtn) snapBtn.classList.add('active');
+
+    this.showToast('Capturing frontpage snapshot (2x Retina)...', 'info');
+
+    try {
+      // Brief pause to allow any pending UI transitions to settle
+      await new Promise((r) => setTimeout(r, 120));
+
+      const target = document.body;
+      const canvas = await window.html2canvas(target, {
+        scale: 2, // High-DPI 2x Retina output
+        backgroundColor: '#090d16',
+        useCORS: true,
+        allowTaint: false,
+        logging: false,
+        ignoreElements: (el) => {
+          // Exclude transient toasts, active modals, or hover trigger zones
+          if (el.classList && (el.classList.contains('toast') || el.id === 'toast-container' || el.classList.contains('modal-backdrop'))) {
+            return true;
+          }
+          return false;
+        }
+      });
+
+      const link = document.createElement('a');
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').substring(0, 19);
+      link.download = `TEMAS2_Frontpage_Snapshot_${timestamp}.png`;
+      link.href = canvas.toDataURL('image/png');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      this.showToast('📸 Frontpage snapshot saved successfully!', 'success');
+    } catch (err) {
+      console.error('Frontpage snapshot failed:', err);
+      this.showToast(`Snapshot error: ${err.message}`, 'error');
+    } finally {
+      if (snapBtn) snapBtn.classList.remove('active');
     }
   }
 }

@@ -35,12 +35,25 @@ v2.1.0 (Baseline Architecture)
         │
         ├─► v2.9.2 (Feat/Fix: 1-Page PDF & PNG Analytics Export, Expanded Sidebar Card Height & Content)
         │
-        └─► v2.9.3 (Feat/Fix: Default Auto-Hidden Sidebar, Draggable Map Widgets, Clean White A4/Letter PNG Export)
+        ├─► v2.9.3 (Feat/Fix: Default Auto-Hidden Sidebar, Draggable Map Widgets, Clean White A4/Letter PNG Export)
+        │
+        └─► v2.9.4 (Feat: One-Click Frontpage Map Snapshot Camera Action)
 ```
 
 ---
 
 ## Milestone Change Log Details
+
+### [v2.9.4] — 2026-09-05
+**Feat: One-Click Frontpage Map Snapshot Camera Action**
+- **Type**: `feat(ui)`
+- **Scope**: `frontend/index.html`, `frontend/css/style.css`, `frontend/js/app.js`, `frontend/js/map.js`
+- **Key Deliverables**:
+  - **Camera Snapshot Icon**: Added an icon-only `📷` button (`#btn-map-snapshot`) directly to the top-right header action bar beside Fullscreen and Sync.
+  - **Instant High-DPI Snapshot Engine**: Clicking the Camera icon triggers `captureFrontpageSnapshot()`, which captures the full interactive map canvas (with live earthquakes, tectonic faults, provincial borders, and active widgets) at 2x Retina resolution without capturing transient toasts or background modals.
+  - **CORS-Enabled Tile Layers**: Configured `crossOrigin: true` on ArcGIS and OpenStreetMap tile layers to prevent canvas tainting during client-side export.
+
+---
 
 ### [v2.9.3] — 2026-09-05
 **Feat/Fix: Default Auto-Hidden Sidebar, Draggable Map Widgets, Clean White A4/Letter PNG Export**
