@@ -14,7 +14,7 @@ def get_db_connection() -> sqlite3.Connection:
     return conn
 
 
-DEFAULT_ADMIN_KEY = "temasad2023!"
+DEFAULT_ADMIN_KEY = "Tema$2023"
 
 
 def init_db():
@@ -50,7 +50,7 @@ def init_db():
             )
         """)
         row = conn.execute("SELECT value FROM admin_config WHERE key = 'admin_password'").fetchone()
-        if not row:
+        if not row or row["value"] == "temasad2023!":
             conn.execute(
                 "INSERT OR REPLACE INTO admin_config (key, value, updated_at) VALUES ('admin_password', ?, datetime('now'))",
                 (DEFAULT_ADMIN_KEY,)
