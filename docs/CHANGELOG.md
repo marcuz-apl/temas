@@ -25,12 +25,23 @@ v2.1.0 (Baseline Architecture)
   │
   └─► v2.8.0 (Feat: Ingestion Scheduler Hardening & Configurable TEMAS_SYNC_INTERVAL)
         │
-        └─► v2.8.1 (Fix: Technical Documentation Markdown KaTeX/MathJax Syntax Cleanup)
+        ├─► v2.8.1 (Fix: Technical Documentation Markdown KaTeX/MathJax Syntax Cleanup)
+        │
+        └─► v2.8.2 (Fix: Main Window Brand Calibration to TEMAS 2 Gen2)
 ```
 
 ---
 
 ## Milestone Change Log Details
+
+### [v2.8.2] — 2026-09-05
+**Fix: Main Window Brand Calibration to TEMAS 2 (Gen2 Platform)**
+- **Type**: `fix(branding)`
+- **Scope**: `frontend/index.html`
+- **Key Deliverables**:
+  - Calibrated the primary top-left application title and browser tab title to **"TEMAS 2"** (representing the TEMAS Gen2 platform generation rather than a minor point release).
+
+---
 
 ### [v2.8.1] — 2026-09-05
 **Fix: Technical Documentation Markdown KaTeX/MathJax Syntax Cleanup**
