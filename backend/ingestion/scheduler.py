@@ -1,3 +1,4 @@
+import os
 import asyncio
 import time
 import logging
@@ -55,7 +56,7 @@ SYNC_STATE: Dict[str, Any] = {
     "providers": PROVIDERS_STATUS
 }
 
-DEFAULT_INTERVAL_SECONDS = 180  # 3 minutes
+DEFAULT_INTERVAL_SECONDS = int(os.environ.get("TEMAS_SYNC_INTERVAL", "180"))  # Default 3 minutes (180s)
 
 
 async def sync_single_provider(provider_name: str) -> Dict[str, Any]:
