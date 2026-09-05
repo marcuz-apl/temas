@@ -98,6 +98,18 @@
   const cancelConfirmModalBtn = document.getElementById('cancelConfirmModalBtn');
   const closeConfirmModalBtn = document.getElementById('closeConfirmModalBtn');
 
+  // Change Password Modal Elements
+  const openChangePwdBtn = document.getElementById('openChangePwdBtn');
+  const changePwdModal = document.getElementById('changePwdModal');
+  const closeChangePwdBtn = document.getElementById('closeChangePwdBtn');
+  const cancelChangePwdBtn = document.getElementById('cancelChangePwdBtn');
+  const changePwdForm = document.getElementById('changePwdForm');
+  const currentPwdInput = document.getElementById('currentPwdInput');
+  const newPwdInput = document.getElementById('newPwdInput');
+  const confirmPwdInput = document.getElementById('confirmPwdInput');
+  const changePwdError = document.getElementById('changePwdError');
+  const submitChangePwdBtn = document.getElementById('submitChangePwdBtn');
+
   // ==========================================
   // IN-APP NOTIFICATIONS & CLIENT POPUPS
   // ==========================================
@@ -317,6 +329,86 @@
       authError.classList.remove('hidden');
     }
   });
+
+  // Change Password Modal Actions
+  function openChangePasswordModal() {
+    if (!changePwdModal) return;
+    changePwdModal.classList.remove('hidden');
+    changePwdForm.reset();
+    if (changePwdError) changePwdError.classList.add('hidden');
+    if (currentPwdInput) currentPwdInput.focus();
+  }
+
+  function closeChangePasswordModal() {
+    if (changePwdModal) changePwdModal.classList.add('hidden');
+  }
+
+  if (openChangePwdBtn) openChangePwdBtn.addEventListener('click', openChangePasswordModal);
+  if (closeChangePwdBtn) closeChangePwdBtn.addEventListener('click', closeChangePasswordModal);
+  if (cancelChangePwdBtn) cancelChangePwdBtn.addEventListener('click', closeChangePasswordModal);
+
+  if (changePwdForm) {
+    changePwdForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const currentPwd = currentPwdInput.value.trim();
+      const newPwd = newPwdInput.value.trim();
+      const confirmPwd = confirmPwdInput.value.trim();
+
+      if (changePwdError) changePwdError.classList.add('hidden');
+
+      if (newPwd !== confirmPwd) {
+        if (changePwdError) {
+          changePwdError.textContent = 'New passwords do not match.';
+          changePwdError.classList.remove('hidden');
+        }
+        return;
+      }
+
+      if (newPwd.length < 6) {
+        if (changePwdError) {
+          changePwdError.textContent = 'New password must be at least 6 characters long.';
+          changePwdError.classList.remove('hidden');
+        }
+        return;
+      }
+
+      submitChangePwdBtn.disabled = true;
+      submitChangePwdBtn.textContent = 'Updating...';
+
+      try {
+        const res = await adminFetch('/api/admin/change-password', {
+          method: 'POST',
+          body: JSON.stringify({
+            current_password: currentPwd,
+            new_password: newPwd
+          })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          adminKey = newPwd;
+          sessionStorage.setItem('temas_admin_key', newPwd);
+          if (downloadDbBtn) {
+            downloadDbBtn.href = `/api/admin/db/download?key=${encodeURIComponent(adminKey)}`;
+          }
+          closeChangePasswordModal();
+          showToast('Passkey Updated', 'Admin master password has been successfully updated and saved.', 'success');
+        } else {
+          if (changePwdError) {
+            changePwdError.textContent = data.detail || data.message || 'Failed to update password.';
+            changePwdError.classList.remove('hidden');
+          }
+        }
+      } catch (err) {
+        if (changePwdError) {
+          changePwdError.textContent = err.message || 'Network error updating password.';
+          changePwdError.classList.remove('hidden');
+        }
+      } finally {
+        submitChangePwdBtn.disabled = false;
+        submitChangePwdBtn.textContent = 'Save New Password';
+      }
+    });
+  }
 
   logoutBtn.addEventListener('click', lockDeck);
 

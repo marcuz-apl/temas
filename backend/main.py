@@ -21,6 +21,9 @@ from backend.database import (
     delete_earthquake,
     insert_manual_earthquake,
     purge_subthreshold_earthquakes,
+    get_admin_password,
+    update_admin_password,
+    DEFAULT_ADMIN_KEY,
     DB_PATH
 )
 from backend.ingestion.scheduler import (
@@ -37,7 +40,7 @@ from backend.ingestion.backfill import (
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "data")
 FRONTEND_DIR = os.path.join(os.path.dirname(__file__), "..", "frontend")
-ADMIN_KEY = os.environ.get("TEMAS_ADMIN_KEY", "temas-admin-2026")
+ADMIN_KEY = DEFAULT_ADMIN_KEY
 
 
 @asynccontextmanager
@@ -77,17 +80,23 @@ def verify_admin_key(
     authorization: Optional[str] = Header(None),
     key: Optional[str] = Query(None)
 ):
-    """Validates Admin credentials via header, Bearer token, or query param."""
+    """Validates Admin credentials via header, Bearer token, or query param against dynamic SQLite config."""
     token = x_admin_key or key
     if not token and authorization and authorization.startswith("Bearer "):
         token = authorization.split("Bearer ", 1)[1].strip()
 
-    if not token or token != ADMIN_KEY:
+    active_key = get_admin_password()
+    if not token or token != active_key:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or missing TEMAS Admin Key"
         )
     return True
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str = Field(..., min_length=1)
+    new_password: str = Field(..., min_length=6)
 
 
 class BackfillRequest(BaseModel):
@@ -208,6 +217,18 @@ async def get_province_boundaries():
 async def admin_auth_check(_: bool = Depends(verify_admin_key)):
     """Validates provided admin credentials."""
     return {"status": "authenticated", "message": "Admin credentials valid"}
+
+
+@app.post("/api/admin/change-password")
+async def admin_change_password(
+    req: ChangePasswordRequest,
+    _: bool = Depends(verify_admin_key)
+):
+    """Changes the administrator master passkey."""
+    success = update_admin_password(req.current_password, req.new_password)
+    if not success:
+        raise HTTPException(status_code=400, detail="Current passkey is incorrect.")
+    return {"status": "success", "message": "Admin passkey updated successfully."}
 
 
 @app.get("/api/admin/status")

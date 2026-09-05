@@ -203,6 +203,43 @@ def test_admin_manual_event_lifecycle():
     assert res_del.status_code == 200
     assert res_del.json()["deleted"] is True
 
+
+def test_admin_change_password():
+    # 1. Incorrect current password rejected
+    res_bad = client.post(
+        "/api/admin/change-password",
+        json={"current_password": "wrong-password", "new_password": "newpassword123"},
+        headers={"X-Admin-Key": ADMIN_KEY}
+    )
+    assert res_bad.status_code == 400
+
+    # 2. Successfully change password
+    res_change = client.post(
+        "/api/admin/change-password",
+        json={"current_password": ADMIN_KEY, "new_password": "updatedpass2026!"},
+        headers={"X-Admin-Key": ADMIN_KEY}
+    )
+    assert res_change.status_code == 200
+    assert res_change.json()["status"] == "success"
+
+    # 3. Old password now rejected for admin actions
+    res_old = client.get("/api/admin/status", headers={"X-Admin-Key": ADMIN_KEY})
+    assert res_old.status_code == 401
+
+    # 4. New password accepted for admin actions
+    res_new = client.get("/api/admin/status", headers={"X-Admin-Key": "updatedpass2026!"})
+    assert res_new.status_code == 200
+
+    # 5. Revert back to default ADMIN_KEY
+    res_revert = client.post(
+        "/api/admin/change-password",
+        json={"current_password": "updatedpass2026!", "new_password": ADMIN_KEY},
+        headers={"X-Admin-Key": "updatedpass2026!"}
+    )
+    assert res_revert.status_code == 200
+    assert res_revert.json()["status"] == "success"
+
+
 @pytest.mark.anyio
 async def test_emsc_fetch():
     from backend.ingestion.emsc import fetch_emsc_earthquakes

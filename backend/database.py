@@ -14,8 +14,11 @@ def get_db_connection() -> sqlite3.Connection:
     return conn
 
 
+DEFAULT_ADMIN_KEY = "temasad2023!"
+
+
 def init_db():
-    """Initializes schema and creates indexes if missing."""
+    """Initializes schema, admin configuration, and creates indexes if missing."""
     with get_db_connection() as conn:
         conn.execute("""
             CREATE TABLE IF NOT EXISTS quaketk (
@@ -37,6 +40,70 @@ def init_db():
         conn.execute("CREATE INDEX IF NOT EXISTS idx_quaketk_mag ON quaketk (magnitude DESC)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_quaketk_region ON quaketk (region)")
         conn.execute("CREATE UNIQUE INDEX IF NOT EXISTS uq_quaketk_event ON quaketk (origintimeutc, latitude, longitude, measmethod)")
+
+        # Admin configuration table for dynamic password persistence
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS admin_config (
+                key TEXT PRIMARY KEY,
+                value TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            )
+        """)
+        row = conn.execute("SELECT value FROM admin_config WHERE key = 'admin_password'").fetchone()
+        if not row:
+            conn.execute(
+                "INSERT OR REPLACE INTO admin_config (key, value, updated_at) VALUES ('admin_password', ?, datetime('now'))",
+                (DEFAULT_ADMIN_KEY,)
+            )
+
+
+def get_admin_password() -> str:
+    """Retrieves current admin password from SQLite config or fallback default."""
+    env_override = os.environ.get("TEMAS_ADMIN_KEY")
+    if env_override:
+        return env_override
+
+    with get_db_connection() as conn:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS admin_config (
+                key TEXT PRIMARY KEY,
+                value TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            )
+        """)
+        row = conn.execute("SELECT value FROM admin_config WHERE key = 'admin_password'").fetchone()
+        if row and row["value"]:
+            return row["value"]
+
+        # Default initialization
+        conn.execute(
+            "INSERT OR REPLACE INTO admin_config (key, value, updated_at) VALUES ('admin_password', ?, datetime('now'))",
+            (DEFAULT_ADMIN_KEY,)
+        )
+        conn.commit()
+        return DEFAULT_ADMIN_KEY
+
+
+def update_admin_password(current_password: str, new_password: str) -> bool:
+    """Validates current password and updates to new password."""
+    active_pwd = get_admin_password()
+    if current_password != active_pwd:
+        return False
+
+    with get_db_connection() as conn:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS admin_config (
+                key TEXT PRIMARY KEY,
+                value TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            )
+        """)
+        conn.execute(
+            "INSERT OR REPLACE INTO admin_config (key, value, updated_at) VALUES ('admin_password', ?, datetime('now'))",
+            (new_password,)
+        )
+        conn.commit()
+    return True
 
 
 def insert_earthquakes(records: List[Dict[str, Any]]) -> int:
