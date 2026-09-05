@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="/static/css/admin.css">
+  <link rel="stylesheet" href="/static/css/admin.css?v=2.1.2">
 </head>
 <body>
 
@@ -454,6 +454,9 @@
           <button type="submit" class="btn-save-event glow-btn">Commit Event to SQLite</button>
         </div>
       </form>
+    </div>
+  </div>
+
   <!-- Client-Side Synchronization Report Popup Modal -->
   <div id="syncResultModal" class="modal-backdrop hidden">
     <div class="modal-card sync-report-card">
@@ -496,7 +499,28 @@
     </div>
   </div>
 
-  <script src="/static/js/admin.js"></script>
+  <!-- Custom Cyber Confirmation Modal (Replaces browser confirm) -->
+  <div id="confirmModal" class="modal-backdrop hidden">
+    <div class="modal-card auth-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span id="confirmModalIcon" style="font-size: 1.5rem;">⚠️</span>
+          <h3 id="confirmModalTitle">CONFIRM ACTION</h3>
+        </div>
+        <button id="closeConfirmModalBtn" class="btn-close-modal">✕</button>
+      </div>
+      <p id="confirmModalMessage" class="auth-desc" style="margin-bottom: 1.5rem; color: #cbd5e1;"></p>
+      <div class="modal-actions-row">
+        <button id="cancelConfirmModalBtn" class="btn-cancel">Cancel</button>
+        <button id="okConfirmModalBtn" class="btn-save-event glow-btn">Confirm & Execute</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Cyber Toast Container (Replaces browser alert) -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="/static/js/admin.js?v=2.1.2"></script>
 </body>
 </html>
 

@@ -22,7 +22,7 @@
   const refreshHealthBtn = document.getElementById('refreshHealthBtn');
 
   // Backfill
-  const presetBtns = document.querySelectorAll('.preset-btn');
+  const presetBtns = document.querySelectorAll('.preset-btn, .preset-pill');
   const bfStart = document.getElementById('bfStart');
   const bfEnd = document.getElementById('bfEnd');
   const bfMag = document.getElementById('bfMag');
@@ -45,6 +45,7 @@
   const yearsContainer = document.getElementById('yearsContainer');
   const magDistContainer = document.getElementById('magDistContainer');
   const vacuumDbBtn = document.getElementById('vacuumDbBtn');
+  const purgeNoiseBtn = document.getElementById('purgeNoiseBtn');
   const downloadDbBtn = document.getElementById('downloadDbBtn');
 
   // Event Moderation
@@ -59,7 +60,172 @@
   const cancelManualModalBtn = document.getElementById('cancelManualModalBtn');
   const manualEventForm = document.getElementById('manualEventForm');
 
-  // Helper for Authenticated Requests
+  // Sync Result Modal Elements
+  const syncResultModal = document.getElementById('syncResultModal');
+  const closeSyncModalBtn = document.getElementById('closeSyncModalBtn');
+  const okSyncModalBtn = document.getElementById('okSyncModalBtn');
+  const syncModalFetched = document.getElementById('syncModalFetched');
+  const syncModalInserted = document.getElementById('syncModalInserted');
+  const syncModalLatency = document.getElementById('syncModalLatency');
+  const syncModalProviders = document.getElementById('syncModalProviders');
+
+  // Confirm Modal Elements
+  const confirmModal = document.getElementById('confirmModal');
+  const confirmModalTitle = document.getElementById('confirmModalTitle');
+  const confirmModalMessage = document.getElementById('confirmModalMessage');
+  const confirmModalIcon = document.getElementById('confirmModalIcon');
+  const okConfirmModalBtn = document.getElementById('okConfirmModalBtn');
+  const cancelConfirmModalBtn = document.getElementById('cancelConfirmModalBtn');
+  const closeConfirmModalBtn = document.getElementById('closeConfirmModalBtn');
+
+  // ==========================================
+  // IN-APP NOTIFICATIONS & CLIENT POPUPS
+  // ==========================================
+
+  function showToast(title, message, type = 'info', duration = 4500) {
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    const icons = { success: '✅', error: '❌', warning: '⚠️', info: '📡' };
+    toast.innerHTML = `
+      <span class="toast-icon">${icons[type] || '📡'}</span>
+      <div class="toast-content">
+        <div class="toast-title">${title}</div>
+        <div class="toast-body">${message}</div>
+      </div>
+    `;
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.classList.add('toast-hiding');
+      setTimeout(() => toast.remove(), 300);
+    }, duration);
+  }
+
+  function showConfirmDialog({ title, message, icon = '⚠️', confirmText = 'Confirm & Execute', onConfirm }) {
+    if (!confirmModal) {
+      if (confirm(message)) onConfirm();
+      return;
+    }
+
+    confirmModalTitle.textContent = title;
+    confirmModalMessage.textContent = message;
+    confirmModalIcon.textContent = icon;
+    okConfirmModalBtn.textContent = confirmText;
+
+    function close() {
+      confirmModal.classList.add('hidden');
+      okConfirmModalBtn.onclick = null;
+      cancelConfirmModalBtn.onclick = null;
+      closeConfirmModalBtn.onclick = null;
+    }
+
+    okConfirmModalBtn.onclick = () => {
+      close();
+      onConfirm();
+    };
+    cancelConfirmModalBtn.onclick = close;
+    closeConfirmModalBtn.onclick = close;
+
+    confirmModal.classList.remove('hidden');
+  }
+
+  function closeSyncModal() {
+    if (syncResultModal) syncResultModal.classList.add('hidden');
+  }
+
+  if (closeSyncModalBtn) closeSyncModalBtn.addEventListener('click', closeSyncModal);
+  if (okSyncModalBtn) okSyncModalBtn.addEventListener('click', closeSyncModal);
+
+  function showSyncModal(result, providerName = null) {
+    if (!syncResultModal) {
+      showToast('Sync Finished', `Fetched: ${result.fetched || 0}, Stored: ${result.inserted || 0}`, 'success');
+      return;
+    }
+
+    if (providerName) {
+      // Single provider sync report
+      syncModalFetched.textContent = Number(result.fetched || 0).toLocaleString();
+      syncModalInserted.textContent = Number(result.inserted || 0).toLocaleString();
+      syncModalLatency.textContent = `${result.latency_ms || 0} ms`;
+
+      const isSuccess = result.status === 'success';
+      syncModalProviders.innerHTML = `
+        <div class="sync-prov-item">
+          <div class="sync-prov-info">
+            <div class="sync-prov-name">
+              <span>${providerName.toUpperCase()}</span>
+              <span class="prov-badge ${isSuccess ? 'badge-online' : 'badge-error'}">${result.status}</span>
+            </div>
+            <div class="sync-prov-meta">${result.message || 'On-demand single provider ingestion completed'}</div>
+          </div>
+          <div class="sync-prov-metrics">
+            <div class="sync-metric-pill">
+              <span class="sync-m-label">LATENCY</span>
+              <span class="sync-m-val text-cyan">${result.latency_ms || 0} ms</span>
+            </div>
+            <div class="sync-metric-pill">
+              <span class="sync-m-label">FETCHED</span>
+              <span class="sync-m-val">${result.fetched || 0}</span>
+            </div>
+            <div class="sync-metric-pill">
+              <span class="sync-m-label">STORED (M≥2.0)</span>
+              <span class="sync-m-val text-emerald">+${result.inserted || 0}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    } else {
+      // Full multi-tier sync report
+      syncModalFetched.textContent = Number(result.fetched || 0).toLocaleString();
+      syncModalInserted.textContent = Number(result.inserted || 0).toLocaleString();
+
+      const provs = result.providers || {};
+      let maxLatency = 0;
+      let provHtml = '';
+
+      Object.keys(provs).forEach((key) => {
+        const p = provs[key];
+        if (p.latency_ms && p.latency_ms > maxLatency) maxLatency = p.latency_ms;
+        const isSuccess = p.status === 'success';
+        provHtml += `
+          <div class="sync-prov-item">
+            <div class="sync-prov-info">
+              <div class="sync-prov-name">
+                <span>${key.toUpperCase()}</span>
+                <span class="prov-badge ${isSuccess ? 'badge-online' : 'badge-error'}">${p.status}</span>
+              </div>
+              <div class="sync-prov-meta">${p.message || 'Telemetry synchronized & verified'}</div>
+            </div>
+            <div class="sync-prov-metrics">
+              <div class="sync-metric-pill">
+                <span class="sync-m-label">LATENCY</span>
+                <span class="sync-m-val text-cyan">${p.latency_ms || 0} ms</span>
+              </div>
+              <div class="sync-metric-pill">
+                <span class="sync-m-label">FETCHED</span>
+                <span class="sync-m-val">${p.fetched || 0}</span>
+              </div>
+              <div class="sync-metric-pill">
+                <span class="sync-m-label">STORED (M≥2.0)</span>
+                <span class="sync-m-val text-emerald">+${p.inserted || 0}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      syncModalLatency.textContent = `${maxLatency || 0} ms`;
+      syncModalProviders.innerHTML = provHtml || '<div class="text-muted">No provider breakdown returned.</div>';
+    }
+
+    syncResultModal.classList.remove('hidden');
+  }
+
+  // ==========================================
+  // AUTHENTICATION
+  // ==========================================
+
   async function adminFetch(url, options = {}) {
     const headers = options.headers || {};
     headers['X-Admin-Key'] = adminKey;
@@ -74,7 +240,6 @@
     return resp;
   }
 
-  // Live UTC Clock
   function updateClock() {
     const now = new Date();
     deckTime.textContent = now.toISOString().replace('T', ' ').substring(11, 19) + ' UTC';
@@ -82,7 +247,6 @@
   setInterval(updateClock, 1000);
   updateClock();
 
-  // Authentication Flow
   async function verifyKey(keyToTest) {
     try {
       const res = await fetch('/api/admin/auth', {
@@ -98,7 +262,9 @@
   async function unlockDeck() {
     authModal.classList.add('hidden');
     adminDeck.classList.remove('hidden');
-    downloadDbBtn.href = `/api/admin/db/download?key=${encodeURIComponent(adminKey)}`;
+    if (downloadDbBtn) {
+      downloadDbBtn.href = `/api/admin/db/download?key=${encodeURIComponent(adminKey)}`;
+    }
     await loadDeckData();
     await loadEventsTable();
     startPolling();
@@ -120,12 +286,13 @@
     authError.classList.add('hidden');
 
     const valid = await verifyKey(key);
-    authSubmitBtn.textContent = 'Unlock Control Deck';
+    authSubmitBtn.textContent = 'Authorize Access';
 
     if (valid) {
       adminKey = key;
       sessionStorage.setItem('temas_admin_key', key);
       unlockDeck();
+      showToast('Deck Unlocked', 'Operations control session authorized', 'success');
     } else {
       authError.classList.remove('hidden');
     }
@@ -133,7 +300,6 @@
 
   logoutBtn.addEventListener('click', lockDeck);
 
-  // Auto-login if key is already stored
   if (adminKey) {
     verifyKey(adminKey).then((valid) => {
       if (valid) {
@@ -144,7 +310,10 @@
     });
   }
 
-  // Load Main Deck Data
+  // ==========================================
+  // DATA RENDERING
+  // ==========================================
+
   async function loadDeckData() {
     try {
       const res = await adminFetch('/api/admin/status');
@@ -157,9 +326,8 @@
     }
   }
 
-  // Render Providers Matrix
   function renderProviders(providers) {
-    if (!providers) return;
+    if (!providers || !providersGrid) return;
     providersGrid.innerHTML = '';
 
     Object.keys(providers).forEach((key) => {
@@ -203,45 +371,48 @@
     });
   }
 
-  // Render Database KPIs
   function renderDatabaseKPIs(db) {
     if (!db) return;
-    kpiTotal.textContent = Number(db.total_records || 0).toLocaleString();
-    kpiEarliest.textContent = db.earliest_date ? db.earliest_date.split(' ')[0] : '—';
-    kpiLatest.textContent = db.latest_date ? db.latest_date : '—';
-    kpiDbSize.textContent = `${db.db_size_mb || 0} MB (WAL: ${db.wal_size_mb || 0} MB)`;
+    if (kpiTotal) kpiTotal.textContent = Number(db.total_records || 0).toLocaleString();
+    if (kpiEarliest) kpiEarliest.textContent = db.earliest_date ? db.earliest_date.split(' ')[0] : '—';
+    if (kpiLatest) kpiLatest.textContent = db.latest_date ? db.latest_date : '—';
+    if (kpiDbSize) kpiDbSize.textContent = `${db.db_size_mb || 0} MB (WAL: ${db.wal_size_mb || 0} MB)`;
 
     // Years
-    yearsContainer.innerHTML = '';
-    (db.by_year || []).forEach((y) => {
-      const pill = document.createElement('div');
-      pill.className = 'year-pill';
-      pill.innerHTML = `
-        <span class="year-pill-name">${y.year}</span>
-        <span class="year-pill-count">${Number(y.count).toLocaleString()}</span>
-        <span style="font-size: 0.75rem; color: #f59e0b">M${y.max_mag}</span>
-      `;
-      yearsContainer.appendChild(pill);
-    });
+    if (yearsContainer) {
+      yearsContainer.innerHTML = '';
+      (db.by_year || []).forEach((y) => {
+        const pill = document.createElement('div');
+        pill.className = 'year-pill';
+        pill.innerHTML = `
+          <span class="year-pill-name">${y.year}</span>
+          <span class="year-pill-count">${Number(y.count).toLocaleString()}</span>
+          <span style="font-size: 0.75rem; color: #f59e0b">M${y.max_mag}</span>
+        `;
+        yearsContainer.appendChild(pill);
+      });
+    }
 
     // Magnitude Distribution
-    magDistContainer.innerHTML = '';
-    const magDist = db.magnitude_distribution || {};
-    const maxVal = Math.max(...Object.values(magDist), 1);
+    if (magDistContainer) {
+      magDistContainer.innerHTML = '';
+      const magDist = db.magnitude_distribution || {};
+      const maxVal = Math.max(...Object.values(magDist), 1);
 
-    Object.entries(magDist).forEach(([label, count]) => {
-      const pct = Math.round((count / maxVal) * 100);
-      const row = document.createElement('div');
-      row.className = 'mag-row';
-      row.innerHTML = `
-        <span class="mag-tag">${label}</span>
-        <div class="mag-bar-track">
-          <div class="mag-bar-fill" style="width: ${pct}%"></div>
-        </div>
-        <span class="mag-count">${Number(count).toLocaleString()}</span>
-      `;
-      magDistContainer.appendChild(row);
-    });
+      Object.entries(magDist).forEach(([label, count]) => {
+        const pct = Math.round((count / maxVal) * 100);
+        const row = document.createElement('div');
+        row.className = 'mag-row';
+        row.innerHTML = `
+          <span class="mag-tag">${label}</span>
+          <div class="mag-bar-track">
+            <div class="mag-bar-fill" style="width: ${pct}%"></div>
+          </div>
+          <span class="mag-count">${Number(count).toLocaleString()}</span>
+        `;
+        magDistContainer.appendChild(row);
+      });
+    }
   }
 
   // Presets selector
@@ -249,62 +420,62 @@
     btn.addEventListener('click', () => {
       presetBtns.forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
-      bfStart.value = btn.dataset.start;
-      bfEnd.value = btn.dataset.end;
-      bfMag.value = btn.dataset.mag;
+      if (bfStart) bfStart.value = btn.dataset.start;
+      if (bfEnd) bfEnd.value = btn.dataset.end;
+      if (bfMag) bfMag.value = btn.dataset.mag;
     });
   });
 
   // Launch Backfill
-  startBackfillBtn.addEventListener('click', async () => {
-    const req = {
-      start_date: bfStart.value,
-      end_date: bfEnd.value,
-      min_mag: parseFloat(bfMag.value),
-      chunk_days: parseInt(bfChunk.value, 10)
-    };
+  if (startBackfillBtn) {
+    startBackfillBtn.addEventListener('click', async () => {
+      const req = {
+        start_date: bfStart.value,
+        end_date: bfEnd.value,
+        min_mag: parseFloat(bfMag.value),
+        chunk_days: parseInt(bfChunk.value, 10)
+      };
 
-    startBackfillBtn.disabled = true;
-    startBackfillBtn.textContent = 'Queuing...';
+      startBackfillBtn.disabled = true;
+      startBackfillBtn.textContent = 'Queuing...';
 
-    try {
-      const res = await adminFetch('/api/admin/backfill', {
-        method: 'POST',
-        body: JSON.stringify(req)
-      });
-      const data = await res.json();
-      if (!res.ok || data.status === 'busy') {
-        alert(data.message || 'Error starting backfill');
-      } else {
-        startBackfillPolling();
+      try {
+        const res = await adminFetch('/api/admin/backfill', {
+          method: 'POST',
+          body: JSON.stringify(req)
+        });
+        const data = await res.json();
+        if (!res.ok || data.status === 'busy') {
+          showToast('Backfill Notice', data.message || 'Error starting backfill', 'warning');
+        } else {
+          showToast('Backfill Queued', `Running ${req.start_date} to ${req.end_date}`, 'info');
+          startBackfillPolling();
+        }
+      } catch (e) {
+        showToast('Backfill Error', e.message, 'error');
+      } finally {
+        startBackfillBtn.disabled = false;
+        startBackfillBtn.textContent = '🚀 Launch Backfill Job';
       }
-    } catch (e) {
-      alert('Failed to trigger backfill: ' + e.message);
-    } finally {
-      startBackfillBtn.disabled = false;
-      startBackfillBtn.textContent = '🚀 Start Backfill';
-    }
-  });
+    });
+  }
 
-  // Backfill UI Updater
   function updateBackfillUI(state) {
     if (!state) return;
-    bfStatusText.textContent = `Status: ${state.status.toUpperCase()}`;
-    bfPercentText.textContent = `${state.progress_pct || 0}%`;
-    bfProgressBar.style.width = `${state.progress_pct || 0}%`;
-    bfCurrentWindow.textContent = state.current_window || '—';
-    bfWindowsCount.textContent = `${state.completed_windows || 0} / ${state.total_windows || 0}`;
-    bfFetched.textContent = Number(state.total_fetched || 0).toLocaleString();
-    bfInserted.textContent = Number(state.total_inserted || 0).toLocaleString();
+    if (bfStatusText) bfStatusText.textContent = `STATUS: ${state.status.toUpperCase()}`;
+    if (bfPercentText) bfPercentText.textContent = `${state.progress_pct || 0}%`;
+    if (bfProgressBar) bfProgressBar.style.width = `${state.progress_pct || 0}%`;
+    if (bfCurrentWindow) bfCurrentWindow.textContent = state.current_window || '—';
+    if (bfWindowsCount) bfWindowsCount.textContent = `${state.completed_windows || 0} / ${state.total_windows || 0}`;
+    if (bfFetched) bfFetched.textContent = Number(state.total_fetched || 0).toLocaleString();
+    if (bfInserted) bfInserted.textContent = Number(state.total_inserted || 0).toLocaleString();
 
-    // Render logs
-    if (state.logs && state.logs.length) {
-      backfillLogs.innerHTML = state.logs.map((l) => `<div class="log-line">${l}</div>`).join('');
+    if (backfillLogs && state.logs && state.logs.length) {
+      backfillLogs.innerHTML = state.logs.map((l) => `<div class="log-entry">${l}</div>`).join('');
       backfillLogs.scrollTop = backfillLogs.scrollHeight;
     }
   }
 
-  // Poll backfill job
   function startBackfillPolling() {
     if (backfillPollTimer) clearInterval(backfillPollTimer);
     backfillPollTimer = setInterval(async () => {
@@ -316,7 +487,7 @@
         if (!state.is_running) {
           clearInterval(backfillPollTimer);
           backfillPollTimer = null;
-          // Refresh database KPIs after backfill complete
+          showToast('Backfill Complete', `Total newly inserted: ${state.total_inserted || 0}`, 'success');
           loadDeckData();
           loadEventsTable();
         }
@@ -327,221 +498,164 @@
   }
 
   // Vacuum & Optimize DB
-  vacuumDbBtn.addEventListener('click', async () => {
-    if (!confirm('Run VACUUM and rebuild SQLite B-Trees? This optimizes storage footprint.')) return;
-    vacuumDbBtn.disabled = true;
-    vacuumDbBtn.textContent = 'Optimizing...';
-    try {
-      const res = await adminFetch('/api/admin/db/vacuum', { method: 'POST' });
-      const data = await res.json();
-      alert(`Optimization complete! Saved: ${data.saved_kb} KB. Current DB size: ${data.after_mb} MB.`);
-      await loadDeckData();
-    } catch (e) {
-      alert('Vacuum failed: ' + e.message);
-    } finally {
-      vacuumDbBtn.disabled = false;
-      vacuumDbBtn.textContent = '🧹 Vacuum & Optimize DB';
-    }
-  });
-
-  // Sync Result Popup Elements
-  const syncResultModal = document.getElementById('syncResultModal');
-  const closeSyncModalBtn = document.getElementById('closeSyncModalBtn');
-  const okSyncModalBtn = document.getElementById('okSyncModalBtn');
-  const syncModalFetched = document.getElementById('syncModalFetched');
-  const syncModalInserted = document.getElementById('syncModalInserted');
-  const syncModalLatency = document.getElementById('syncModalLatency');
-  const syncModalProviders = document.getElementById('syncModalProviders');
-  const purgeNoiseBtn = document.getElementById('purgeNoiseBtn');
-
-  function closeSyncModal() {
-    if (syncResultModal) syncResultModal.classList.add('hidden');
-  }
-
-  if (closeSyncModalBtn) closeSyncModalBtn.addEventListener('click', closeSyncModal);
-  if (okSyncModalBtn) okSyncModalBtn.addEventListener('click', closeSyncModal);
-
-  function showSyncModal(result, providerName = null) {
-    if (!syncResultModal) return;
-
-    if (providerName) {
-      syncModalFetched.textContent = Number(result.fetched || 0).toLocaleString();
-      syncModalInserted.textContent = Number(result.inserted || 0).toLocaleString();
-      syncModalLatency.textContent = `${result.latency_ms || 0} ms`;
-
-      const isSuccess = result.status === 'success';
-      syncModalProviders.innerHTML = `
-        <div class="sync-prov-item">
-          <div class="sync-prov-info">
-            <div class="sync-prov-name">
-              <span>${providerName.toUpperCase()}</span>
-              <span class="prov-badge ${isSuccess ? 'badge-online' : 'badge-error'}">${result.status}</span>
-            </div>
-            <div class="sync-prov-meta">${result.message || 'On-demand single provider ingestion complete'}</div>
-          </div>
-          <div class="sync-prov-metrics">
-            <div class="sync-metric-pill">
-              <span class="sync-m-label">LATENCY</span>
-              <span class="sync-m-val text-cyan">${result.latency_ms || 0} ms</span>
-            </div>
-            <div class="sync-metric-pill">
-              <span class="sync-m-label">FETCHED</span>
-              <span class="sync-m-val">${result.fetched || 0}</span>
-            </div>
-            <div class="sync-metric-pill">
-              <span class="sync-m-label">STORED (M≥2.0)</span>
-              <span class="sync-m-val text-emerald">+${result.inserted || 0}</span>
-            </div>
-          </div>
-        </div>
-      `;
-    } else {
-      syncModalFetched.textContent = Number(result.fetched || 0).toLocaleString();
-      syncModalInserted.textContent = Number(result.inserted || 0).toLocaleString();
-
-      const provs = result.providers || {};
-      let maxLatency = 0;
-      let provHtml = '';
-
-      Object.keys(provs).forEach((key) => {
-        const p = provs[key];
-        if (p.latency_ms && p.latency_ms > maxLatency) maxLatency = p.latency_ms;
-        const isSuccess = p.status === 'success';
-        provHtml += `
-          <div class="sync-prov-item">
-            <div class="sync-prov-info">
-              <div class="sync-prov-name">
-                <span>${key.toUpperCase()}</span>
-                <span class="prov-badge ${isSuccess ? 'badge-online' : 'badge-error'}">${p.status}</span>
-              </div>
-              <div class="sync-prov-meta">${p.message || 'Telemetry synchronized & verified'}</div>
-            </div>
-            <div class="sync-prov-metrics">
-              <div class="sync-metric-pill">
-                <span class="sync-m-label">LATENCY</span>
-                <span class="sync-m-val text-cyan">${p.latency_ms || 0} ms</span>
-              </div>
-              <div class="sync-metric-pill">
-                <span class="sync-m-label">FETCHED</span>
-                <span class="sync-m-val">${p.fetched || 0}</span>
-              </div>
-              <div class="sync-metric-pill">
-                <span class="sync-m-label">STORED (M≥2.0)</span>
-                <span class="sync-m-val text-emerald">+${p.inserted || 0}</span>
-              </div>
-            </div>
-          </div>
-        `;
+  if (vacuumDbBtn) {
+    vacuumDbBtn.addEventListener('click', () => {
+      showConfirmDialog({
+        title: 'REBUILD B-TREES & VACUUM',
+        message: 'Defragment SQLite storage and rebuild spatial indexes? This operation reclaims unused disk footprint.',
+        confirmText: 'Execute Vacuum',
+        onConfirm: async () => {
+          vacuumDbBtn.disabled = true;
+          vacuumDbBtn.textContent = 'Optimizing...';
+          try {
+            const res = await adminFetch('/api/admin/db/vacuum', { method: 'POST' });
+            const data = await res.json();
+            showToast('Database Optimized', `Saved: ${data.saved_kb} KB. Current DB size: ${data.after_mb} MB`, 'success');
+            await loadDeckData();
+          } catch (e) {
+            showToast('Vacuum Error', e.message, 'error');
+          } finally {
+            vacuumDbBtn.disabled = false;
+            vacuumDbBtn.innerHTML = `
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+              </svg>
+              Rebuild B-Trees (Vacuum)
+            `;
+          }
+        }
       });
-
-      syncModalLatency.textContent = `${maxLatency || 0} ms`;
-      syncModalProviders.innerHTML = provHtml || '<div class="text-muted">No provider details available.</div>';
-    }
-
-    syncResultModal.classList.remove('hidden');
+    });
   }
 
   // Purge Sub-Threshold Noise (< M2.0)
   if (purgeNoiseBtn) {
-    purgeNoiseBtn.addEventListener('click', async () => {
-      if (!confirm('Purge all micro-tremors below magnitude 2.0 (ambient noise) and defragment database storage?')) return;
-      purgeNoiseBtn.disabled = true;
-      purgeNoiseBtn.textContent = 'Purging noise...';
+    purgeNoiseBtn.addEventListener('click', () => {
+      showConfirmDialog({
+        title: 'PURGE SUB-THRESHOLD NOISE',
+        message: 'Permanently purge micro-tremor records below magnitude 2.0 (ambient seismic noise) and defragment SQLite storage?',
+        confirmText: 'Purge Noise (< M2.0)',
+        onConfirm: async () => {
+          purgeNoiseBtn.disabled = true;
+          purgeNoiseBtn.textContent = 'Purging...';
+          try {
+            const res = await adminFetch('/api/admin/db/purge-noise?min_mag=2.0', { method: 'POST' });
+            const data = await res.json();
+            showToast('Noise Purge Finished', `Purged ${Number(data.purged_records || 0).toLocaleString()} micro-tremors (< M2.0). Reclaimed ${data.vacuum.saved_kb} KB space`, 'success');
+            await loadDeckData();
+            await loadEventsTable();
+          } catch (e) {
+            showToast('Purge Error', e.message, 'error');
+          } finally {
+            purgeNoiseBtn.disabled = false;
+            purgeNoiseBtn.innerHTML = `
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+              Purge Noise (&lt; M2.0)
+            `;
+          }
+        }
+      });
+    });
+  }
+
+  // Global Sync Button (Client-Side Popup Window)
+  if (syncAllBtn) {
+    syncAllBtn.addEventListener('click', async () => {
+      syncAllBtn.disabled = true;
+      syncAllBtn.innerHTML = '<span>⏳ Syncing All Sources...</span>';
       try {
-        const res = await adminFetch('/api/admin/db/purge-noise?min_mag=2.0', { method: 'POST' });
+        const res = await adminFetch('/api/admin/sync/all', { method: 'POST' });
         const data = await res.json();
-        alert(`Noise purge complete! Purged ${Number(data.purged_records || 0).toLocaleString()} micro-tremors (< M2.0). Reclaimed ${data.vacuum.saved_kb} KB disk space.`);
+        // Display in-app popup modal
+        showSyncModal(data);
         await loadDeckData();
         await loadEventsTable();
       } catch (e) {
-        alert('Purge failed: ' + e.message);
+        showToast('Sync Failed', e.message, 'error');
       } finally {
-        purgeNoiseBtn.disabled = false;
-        purgeNoiseBtn.innerHTML = `
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="3 6 5 6 21 6"></polyline>
-            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+        syncAllBtn.disabled = false;
+        syncAllBtn.innerHTML = `
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="sync-icon">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <polyline points="1 20 1 14 7 14"></polyline>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
           </svg>
-          Purge Noise (&lt; M2.0)
+          <span>Trigger Full Multi-Tier Sync</span>
         `;
       }
     });
   }
 
-  // Global Sync Button (Client-Side Popup)
-  syncAllBtn.addEventListener('click', async () => {
-    syncAllBtn.disabled = true;
-    syncAllBtn.textContent = 'Syncing all sources...';
-    try {
-      const res = await adminFetch('/api/admin/sync/all', { method: 'POST' });
-      const data = await res.json();
-      showSyncModal(data);
-      await loadDeckData();
-      await loadEventsTable();
-    } catch (e) {
-      alert('Sync failed: ' + e.message);
-    } finally {
-      syncAllBtn.disabled = false;
-      syncAllBtn.textContent = '⚡ Sync All Sources Now';
-    }
-  });
+  if (refreshHealthBtn) refreshHealthBtn.addEventListener('click', loadDeckData);
 
-  refreshHealthBtn.addEventListener('click', loadDeckData);
-
-  // Sync specific provider (Client-Side Popup)
+  // Sync specific provider (Client-Side Popup Window)
   window.temasAdmin = {
     async syncProvider(providerName) {
       try {
         const res = await adminFetch(`/api/admin/sync/${providerName}`, { method: 'POST' });
         const data = await res.json();
+        // Display in-app popup modal
         showSyncModal(data, providerName);
         await loadDeckData();
         await loadEventsTable();
       } catch (e) {
-        alert('Sync error: ' + e.message);
+        showToast(`[${providerName.toUpperCase()}] Error`, e.message, 'error');
       }
     },
 
-    async deleteEvent(timeUtc, lat, lon) {
-      if (!confirm(`Permanently delete event at ${timeUtc} (${lat}, ${lon})?`)) return;
-      try {
-        const res = await adminFetch('/api/admin/earthquakes', {
-          method: 'DELETE',
-          body: JSON.stringify({
-            origintimeutc: timeUtc,
-            latitude: parseFloat(lat),
-            longitude: parseFloat(lon)
-          })
-        });
-        if (res.ok) {
-          await loadEventsTable();
-          await loadDeckData();
-        } else {
-          alert('Delete failed');
+    deleteEvent(timeUtc, lat, lon) {
+      showConfirmDialog({
+        title: 'DELETE SEISMIC RECORD',
+        message: `Permanently delete event at ${timeUtc} (${lat}°, ${lon}°)? This action cannot be undone.`,
+        confirmText: 'Delete Record',
+        onConfirm: async () => {
+          try {
+            const res = await adminFetch('/api/admin/earthquakes', {
+              method: 'DELETE',
+              body: JSON.stringify({
+                origintimeutc: timeUtc,
+                latitude: parseFloat(lat),
+                longitude: parseFloat(lon)
+              })
+            });
+            if (res.ok) {
+              showToast('Event Deleted', `${timeUtc} removed from database`, 'success');
+              await loadEventsTable();
+              await loadDeckData();
+            } else {
+              showToast('Delete Failed', 'Record could not be removed', 'error');
+            }
+          } catch (e) {
+            showToast('Delete Error', e.message, 'error');
+          }
         }
-      } catch (e) {
-        alert('Error: ' + e.message);
-      }
+      });
     }
   };
 
   // Event Moderation Table
   async function loadEventsTable() {
-    const region = adminSearchRegion.value.trim();
-    const minMag = adminSearchMinMag.value;
+    if (!eventsTableBody) return;
+    const region = adminSearchRegion ? adminSearchRegion.value.trim() : '';
+    const minMag = adminSearchMinMag ? adminSearchMinMag.value : '';
     let url = `/api/earthquakes?limit=25`;
     if (region) url += `&region=${encodeURIComponent(region)}`;
     if (minMag) url += `&min_magnitude=${encodeURIComponent(minMag)}`;
 
-    eventsTableBody.innerHTML = '<tr><td colspan="8" class="text-center">Loading events...</td></tr>';
+    eventsTableBody.innerHTML = '<tr><td colspan="8" class="empty-cell">Retrieving records from database...</td></tr>';
 
     try {
       const res = await fetch(url);
       const data = await res.json();
-      tableCountText.textContent = `Showing ${data.count} of ${data.total} matches`;
+      if (tableCountText) {
+        tableCountText.textContent = `Showing ${data.count} of ${data.total} matches`;
+      }
 
       if (!data.items || !data.items.length) {
-        eventsTableBody.innerHTML = '<tr><td colspan="8" class="text-center">No matching records found.</td></tr>';
+        eventsTableBody.innerHTML = '<tr><td colspan="8" class="empty-cell">No matching seismic records found.</td></tr>';
         return;
       }
 
@@ -566,56 +680,62 @@
         `;
       }).join('');
     } catch (e) {
-      eventsTableBody.innerHTML = '<tr><td colspan="8" class="text-center error-msg">Failed to load events.</td></tr>';
+      eventsTableBody.innerHTML = '<tr><td colspan="8" class="empty-cell error-msg">Failed to query events table.</td></tr>';
     }
   }
 
-  adminSearchBtn.addEventListener('click', loadEventsTable);
-  adminSearchRegion.addEventListener('keypress', (e) => { if (e.key === 'Enter') loadEventsTable(); });
+  if (adminSearchBtn) adminSearchBtn.addEventListener('click', loadEventsTable);
+  if (adminSearchRegion) {
+    adminSearchRegion.addEventListener('keypress', (e) => { if (e.key === 'Enter') loadEventsTable(); });
+  }
 
   // Manual Event Injection Modal
-  openManualEventBtn.addEventListener('click', () => {
-    manualEventModal.classList.remove('hidden');
-    const now = new Date();
-    document.getElementById('manTime').value = now.toISOString().replace('T', ' ').substring(0, 19);
-  });
+  if (openManualEventBtn) {
+    openManualEventBtn.addEventListener('click', () => {
+      manualEventModal.classList.remove('hidden');
+      const now = new Date();
+      document.getElementById('manTime').value = now.toISOString().replace('T', ' ').substring(0, 19);
+    });
+  }
 
-  closeManualModalBtn.addEventListener('click', () => manualEventModal.classList.add('hidden'));
-  cancelManualModalBtn.addEventListener('click', () => manualEventModal.classList.add('hidden'));
+  if (closeManualModalBtn) closeManualModalBtn.addEventListener('click', () => manualEventModal.classList.add('hidden'));
+  if (cancelManualModalBtn) cancelManualModalBtn.addEventListener('click', () => manualEventModal.classList.add('hidden'));
 
-  manualEventForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const newEvent = {
-      origintimeutc: document.getElementById('manTime').value.trim(),
-      magnitude: parseFloat(document.getElementById('manMag').value),
-      magtype: document.getElementById('manType').value,
-      latitude: parseFloat(document.getElementById('manLat').value),
-      longitude: parseFloat(document.getElementById('manLon').value),
-      depthkm: parseFloat(document.getElementById('manDepth').value),
-      region: document.getElementById('manRegion').value.trim(),
-      measmethod: 'MANUAL-OPERATOR',
-      attribute: 'VERIFIED-REVIEWED'
-    };
+  if (manualEventForm) {
+    manualEventForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const newEvent = {
+        origintimeutc: document.getElementById('manTime').value.trim(),
+        magnitude: parseFloat(document.getElementById('manMag').value),
+        magtype: document.getElementById('manType').value,
+        latitude: parseFloat(document.getElementById('manLat').value),
+        longitude: parseFloat(document.getElementById('manLon').value),
+        depthkm: parseFloat(document.getElementById('manDepth').value),
+        region: document.getElementById('manRegion').value.trim(),
+        measmethod: 'MANUAL-OPERATOR',
+        attribute: 'VERIFIED-REVIEWED'
+      };
 
-    try {
-      const res = await adminFetch('/api/admin/earthquakes', {
-        method: 'POST',
-        body: JSON.stringify(newEvent)
-      });
-      const data = await res.json();
-      if (res.ok) {
-        alert('Event registered successfully!');
-        manualEventModal.classList.add('hidden');
-        manualEventForm.reset();
-        await loadEventsTable();
-        await loadDeckData();
-      } else {
-        alert(data.message || 'Failed to save event');
+      try {
+        const res = await adminFetch('/api/admin/earthquakes', {
+          method: 'POST',
+          body: JSON.stringify(newEvent)
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showToast('Event Registered', `Committed M${newEvent.magnitude} event at ${newEvent.region}`, 'success');
+          manualEventModal.classList.add('hidden');
+          manualEventForm.reset();
+          await loadEventsTable();
+          await loadDeckData();
+        } else {
+          showToast('Registration Notice', data.message || 'Failed to save event', 'warning');
+        }
+      } catch (err) {
+        showToast('Save Error', err.message, 'error');
       }
-    } catch (err) {
-      alert('Error saving event: ' + err.message);
-    }
-  });
+    });
+  }
 
   // Polling
   function startPolling() {

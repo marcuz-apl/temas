@@ -537,6 +537,43 @@ class TemasApp {
     this.handleEventSelect(eq);
   }
 
+  showToast(msg, type = 'info') {
+    let toast = document.getElementById('public-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'public-toast';
+      toast.style.cssText = `
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        z-index: 9999;
+        background: rgba(13, 20, 36, 0.95);
+        border: 1px solid rgba(56, 189, 248, 0.4);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.6), 0 0 20px rgba(56,189,248,0.25);
+        backdrop-filter: blur(10px);
+        color: #fff;
+        padding: 0.9rem 1.25rem;
+        border-radius: 8px;
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+      `;
+      document.body.appendChild(toast);
+    }
+    const icon = type === 'error' ? '❌' : (type === 'success' ? '✅' : '📡');
+    toast.innerHTML = `<span>${icon}</span><span>${msg}</span>`;
+    toast.style.opacity = '1';
+    toast.style.transform = 'translateY(0)';
+    clearTimeout(this._toastTimer);
+    this._toastTimer = setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateY(10px)';
+    }, 4000);
+  }
+
   async handleSync() {
     const syncBtn = document.getElementById('btn-sync');
     const originalText = syncBtn.innerHTML;
@@ -546,9 +583,9 @@ class TemasApp {
     try {
       const result = await triggerManualSync();
       await this.refreshAll();
-      alert(`Sync Complete!\nFetched: ${result.fetched} records\nNewly added: ${result.inserted}`);
+      this.showToast(`Sync Complete! Fetched: ${result.fetched}, Newly added: ${result.inserted} (M ≥ 2.0)`, 'success');
     } catch (err) {
-      alert(`Sync Error: ${err.message}`);
+      this.showToast(`Sync Error: ${err.message}`, 'error');
     } finally {
       syncBtn.disabled = false;
       syncBtn.innerHTML = originalText;
@@ -580,7 +617,7 @@ class TemasApp {
   }
 
   exportCsv() {
-    if (!this.state.earthquakes.length) return alert('No data to export.');
+    if (!this.state.earthquakes.length) return this.showToast('No data to export.', 'warning');
     const headers = ['OriginTimeUTC', 'EventTimeTRT', 'Magnitude', 'MagType', 'Latitude', 'Longitude', 'DepthKm', 'Region', 'Method'];
     const rows = this.state.earthquakes.map((eq) => [
       `"${eq.origintimeutc}"`,
@@ -605,7 +642,7 @@ class TemasApp {
   }
 
   exportGeoJson() {
-    if (!this.state.earthquakes.length) return alert('No data to export.');
+    if (!this.state.earthquakes.length) return this.showToast('No data to export.', 'warning');
     const geojson = {
       type: 'FeatureCollection',
       features: this.state.earthquakes.map((eq) => ({
