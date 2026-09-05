@@ -8,7 +8,7 @@ from typing import Dict, Any, Optional, List
 from backend.ingestion.koeri import fetch_koeri_earthquakes
 from backend.ingestion.emsc import fetch_emsc_earthquakes
 from backend.ingestion.usgs import fetch_usgs_earthquakes
-from backend.database import insert_earthquakes
+from backend.database import insert_earthquakes, deduplicate_earthquakes
 
 logger = logging.getLogger("temas.ingestion.scheduler")
 
@@ -146,11 +146,22 @@ async def perform_sync() -> Dict[str, Any]:
         SYNC_STATE["last_fetched"] = total_fetched
         SYNC_STATE["last_inserted"] = total_inserted
 
-        logger.info("Multi-source sync complete: %d fetched, %d newly inserted", total_fetched, total_inserted)
+        # Post-sync automated deduplication pass
+        dedup_count = 0
+        try:
+            dedup_res = deduplicate_earthquakes()
+            dedup_count = dedup_res.get("purged_duplicates", 0)
+            if dedup_count > 0:
+                logger.info("Automated post-sync deduplication purged %d duplicate records", dedup_count)
+        except Exception as de:
+            logger.warning("Post-sync deduplication warning: %s", de)
+
+        logger.info("Multi-source sync complete: %d fetched, %d newly inserted, %d deduplicated", total_fetched, total_inserted, dedup_count)
         return {
             "status": "success",
             "fetched": total_fetched,
             "inserted": total_inserted,
+            "deduplicated": dedup_count,
             "providers": results,
             "timestamp": now_str
         }

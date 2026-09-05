@@ -73,9 +73,6 @@
       <button id="btn-sync" class="btn btn-primary" title="Fetch live updates from KOERI, EMSC & USGS">
         <span>⚡ Sync</span>
       </button>
-      <a href="/admin" class="btn" title="Open Admin Control Deck" style="text-decoration: none;">
-        <span>⚙ Admin</span>
-      </a>
     </div>
   </header>
 
@@ -230,24 +227,58 @@
     </div>
   </div>
 
-  <!-- Analytics Modal -->
+  <!-- Analytics Modal (Expanded Observatory Viewport) -->
   <div class="modal-backdrop" id="analytics-modal">
-    <div class="modal-dialog" style="max-width: 800px;">
+    <div class="modal-dialog modal-analytics-dialog">
       <div class="modal-header">
-        <h3>Seismic Intelligence & Gutenberg-Richter Analytics</h3>
-        <button id="btn-close-analytics" class="btn btn-sm" style="padding: 4px 8px;">✕</button>
+        <div class="modal-title-group">
+          <h3>Seismic Intelligence & Gutenberg-Richter Analytics</h3>
+          <p class="modal-subtitle">Real-time catalog distribution, focal depth profiles, regional clustering, and multi-network telemetry</p>
+        </div>
+        <button id="btn-close-analytics" class="btn btn-sm" style="padding: 6px 12px; font-weight: bold;">✕ Close</button>
       </div>
       <div class="modal-body">
         <div class="analytics-grid">
+          <!-- Panel 1: Magnitude Distribution -->
           <div class="analytics-card">
-            <h4>Magnitude Distribution (Gutenberg-Richter)</h4>
+            <div class="card-title-row">
+              <h4>Magnitude Distribution (Gutenberg-Richter)</h4>
+              <span class="analytics-badge" id="analytics-total-quakes">...</span>
+            </div>
             <div id="analytics-mag-chart" class="chart-bars">
               <!-- Rendered dynamically -->
             </div>
           </div>
+
+          <!-- Panel 2: Depth Stratification -->
           <div class="analytics-card">
-            <h4>Depth Breakdown</h4>
+            <div class="card-title-row">
+              <h4>Hypocentral Depth Stratification</h4>
+              <span class="analytics-badge" id="analytics-avg-depth">...</span>
+            </div>
             <div id="analytics-depth-summary" class="depth-stats">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+          <!-- Panel 3: Regional Seismicity Clusters -->
+          <div class="analytics-card">
+            <div class="card-title-row">
+              <h4>Top Active Seismogenic Regions</h4>
+              <span class="analytics-badge">Epicentral Density</span>
+            </div>
+            <div id="analytics-region-chart" class="region-stats">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+          <!-- Panel 4: Ingestion Network Breakdown -->
+          <div class="analytics-card">
+            <div class="card-title-row">
+              <h4>Multi-Network Sensor Ingestion</h4>
+              <span class="analytics-badge">Source Share</span>
+            </div>
+            <div id="analytics-source-chart" class="source-stats">
               <!-- Rendered dynamically -->
             </div>
           </div>

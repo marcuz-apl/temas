@@ -150,6 +150,8 @@ class TemasApp {
           document.exitFullscreen().catch(() => {});
           fsBtn.textContent = '⛶';
         }
+        setTimeout(() => this.mapEngine?.invalidateMapSize(true), 150);
+        setTimeout(() => this.mapEngine?.invalidateMapSize(true), 350);
       });
     }
 
@@ -241,7 +243,7 @@ class TemasApp {
         if (!isHoveringSidebar && !sidebar.classList.contains('collapsed')) {
           sidebar.classList.add('auto-hidden');
           if (hoverZone) hoverZone.classList.remove('hidden');
-          setTimeout(() => this.mapEngine?.map?.invalidateSize(), 350);
+          setTimeout(() => this.mapEngine?.invalidateMapSize(true), 350);
         }
       }, IDLE_TIMEOUT_MS);
     };
@@ -250,7 +252,7 @@ class TemasApp {
       sidebar.classList.remove('auto-hidden', 'hover-peek');
       if (hoverZone) hoverZone.classList.add('hidden');
       resetIdleTimer();
-      setTimeout(() => this.mapEngine?.map?.invalidateSize(), 350);
+      setTimeout(() => this.mapEngine?.invalidateMapSize(true), 350);
     };
 
     // User activity anywhere in the window resets the 30s idle timer
@@ -297,7 +299,7 @@ class TemasApp {
           if (sidebar.classList.contains('collapsed') && hoverZone) {
             hoverZone.classList.add('hidden');
           }
-          setTimeout(() => this.mapEngine?.map?.invalidateSize(), 350);
+          setTimeout(() => this.mapEngine?.invalidateMapSize(true), 350);
         }
         resetIdleTimer();
       });
@@ -457,69 +459,151 @@ class TemasApp {
     const quakes = this.state.earthquakes;
     const magChart = document.getElementById('analytics-mag-chart');
     const depthSummary = document.getElementById('analytics-depth-summary');
+    const regionChart = document.getElementById('analytics-region-chart');
+    const sourceChart = document.getElementById('analytics-source-chart');
+    const badgeTotal = document.getElementById('analytics-total-quakes');
+    const badgeDepth = document.getElementById('analytics-avg-depth');
+
     if (!magChart || !depthSummary) return;
 
-    // Magnitude bins
+    if (badgeTotal) badgeTotal.textContent = `${quakes.length} Catalog Events`;
+
+    // Magnitude bins (Gutenberg-Richter Log Spectrum)
     const bins = {
-      '< 3.0': { count: 0, color: '#10b981' },
-      '3.0–3.9': { count: 0, color: '#38bdf8' },
-      '4.0–4.9': { count: 0, color: '#f59e0b' },
-      '5.0–5.9': { count: 0, color: '#f97316' },
-      '6.0–6.9': { count: 0, color: '#ef4444' },
-      '≥ 7.0': { count: 0, color: '#ec4899' }
+      '< 3.0 (Minor)': { count: 0, color: '#10b981' },
+      '3.0–3.9 (Light)': { count: 0, color: '#38bdf8' },
+      '4.0–4.9 (Moderate)': { count: 0, color: '#f59e0b' },
+      '5.0–5.9 (Strong)': { count: 0, color: '#f97316' },
+      '6.0–6.9 (Major)': { count: 0, color: '#ef4444' },
+      '≥ 7.0 (Great)': { count: 0, color: '#ec4899' }
     };
 
     let shallow = 0; // < 10 km
     let intermediate = 0; // 10 - 30 km
     let deep = 0; // > 30 km
+    let totalDepth = 0;
+
+    const regionCounts = {};
+    const sourceCounts = {
+      'KOERI (Local)': { count: 0, color: '#38bdf8' },
+      'EMSC (Euro-Med)': { count: 0, color: '#f59e0b' },
+      'USGS (Global)': { count: 0, color: '#10b981' },
+      'Historical / Other': { count: 0, color: '#a855f7' }
+    };
 
     quakes.forEach((eq) => {
       const mag = parseFloat(eq.magnitude) || 0;
       const d = parseFloat(eq.depthkm) || 0;
+      totalDepth += d;
 
-      if (mag < 3.0) bins['< 3.0'].count++;
-      else if (mag < 4.0) bins['3.0–3.9'].count++;
-      else if (mag < 5.0) bins['4.0–4.9'].count++;
-      else if (mag < 6.0) bins['5.0–5.9'].count++;
-      else if (mag < 7.0) bins['6.0–6.9'].count++;
-      else bins['≥ 7.0'].count++;
+      if (mag < 3.0) bins['< 3.0 (Minor)'].count++;
+      else if (mag < 4.0) bins['3.0–3.9 (Light)'].count++;
+      else if (mag < 5.0) bins['4.0–4.9 (Moderate)'].count++;
+      else if (mag < 6.0) bins['5.0–5.9 (Strong)'].count++;
+      else if (mag < 7.0) bins['6.0–6.9 (Major)'].count++;
+      else bins['≥ 7.0 (Great)'].count++;
 
       if (d < 10) shallow++;
       else if (d <= 30) intermediate++;
       else deep++;
+
+      // Region aggregation
+      const reg = (eq.region || 'Unknown Region').trim();
+      regionCounts[reg] = (regionCounts[reg] || 0) + 1;
+
+      // Source aggregation
+      const src = (eq.measmethod || '').toUpperCase();
+      if (src.includes('KOERI')) sourceCounts['KOERI (Local)'].count++;
+      else if (src.includes('EMSC')) sourceCounts['EMSC (Euro-Med)'].count++;
+      else if (src.includes('USGS')) sourceCounts['USGS (Global)'].count++;
+      else sourceCounts['Historical / Other'].count++;
     });
 
-    const maxCount = Math.max(1, ...Object.values(bins).map((b) => b.count));
+    const avgDepth = quakes.length ? (totalDepth / quakes.length).toFixed(1) : '0';
+    if (badgeDepth) badgeDepth.textContent = `Mean Hypocenter: ${avgDepth} km`;
 
+    // 1. Magnitude Chart
+    const maxCount = Math.max(1, ...Object.values(bins).map((b) => b.count));
     magChart.innerHTML = Object.entries(bins)
       .map(([label, data]) => {
         const pct = Math.round((data.count / maxCount) * 100);
+        const share = Math.round((data.count / (quakes.length || 1)) * 100);
         return `
           <div class="chart-bar-row">
             <span class="chart-bar-label">${label}</span>
             <div class="chart-bar-track">
               <div class="chart-bar-fill" style="width: ${pct}%; background: ${data.color}"></div>
             </div>
-            <span class="chart-bar-count">${data.count}</span>
+            <span class="chart-bar-count">${data.count} <span style="font-size: 0.72rem; color: var(--text-muted);">(${share}%)</span></span>
           </div>
         `;
       })
       .join('');
 
+    // 2. Depth Summary
     depthSummary.innerHTML = `
       <div class="depth-stat-row">
-        <span>Shallow Focal Depth (&lt; 10 km)</span>
+        <span>Shallow Crustal (&lt; 10 km) — High Surface Shaking Hazard</span>
         <strong style="color: #ef4444">${shallow} events (${Math.round((shallow / (quakes.length || 1)) * 100)}%)</strong>
       </div>
       <div class="depth-stat-row">
-        <span>Intermediate Depth (10 – 30 km)</span>
+        <span>Intermediate Depth (10 – 30 km) — Seismogenic Zone</span>
         <strong style="color: #f59e0b">${intermediate} events (${Math.round((intermediate / (quakes.length || 1)) * 100)}%)</strong>
       </div>
       <div class="depth-stat-row">
-        <span>Deep Focal Depth (&gt; 30 km)</span>
+        <span>Deep Subduction / Lithospheric (&gt; 30 km)</span>
         <strong style="color: #38bdf8">${deep} events (${Math.round((deep / (quakes.length || 1)) * 100)}%)</strong>
       </div>
+      <div class="depth-stat-row" style="background: rgba(56, 189, 248, 0.05); border-color: rgba(56, 189, 248, 0.2);">
+        <span>Catalog Mean Focal Depth</span>
+        <strong style="color: #38bdf8">${avgDepth} km depth</strong>
+      </div>
     `;
+
+    // 3. Top Active Regions
+    if (regionChart) {
+      const topRegions = Object.entries(regionCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5);
+      const maxRegion = topRegions[0] ? topRegions[0][1] : 1;
+
+      regionChart.innerHTML = topRegions.length
+        ? topRegions
+            .map(([rName, rCount]) => {
+              const rPct = Math.round((rCount / maxRegion) * 100);
+              return `
+                <div class="region-row">
+                  <span class="region-name" title="${rName}">${rName}</span>
+                  <div class="region-bar-wrap">
+                    <div class="region-bar-track">
+                      <div class="region-bar-fill" style="width: ${rPct}%;"></div>
+                    </div>
+                  </div>
+                  <span class="region-count">${rCount}</span>
+                </div>
+              `;
+            })
+            .join('')
+        : '<p style="color: var(--text-muted); font-size: 0.8rem;">No regional data available.</p>';
+    }
+
+    // 4. Source Breakdown
+    if (sourceChart) {
+      sourceChart.innerHTML = Object.entries(sourceCounts)
+        .map(([sName, sData]) => {
+          const sShare = Math.round((sData.count / (quakes.length || 1)) * 100);
+          return `
+            <div class="source-row">
+              <div class="source-info">
+                <span class="source-dot" style="background: ${sData.color};"></span>
+                <span class="source-name">${sName}</span>
+              </div>
+              <span class="source-count">${sData.count} <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(${sShare}%)</span></span>
+            </div>
+          `;
+        })
+        .join('');
+    }
   }
 
   /* ==========================================================================
@@ -671,7 +755,10 @@ class TemasApp {
     try {
       const result = await triggerManualSync();
       await this.refreshAll();
-      this.showToast(`Sync Complete! Fetched: ${result.fetched}, Newly added: ${result.inserted} (M ≥ 2.0)`, 'success');
+      const dedupPart = result.deduplicated && result.deduplicated > 0
+        ? `, Purged ${result.deduplicated} duplicates`
+        : ' (0 duplicates)';
+      this.showToast(`Sync Complete! Fetched: ${result.fetched}, Newly added: ${result.inserted}${dedupPart}`, 'success');
     } catch (err) {
       this.showToast(`Sync Error: ${err.message}`, 'error');
     } finally {

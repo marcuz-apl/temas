@@ -886,72 +886,129 @@ header {
 }
 
 /* ==========================================================================
-   Analytics Visualizations
+   Analytics Observatory Visualizations & Dialog
    ========================================================================== */
+.modal-analytics-dialog {
+  max-width: 1380px;
+  width: 94vw;
+  height: 88vh;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-title-group h3 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+
+.modal-subtitle {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
 .analytics-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 22px;
+  padding: 4px 0;
 }
 
 .analytics-card {
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  padding: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  transition: border-color 0.25s ease;
 }
 
-.analytics-card h4 {
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text-secondary);
-  margin-bottom: 14px;
+.analytics-card:hover {
+  border-color: rgba(56, 189, 248, 0.35);
+}
+
+.card-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
   border-bottom: 1px solid var(--border-subtle);
-  padding-bottom: 8px;
+  padding-bottom: 10px;
 }
 
+.card-title-row h4 {
+  font-size: 0.88rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  font-weight: 700;
+  margin: 0;
+}
+
+.analytics-badge {
+  font-size: 0.72rem;
+  font-family: var(--font-mono);
+  background: rgba(56, 189, 248, 0.12);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+/* Panel 1: Gutenberg-Richter Bars */
 .chart-bars {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .chart-bar-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 0.78rem;
+  gap: 12px;
+  font-size: 0.82rem;
 }
 
 .chart-bar-label {
-  width: 70px;
+  width: 76px;
   font-family: var(--font-mono);
   color: var(--text-muted);
+  font-size: 0.78rem;
 }
 
 .chart-bar-track {
   flex: 1;
-  height: 12px;
+  height: 14px;
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 6px;
+  border-radius: 7px;
   overflow: hidden;
+  position: relative;
 }
 
 .chart-bar-fill {
   height: 100%;
-  border-radius: 6px;
-  transition: width 0.4s ease;
+  border-radius: 7px;
+  transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
 }
 
 .chart-bar-count {
-  width: 45px;
+  width: 55px;
   text-align: right;
   font-family: var(--font-mono);
   font-weight: 700;
   color: var(--text-primary);
+  font-size: 0.82rem;
 }
 
+/* Panel 2: Depth Stats */
 .depth-stats {
   display: flex;
   flex-direction: column;
@@ -962,10 +1019,111 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 12px;
+  padding: 10px 14px;
   background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: var(--radius-sm);
+  font-size: 0.84rem;
+}
+
+.depth-stat-row strong {
+  font-family: var(--font-mono);
+  font-size: 0.86rem;
+}
+
+/* Panel 3: Regional Seismicity Clusters */
+.region-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.region-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.02);
   border-radius: var(--radius-sm);
   font-size: 0.82rem;
+}
+
+.region-name {
+  color: var(--text-primary);
+  font-weight: 600;
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.region-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  max-width: 220px;
+  margin: 0 14px;
+}
+
+.region-bar-track {
+  flex: 1;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.region-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #38bdf8, #818cf8);
+  border-radius: 4px;
+}
+
+.region-count {
+  font-family: var(--font-mono);
+  color: #38bdf8;
+  font-weight: 700;
+}
+
+/* Panel 4: Ingestion Network Share */
+.source-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.source-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: var(--radius-sm);
+  font-size: 0.84rem;
+}
+
+.source-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.source-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.source-name {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.source-count {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--text-secondary);
 }
 
 /* ==========================================================================

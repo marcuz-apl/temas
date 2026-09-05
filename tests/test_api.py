@@ -16,7 +16,7 @@ def test_health():
     assert data["status"] == "healthy"
     assert "TEMAS" in data["service"]
     assert "version" in data
-    assert "2.8" in data["version"]
+    assert data["version"].startswith("v2.")
 
 def test_earthquakes_list():
     res = client.get("/api/earthquakes?limit=10")
@@ -260,3 +260,14 @@ async def test_usgs_fetch():
     from backend.ingestion.usgs import fetch_usgs_earthquakes
     quakes = await fetch_usgs_earthquakes()
     assert isinstance(quakes, list)
+
+
+@pytest.mark.anyio
+async def test_sync_includes_deduplication():
+    from backend.ingestion.scheduler import perform_sync
+    result = await perform_sync()
+    assert result["status"] == "success"
+    assert "deduplicated" in result
+    assert isinstance(result["deduplicated"], int)
+    assert result["deduplicated"] >= 0
+

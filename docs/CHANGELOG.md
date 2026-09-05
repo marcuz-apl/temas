@@ -30,11 +30,25 @@ v2.1.0 (Baseline Architecture)
   │     └─► v2.8.2 (Fix: Main Window Brand Calibration to TEMAS 2 Gen2)
   │
   └─► v2.9.0 (Feat: Left Sidebar Full-Height Vertical Scroll & 30s Idle Auto-Hide with Edge Peek)
+        │
+        └─► v2.9.1 (Fix/Feat: Map Drift Prevention, Large Analytics Deck, Auto-Deduplication on Sync, Clean Visitor Header)
 ```
 
 ---
 
 ## Milestone Change Log Details
+
+### [v2.9.1] — 2026-09-05
+**Fix/Feat: Map Drift Prevention, Large Analytics Deck, Auto-Deduplication on Sync, Clean Visitor Header**
+- **Type**: `fix(map)` / `feat(analytics)` / `feat(sync)`
+- **Scope**: `frontend/js/map.js`, `frontend/js/app.js`, `frontend/css/style.css`, `frontend/index.html`, `backend/ingestion/scheduler.py`, `tests/test_api.py`
+- **Key Deliverables**:
+  - **Map Drift Prevention**: Eliminated map jumping to the Arctic Ocean when toggling "Feed" or "Fullscreen" by disabling Leaflet's erratic `trackResize`, establishing strict geographic `maxBounds` around Turkey/Mediterranean, and creating a center-preserving `invalidateMapSize()` method.
+  - **Large Analytics Deck**: Expanded the cramped 800px modal into a 1380px wide 4-card observatory analytics cockpit featuring Gutenberg-Richter magnitude spectrum bars, hypocentral depth stratification, regional clustering, and multi-network sensor ingestion breakdown.
+  - **Auto-Deduplication on Sync**: Embedded automatic SQLite database deduplication (`deduplicate_earthquakes`) into every sync cycle with live user toast notifications reporting purged duplicate count.
+  - **Clean Visitor Header**: Removed the intrusive "Admin" button from the main header for common visitors (deck remains directly accessible at `/admin`).
+
+---
 
 ### [v2.9.0] — 2026-09-05
 **Feat: Left Sidebar Full-Height Vertical Scroll & 30s Idle Auto-Hide with Edge Peek**

@@ -61,7 +61,22 @@ export class TemasMap {
       zoom: 6,
       minZoom: 4,
       maxZoom: 15,
-      zoomControl: false
+      zoomControl: false,
+      trackResize: false, // Prevent Leaflet's internal resize from panning towards Arctic Ocean [0,0]
+      maxBounds: [
+        [28.0, 18.0], // Southwest boundary
+        [49.0, 52.0]  // Northeast boundary
+      ],
+      maxBoundsViscosity: 0.95
+    });
+
+    // Handle window resize and fullscreen toggles cleanly without drift
+    window.addEventListener('resize', () => {
+      this.invalidateMapSize(true);
+    });
+    document.addEventListener('fullscreenchange', () => {
+      setTimeout(() => this.invalidateMapSize(true), 120);
+      setTimeout(() => this.invalidateMapSize(true), 350);
     });
 
     // Zoom control in top-right
@@ -312,5 +327,27 @@ export class TemasMap {
       animate: true,
       duration: 1.0
     });
+  }
+
+  /**
+   * Resizes map viewport without causing Leaflet to pan or drift towards Arctic Ocean / Null Island.
+   * Preserves current center coordinate or restores Turkey baseline if coordinates were perturbed.
+   */
+  invalidateMapSize(preserveCenter = true) {
+    if (!this.map) return;
+    const currentCenter = this.map.getCenter();
+    const currentZoom = this.map.getZoom();
+
+    // Disable pan and animation during invalidation to avoid zero-size pan offsets
+    this.map.invalidateSize({ pan: false, animate: false });
+
+    if (preserveCenter && currentCenter && !isNaN(currentCenter.lat) && !isNaN(currentCenter.lng)) {
+      // Bounds check: If coordinates drifted outside Mediterranean/Turkey bounds (e.g. lat > 50 or < 28)
+      if (currentCenter.lat > 50 || currentCenter.lat < 28 || currentCenter.lng < 18 || currentCenter.lng > 52) {
+        this.map.setView([38.9637, 35.2433], currentZoom || 6, { animate: false });
+      } else {
+        this.map.setView(currentCenter, currentZoom, { animate: false });
+      }
+    }
   }
 }
