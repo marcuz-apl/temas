@@ -42,8 +42,10 @@
   const kpiEarliest = document.getElementById('kpiEarliest');
   const kpiLatest = document.getElementById('kpiLatest');
   const kpiDbSize = document.getElementById('kpiDbSize');
+  const kpiWalFoot = document.getElementById('kpiWalFoot');
   const yearsContainer = document.getElementById('yearsContainer');
   const magDistContainer = document.getElementById('magDistContainer');
+  const flushWalBtn = document.getElementById('flushWalBtn');
   const vacuumDbBtn = document.getElementById('vacuumDbBtn');
   const purgeNoiseBtn = document.getElementById('purgeNoiseBtn');
   const downloadDbBtn = document.getElementById('downloadDbBtn');
@@ -390,7 +392,8 @@
     if (kpiTotal) kpiTotal.textContent = Number(db.total_records || 0).toLocaleString();
     if (kpiEarliest) kpiEarliest.textContent = db.earliest_date ? db.earliest_date.split(' ')[0] : '—';
     if (kpiLatest) kpiLatest.textContent = db.latest_date ? db.latest_date : '—';
-    if (kpiDbSize) kpiDbSize.textContent = `${db.db_size_mb || 0} MB (WAL: ${db.wal_size_mb || 0} MB)`;
+    if (kpiDbSize) kpiDbSize.textContent = `${db.db_size_mb || 0} MB`;
+    if (kpiWalFoot) kpiWalFoot.textContent = `WAL: ${db.wal_size_mb || 0} MB • Active`;
 
     // Years
     if (yearsContainer) {
@@ -509,6 +512,38 @@
         clearInterval(backfillPollTimer);
       }
     }, 1500);
+  }
+
+  // Flush & Empty WAL
+  if (flushWalBtn) {
+    flushWalBtn.addEventListener('click', () => {
+      showConfirmDialog({
+        title: 'FLUSH & TRUNCATE SQLITE WAL',
+        message: 'Commit all write-ahead log transactions into the main database and truncate the .db-wal file to 0 bytes?',
+        confirmText: 'Flush WAL File',
+        onConfirm: async () => {
+          flushWalBtn.disabled = true;
+          flushWalBtn.textContent = 'Flushing...';
+          try {
+            const res = await adminFetch('/api/admin/db/checkpoint-wal', { method: 'POST' });
+            const data = await res.json();
+            showToast('WAL Flushed & Truncated', `Reclaimed: ${data.reclaimed_kb} KB. WAL is now ${data.wal_after_mb} MB`, 'success');
+            await loadDeckData();
+          } catch (e) {
+            showToast('Checkpoint Error', e.message, 'error');
+          } finally {
+            flushWalBtn.disabled = false;
+            flushWalBtn.innerHTML = `
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+              </svg>
+              Flush &amp; Truncate WAL
+            `;
+          }
+        }
+      });
+    });
   }
 
   // Vacuum & Optimize DB

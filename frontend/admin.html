@@ -165,6 +165,8 @@
 
       <!-- Grid Row 2: 2023-2026 Historical Backfill Engine -->
       <section class="deck-section highlight-section">
+        <div class="section-title-row">
+          <div class="section-title-group">
             <div class="heading-with-chip">
               <h3 class="section-heading">Historical Archive & Backfill Utility</h3>
               <span class="security-chip">ON-DEMAND UTILITY</span>
@@ -284,7 +286,14 @@
               </svg>
               Purge Noise (&lt; M2.0)
             </button>
-            <button id="vacuumDbBtn" class="btn-tool">
+            <button id="flushWalBtn" class="btn-tool btn-tool-cyan" title="Commit transactions and truncate .db-wal file to 0 bytes">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+              </svg>
+              Flush &amp; Truncate WAL
+            </button>
+            <button id="vacuumDbBtn" class="btn-tool" title="Defragment SQLite file and rebuild indexes">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
               </svg>
@@ -319,9 +328,9 @@
             <span class="kpi-foot text-cyan">Real-time sync anchor</span>
           </div>
           <div class="kpi-box">
-            <span class="kpi-tag">DATABASE FOOTPRINT</span>
+            <span class="kpi-tag">STORAGE &amp; WAL FOOTPRINT</span>
             <div class="kpi-figure" id="kpiDbSize">— MB</div>
-            <span class="kpi-foot text-emerald">SQLite WAL Mode Active</span>
+            <span class="kpi-foot text-emerald" id="kpiWalFoot">WAL: 0.0 MB &bull; Active</span>
           </div>
         </div>
 

@@ -287,9 +287,35 @@ def purge_subthreshold_earthquakes(min_mag: float = 2.0) -> Dict[str, Any]:
     }
 
 
+def checkpoint_wal_database() -> Dict[str, Any]:
+    """
+    Executes PRAGMA wal_checkpoint(TRUNCATE) to commit all write-ahead log transactions
+    into the primary database file and truncate the .db-wal file to 0 bytes.
+    """
+    wal_path = f"{DB_PATH}-wal"
+    wal_before = os.path.getsize(wal_path) if os.path.exists(wal_path) else 0
+    with get_db_connection() as conn:
+        res = conn.execute("PRAGMA wal_checkpoint(TRUNCATE)").fetchone()
+        busy = res[0] if res else 0
+        log = res[1] if res else 0
+        checkpointed = res[2] if res else 0
+    wal_after = os.path.getsize(wal_path) if os.path.exists(wal_path) else 0
+    reclaimed_bytes = max(0, wal_before - wal_after)
+    return {
+        "status": "success",
+        "busy": busy,
+        "log_pages": log,
+        "checkpointed_pages": checkpointed,
+        "wal_before_mb": round(wal_before / (1024 * 1024), 2),
+        "wal_after_mb": round(wal_after / (1024 * 1024), 2),
+        "reclaimed_kb": round(reclaimed_bytes / 1024, 1)
+    }
+
+
 def vacuum_database() -> Dict[str, Any]:
-    """Runs SQLite VACUUM and ANALYZE to reclaim disk space and rebuild indexes."""
+    """Runs SQLite VACUUM, ANALYZE, and WAL checkpoint to reclaim disk space and rebuild indexes."""
     before_size = os.path.getsize(DB_PATH) if os.path.exists(DB_PATH) else 0
+    wal_res = checkpoint_wal_database()
     with get_db_connection() as conn:
         conn.execute("VACUUM")
         conn.execute("PRAGMA optimize")
@@ -299,7 +325,8 @@ def vacuum_database() -> Dict[str, Any]:
         "status": "success",
         "before_mb": round(before_size / (1024 * 1024), 2),
         "after_mb": round(after_size / (1024 * 1024), 2),
-        "saved_kb": round(saved_bytes / 1024, 1)
+        "saved_kb": round(saved_bytes / 1024, 1),
+        "wal": wal_res
     }
 
 

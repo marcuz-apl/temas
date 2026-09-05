@@ -16,6 +16,7 @@ from backend.database import (
     get_stats,
     get_admin_stats,
     vacuum_database,
+    checkpoint_wal_database,
     delete_earthquake,
     insert_manual_earthquake,
     purge_subthreshold_earthquakes,
@@ -271,6 +272,12 @@ async def admin_download_db(_: bool = Depends(verify_admin_key)):
 async def admin_vacuum_db(_: bool = Depends(verify_admin_key)):
     """Runs VACUUM and ANALYZE on SQLite database to optimize disk footprint and index trees."""
     return vacuum_database()
+
+
+@app.post("/api/admin/db/checkpoint-wal")
+async def admin_checkpoint_wal(_: bool = Depends(verify_admin_key)):
+    """Flushes committed transactions and truncates SQLite .db-wal file to 0 bytes."""
+    return checkpoint_wal_database()
 
 
 @app.post("/api/admin/db/purge-noise")
