@@ -996,7 +996,7 @@ class TemasApp {
         second: '2-digit',
         hour12: false
       });
-      elSync.textContent = `${timeStr} TRT`;
+      elSync.textContent = `${timeStr} UTC+3`;
     };
     update();
     setInterval(update, 1000);
@@ -1034,7 +1034,7 @@ class TemasApp {
       const parentIndicator = document.querySelector('.live-indicator');
       if (parentIndicator) {
         const syncTime = stats.sync.last_sync_time_trt || stats.sync.last_sync_time || 'Just now';
-        parentIndicator.title = `Turkey Standard Time (TRT / UTC+3) • Real-Time Clock\nLast Dataset Update: ${syncTime}\nDataset Auto-Refresh: Every 3 minutes`;
+        parentIndicator.title = `Turkey Time (UTC+3) • Real-Time Clock\nLast Dataset Update: ${syncTime}\nDataset Auto-Refresh: Every 3 minutes`;
       }
     }
   }
@@ -1176,9 +1176,11 @@ class TemasApp {
 
   async handleSync() {
     const syncBtn = document.getElementById('btn-sync');
-    const originalText = syncBtn.innerHTML;
-    syncBtn.disabled = true;
-    syncBtn.innerHTML = '<span>⏳ Syncing...</span>';
+    const originalText = syncBtn ? syncBtn.innerHTML : '';
+    if (syncBtn) {
+      syncBtn.disabled = true;
+      syncBtn.innerHTML = '<span>⏳ Syncing...</span>';
+    }
 
     try {
       const result = await triggerManualSync();
@@ -1190,8 +1192,10 @@ class TemasApp {
     } catch (err) {
       this.showToast(`Sync Error: ${err.message}`, 'error');
     } finally {
-      syncBtn.disabled = false;
-      syncBtn.innerHTML = originalText;
+      if (syncBtn) {
+        syncBtn.disabled = false;
+        syncBtn.innerHTML = originalText;
+      }
     }
   }
 

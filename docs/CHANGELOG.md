@@ -51,12 +51,25 @@ v2.1.0 (Baseline Architecture)
         │
         ├─► v2.9.10 (Feat: Mobile Dual-Burger Header Architecture with Left Feed & Right Tools Menu)
         │
-        └─► v2.9.11 (Feat: Symmetrical Corner Docking for Layers & Mag, Default Radiant Heatmap, Compact Mobile Feed)
+        ├─► v2.9.11 (Feat: Symmetrical Corner Docking for Layers & Mag, Default Radiant Heatmap, Compact Mobile Feed)
+        │
+        └─► v2.9.12 (Feat: Observatory Standard UTC+3 Clock, Remove Redundant Sync & Mobile Admin Link)
 ```
 
 ---
 
 ## Milestone Change Log Details
+
+### [v2.9.12] — 2026-09-06
+**Feat: Observatory Standard UTC+3 Clock, Remove Redundant Sync & Mobile Admin Link**
+- **Type**: `feat(ui)` / `refactor(header)` / `docs`
+- **Scope**: `frontend/index.html`, `frontend/js/app.js`, `VERSION`, `docs/CHANGELOG.md`
+- **Key Deliverables**:
+  - **Observatory Standard `UTC+3` Clock**: Migrated live header clock from regional "TRT" to scientific standard "UTC+3" (`HH:MM:SS UTC+3`) with an explanatory tooltip, aligning with global seismological networks (USGS, EMSC, ISC, GFZ) and eliminating ambiguity.
+  - **Removed Redundant "Sync" Button**: Eliminated manual sync from both the desktop header actions and the mobile tools overflow menu; data is automatically polled in the background every 3 minutes and seamlessly refreshed on the frontend.
+  - **Streamlined Mobile Menu**: Removed the Admin Console link from the mobile tools dropdown, ensuring mobile visitors interact purely with essential monitoring tools (Audio, Analytics, Table, Snapshot).
+
+---
 
 ### [v2.9.11] — 2026-09-06
 **Feat: Symmetrical Corner Docking for Layers & Mag, Default Radiant Heatmap, Compact Mobile Feed**
