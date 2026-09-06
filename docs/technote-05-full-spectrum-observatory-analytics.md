@@ -15,7 +15,7 @@ TEMAS `v2.12.0` introduces the **Full-Spectrum Observatory Analytics Deck**, a c
 
 1. **Zero External Charting Bloat**: Built entirely without heavy third-party graphing dependencies (Chart.js, D3.js, Highcharts). All visual structures utilize semantic HTML5, high-performance inline SVG vectors, and hardware-accelerated CSS.
 2. **Sub-5ms Single-Pass Aggregation**: A single $O(N)$ traversal over the 13,423-event catalog simultaneously calculates magnitude distributions, depth strata, temporal buckets, cumulative energy integrals, and regional fault matrices in under 4 ms in modern JavaScript engines.
-3. **Ergonomic 4-Tab Navigation**: A segmented dark-glass tab bar allowing researchers and operators to seamlessly switch between **Overview**, **Time Trends**, **Energy**, and **Regions**.
+3. **Zero-Scroll Title-Bar Tab Integration**: To maximize analytical screen real estate and eliminate vertical scrolling on standard desktop monitors and laptops, the 4-tab pill navigation bar is integrated directly into the modal header alongside the brand title and export action dock (`Overview`, `Time Trends`, `Energy`, `Regions`).
 4. **Physical & Mathematical Rigor**: Incorporates canonical seismological equations, including the Gutenberg-Richter recurrence relation, Aki maximum likelihood $b$-value estimation, Gutenberg-Richter energy formulation, and diurnal anthropogenic cycle modeling.
 5. **Responsive Visual Immersion**: Fully responsive from 4K observatory monitors down to 390px mobile screens, with dark-glass aesthetic, glowing hover states, and dynamic tooltips.
 
@@ -25,6 +25,8 @@ TEMAS `v2.12.0` introduces the **Full-Spectrum Observatory Analytics Deck**, a c
 
 ```
 ┌───────────────────────────────────────────────────────────────────────────────────────────┐
+│ [📊 Seismic Intelligence v2.12]   [Overview | Time Trends | Energy | Regions]   [PDF|PNG|✕]│
+├───────────────────────────────────────────────────────────────────────────────────────────┤
 │ [KPI Ribbon: Total Catalog | Mean Hypocenter | Max Recorded Event | 24-Hour Event Volume] │
 ├─────────────────────────────────────────────┬─────────────────────────────────────────────┤
 │ Gutenberg-Richter Magnitude Recurrence      │ Focal Depth Stratification & Network Share  │

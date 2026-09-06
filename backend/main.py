@@ -142,7 +142,7 @@ def get_version_tag() -> str:
 async def health_check():
     return {
         "status": "healthy",
-        "service": "TEMAS-2.10",
+        "service": "TEMAS-2.12",
         "version": get_version_tag(),
         "sync_state": SYNC_STATE
     }

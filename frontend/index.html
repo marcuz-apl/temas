@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 
   <!-- Custom Design System -->
-  <link rel="stylesheet" href="/static/css/style.css?v=2.12.0">
+  <link rel="stylesheet" href="/static/css/style.css?v=2.12.1">
   <link rel="icon" type="image/svg+xml" href="/static/assets/favicon.svg">
   <link rel="alternate icon" type="image/x-icon" href="/static/assets/favicon.ico">
 </head>
@@ -354,43 +354,47 @@
     </div>
   </div>
 
-  <!-- Analytics Modal (Expanded Observatory Viewport) -->
+  <!-- Analytics Modal (Compact Observatory Viewport - Zero Scroll) -->
   <div class="modal-backdrop" id="analytics-modal">
     <div class="modal-dialog modal-analytics-dialog">
-      <div class="modal-header">
+      <div class="modal-header modal-analytics-header">
         <div class="modal-title-group">
-          <h3>Seismic Intelligence &amp; Gutenberg-Richter Analytics</h3>
-          <p class="modal-subtitle">Full-spectrum catalog distribution, temporal trends, seismic energy physics, and regional fault matrices</p>
+          <div class="modal-title-compact">
+            <span class="modal-title-icon">📊</span>
+            <h3>Seismic Intelligence</h3>
+            <span class="modal-version-pill">v2.12</span>
+          </div>
         </div>
+
+        <!-- 4-Tab Navigation Squeezed Into Title Bar -->
+        <div class="analytics-tabs-nav" id="analytics-tabs-nav">
+          <button class="analytics-tab-btn active" data-tab="overview">
+            <span class="tab-icon">📊</span>
+            <span>Overview</span>
+          </button>
+          <button class="analytics-tab-btn" data-tab="time">
+            <span class="tab-icon">⏱</span>
+            <span>Time Trends</span>
+          </button>
+          <button class="analytics-tab-btn" data-tab="energy">
+            <span class="tab-icon">⚡</span>
+            <span>Energy</span>
+          </button>
+          <button class="analytics-tab-btn" data-tab="regions">
+            <span class="tab-icon">📍</span>
+            <span>Regions</span>
+          </button>
+        </div>
+
         <div class="analytics-header-actions">
           <button id="btn-export-analytics-pdf" class="btn btn-sm btn-report" title="Generate 1-Page Official PDF Bulletin">
-            <span>📄 Export PDF</span>
+            <span>📄 PDF</span>
           </button>
           <button id="btn-export-analytics-png" class="btn btn-sm btn-report" title="Download High-Resolution PNG Snapshot">
-            <span>📸 Export PNG</span>
+            <span>📸 PNG</span>
           </button>
-          <button id="btn-close-analytics" class="btn btn-sm" style="padding: 6px 12px; font-weight: bold;">✕ Close</button>
+          <button id="btn-close-analytics" class="btn btn-sm btn-close-modal" title="Close Analytics Deck (Esc)">✕</button>
         </div>
-      </div>
-
-      <!-- 4-Tab Navigation Bar -->
-      <div class="analytics-tabs-nav" id="analytics-tabs-nav">
-        <button class="analytics-tab-btn active" data-tab="overview">
-          <span class="tab-icon">📊</span>
-          <span>Overview</span>
-        </button>
-        <button class="analytics-tab-btn" data-tab="time">
-          <span class="tab-icon">⏱</span>
-          <span>Time Trends</span>
-        </button>
-        <button class="analytics-tab-btn" data-tab="energy">
-          <span class="tab-icon">⚡</span>
-          <span>Energy</span>
-        </button>
-        <button class="analytics-tab-btn" data-tab="regions">
-          <span class="tab-icon">📍</span>
-          <span>Regions</span>
-        </button>
       </div>
 
       <div class="modal-body analytics-modal-body">
