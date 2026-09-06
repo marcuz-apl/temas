@@ -2,7 +2,7 @@ import os
 import asyncio
 import time
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Dict, Any, Optional, List
 
 from backend.ingestion.koeri import fetch_koeri_earthquakes
@@ -49,6 +49,7 @@ PROVIDERS_STATUS: Dict[str, Dict[str, Any]] = {
 # Global sync state
 SYNC_STATE: Dict[str, Any] = {
     "last_sync_time": None,
+    "last_sync_time_trt": None,
     "last_sync_status": "idle",
     "last_fetched": 0,
     "last_inserted": 0,
@@ -117,7 +118,9 @@ async def perform_sync() -> Dict[str, Any]:
     """
     SYNC_STATE["is_running"] = True
     SYNC_STATE["last_sync_status"] = "in_progress"
-    now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+    now_utc = datetime.now(timezone.utc)
+    now_str = now_utc.strftime("%Y-%m-%d %H:%M:%S UTC")
+    now_trt = (now_utc + timedelta(hours=3)).strftime("%Y-%m-%d %H:%M:%S TRT")
 
     all_records: List[Dict[str, Any]] = []
     results: Dict[str, Any] = {}
@@ -142,6 +145,7 @@ async def perform_sync() -> Dict[str, Any]:
         total_inserted = sum(r.get("inserted", 0) for r in results.values() if isinstance(r, dict))
 
         SYNC_STATE["last_sync_time"] = now_str
+        SYNC_STATE["last_sync_time_trt"] = now_trt
         SYNC_STATE["last_sync_status"] = "success"
         SYNC_STATE["last_fetched"] = total_fetched
         SYNC_STATE["last_inserted"] = total_inserted

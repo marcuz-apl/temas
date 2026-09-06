@@ -274,7 +274,7 @@
 
   function updateClock() {
     const now = new Date();
-    deckTime.textContent = now.toISOString().replace('T', ' ').substring(11, 19) + ' UTC';
+    deckTime.textContent = now.toLocaleTimeString('en-GB', { timeZone: 'Europe/Istanbul', hour12: false }) + ' TRT';
   }
   setInterval(updateClock, 1000);
   updateClock();

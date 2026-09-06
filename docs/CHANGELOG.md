@@ -39,12 +39,25 @@ v2.1.0 (Baseline Architecture)
         │
         ├─► v2.9.4 (Feat: One-Click Frontpage Map Snapshot Camera Action)
         │
-        └─► v2.9.5 (Feat: Fancy Seismic Wave Icon, Clean Map Attribution, Snapshot Box Fix, Legacy Purge)
+        ├─► v2.9.5 (Feat: Fancy Seismic Wave Icon, Clean Map Attribution, Snapshot Box Fix, Legacy Purge)
+        │
+        └─► v2.9.6 (Feat: Live Observatory Time Calibration to Turkey Time TRT / UTC+3)
 ```
 
 ---
 
 ## Milestone Change Log Details
+
+### [v2.9.6] — 2026-09-06
+**Feat: Live Observatory Time Calibration to Turkey Time (TRT / UTC+3)**
+- **Type**: `feat(ui)` / `feat(telemetry)`
+- **Scope**: `backend/ingestion/scheduler.py`, `frontend/index.html`, `frontend/js/app.js`, `frontend/admin.html`, `frontend/js/admin.js`
+- **Key Deliverables**:
+  - **Turkey Standard Time Alignment**: Calibrated the live header status pill to display Turkey Standard Time (`Live: HH:MM TRT`), matching national observatory operations (KOERI/AFAD) and the local Turkish territory monitored by the system.
+  - **Dual-Tz Telemetry Ingestion**: Added `last_sync_time_trt` alongside UTC timestamps in backend scheduler state to provide first-class timezone conversions without relying solely on client clock parsing.
+  - **Operations Deck Clock Standardization**: Converted the Admin Observatory Console deck clock (`#deckTime`) from UTC to live `HH:MM:SS TRT` with descriptive `Turkey Standard Time (TRT / UTC+3)` tooltip metadata.
+
+---
 
 ### [v2.9.5] — 2026-09-05
 **Feat: Fancy Seismic Wave Icon, Clean Map Attribution, Snapshot Box Fix, Legacy Purge**

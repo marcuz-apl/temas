@@ -744,8 +744,35 @@ class TemasApp {
     if (elTotal) elTotal.textContent = stats.total_count ? stats.total_count.toLocaleString() : '0';
     if (elMax) elMax.textContent = stats.max_magnitude ? `M${stats.max_magnitude.toFixed(1)}` : '-';
     if (el24h) el24h.textContent = stats.last_24h_count || '0';
-    if (elSync && stats.sync && stats.sync.last_sync_time) {
-      elSync.textContent = `Live: ${stats.sync.last_sync_time.substring(11, 16)} UTC`;
+    if (elSync && stats.sync) {
+      let trtTime = '';
+      if (stats.sync.last_sync_time_trt) {
+        trtTime = stats.sync.last_sync_time_trt.substring(11, 16);
+      } else if (stats.sync.last_sync_time) {
+        try {
+          const clean = stats.sync.last_sync_time.replace(' UTC', 'Z').replace(' ', 'T');
+          const d = new Date(clean.endsWith('Z') ? clean : clean + 'Z');
+          if (!isNaN(d.getTime())) {
+            trtTime = d.toLocaleTimeString('en-GB', {
+              timeZone: 'Europe/Istanbul',
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: false
+            });
+          }
+        } catch (e) {}
+        if (!trtTime) {
+          trtTime = stats.sync.last_sync_time.substring(11, 16);
+        }
+      }
+
+      if (trtTime) {
+        elSync.textContent = `Live: ${trtTime} TRT`;
+        const parentIndicator = elSync.closest('.live-indicator');
+        if (parentIndicator) {
+          parentIndicator.title = `Turkey Standard Time (TRT / UTC+3) • Synchronized at ${trtTime}`;
+        }
+      }
     }
   }
 
