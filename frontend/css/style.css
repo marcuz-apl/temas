@@ -316,6 +316,250 @@ html[data-theme="light"] .modal-header {
   border-bottom-color: rgba(0, 0, 0, 0.08);
 }
 
+/* Analytics Deck Light Mode Overrides */
+html[data-theme="light"] .modal-analytics-dialog {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2);
+}
+
+html[data-theme="light"] .modal-analytics-header {
+  background: rgba(248, 250, 252, 0.96);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(12px);
+}
+
+html[data-theme="light"] .modal-title-compact h3 {
+  color: #0f172a;
+}
+
+html[data-theme="light"] .modal-version-pill {
+  background: rgba(2, 132, 199, 0.1);
+  color: #0284c7;
+  border-color: rgba(2, 132, 199, 0.3);
+}
+
+html[data-theme="light"] .analytics-scope-toggle .scope-btn {
+  background: rgba(0, 0, 0, 0.04);
+  color: #475569;
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+html[data-theme="light"] .analytics-scope-toggle .scope-btn.active {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #0284c7;
+}
+
+html[data-theme="light"] .analytics-tab-btn {
+  background: rgba(0, 0, 0, 0.04);
+  color: #475569;
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+html[data-theme="light"] .analytics-tab-btn:hover {
+  background: rgba(0, 0, 0, 0.08);
+  color: #0f172a;
+}
+
+html[data-theme="light"] .analytics-tab-btn.active {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #0284c7;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25);
+}
+
+html[data-theme="light"] .btn-report {
+  background: rgba(0, 0, 0, 0.04);
+  color: #334155;
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+html[data-theme="light"] .btn-report:hover {
+  background: rgba(2, 132, 199, 0.1);
+  color: #0284c7;
+  border-color: rgba(2, 132, 199, 0.4);
+  box-shadow: none;
+}
+
+html[data-theme="light"] .analytics-header-actions .btn-close-modal {
+  background: rgba(0, 0, 0, 0.04);
+  color: #64748b;
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+html[data-theme="light"] .analytics-header-actions .btn-close-modal:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border-color: #ef4444;
+}
+
+html[data-theme="light"] .analytics-modal-body {
+  background: #ffffff;
+}
+
+html[data-theme="light"] .kpi-chip {
+  background: rgba(248, 250, 252, 0.9);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+html[data-theme="light"] .kpi-label {
+  color: #64748b;
+}
+
+html[data-theme="light"] .kpi-sub {
+  color: #64748b;
+}
+
+html[data-theme="light"] .analytics-card {
+  background: rgba(248, 250, 252, 0.7);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+html[data-theme="light"] .card-title-row h4 {
+  color: #0f172a;
+}
+
+html[data-theme="light"] .analytics-badge {
+  background: rgba(2, 132, 199, 0.08);
+  color: #0284c7;
+  border-color: rgba(2, 132, 199, 0.25);
+}
+
+html[data-theme="light"] .chart-bar-track {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+html[data-theme="light"] .chart-bar-label {
+  color: #334155;
+}
+
+html[data-theme="light"] .chart-bar-val,
+html[data-theme="light"] .chart-bar-count {
+  color: #334155;
+}
+
+html[data-theme="light"] .depth-stat-row,
+html[data-theme="light"] .source-row,
+html[data-theme="light"] .health-row {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.06);
+  color: #334155;
+}
+
+html[data-theme="light"] .health-label {
+  color: #64748b;
+}
+
+html[data-theme="light"] .health-val {
+  color: #0f172a;
+}
+
+html[data-theme="light"] .source-name {
+  color: #0f172a;
+}
+
+html[data-theme="light"] .source-count {
+  color: #334155;
+}
+
+/* Analytics Tab 2 Light Mode */
+html[data-theme="light"] .chart-monthly-svg {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+html[data-theme="light"] .chart-monthly-svg text {
+  fill: #334155 !important;
+}
+
+html[data-theme="light"] .chart-monthly-svg line {
+  stroke: rgba(0, 0, 0, 0.1) !important;
+}
+
+html[data-theme="light"] .chart-timeline-legend {
+  color: #64748b;
+}
+
+html[data-theme="light"] .card-desc {
+  color: #64748b;
+}
+
+html[data-theme="light"] .diurnal-label,
+html[data-theme="light"] .dow-label {
+  color: #475569;
+}
+
+/* Analytics Tab 3 Light Mode */
+html[data-theme="light"] .chart-energy-curve {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+html[data-theme="light"] .chart-energy-curve text {
+  fill: #334155 !important;
+}
+
+html[data-theme="light"] .chart-energy-curve line {
+  stroke: rgba(0, 0, 0, 0.1) !important;
+}
+
+html[data-theme="light"] .benchmark-row {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.06);
+  color: #0f172a;
+}
+
+html[data-theme="light"] .benchmark-m {
+  color: #0f172a;
+}
+
+/* Analytics Tab 4 Light Mode */
+html[data-theme="light"] .corridor-row {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.06);
+  color: #0f172a;
+}
+
+html[data-theme="light"] .corridor-rank,
+html[data-theme="light"] .corridor-name {
+  color: #0f172a;
+}
+
+html[data-theme="light"] .tectonic-belt-chip {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.08);
+  color: #0f172a;
+}
+
+html[data-theme="light"] .tectonic-belt-name {
+  color: #0f172a;
+}
+
+html[data-theme="light"] .depth-matrix-table th {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #475569;
+}
+
+html[data-theme="light"] .depth-matrix-table td {
+  border-color: rgba(0, 0, 0, 0.08);
+  color: #0f172a;
+}
+
+html[data-theme="light"] .depth-hist-label {
+  color: #64748b;
+}
+
+html[data-theme="light"] .depth-hist-track {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+html[data-theme="light"] .depth-hist-count {
+  color: #334155;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -1827,10 +2071,11 @@ header {
 /* Modal Body & Tab Panes (Zero Scroll Container) */
 .analytics-modal-body {
   padding: 12px 18px 14px !important;
-  overflow-y: auto;
+  overflow: hidden !important;
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-height: 0;
 }
 
 .analytics-tab-pane {
@@ -1844,6 +2089,35 @@ header {
   flex-direction: column;
   justify-content: space-between;
   height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Tab 1: Overview Guaranteed Zero-Scroll Grid */
+#tab-analytics-overview.active {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+#tab-analytics-overview .analytics-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  grid-template-rows: 1fr 1fr !important;
+  gap: 10px !important;
+  flex: 1 !important;
+  min-height: 0 !important;
+}
+
+#tab-analytics-overview .analytics-card {
+  min-height: 0 !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  padding: 9px 13px !important;
 }
 
 @keyframes fadeInPane {
@@ -2183,7 +2457,6 @@ header {
   width: 100%;
   flex: 1;
   min-height: 270px;
-  max-height: 380px;
   background: rgba(0, 0, 0, 0.25);
   border-radius: var(--radius-sm);
   border: 1px solid rgba(255, 255, 255, 0.05);
@@ -2362,6 +2635,13 @@ header {
   min-height: 0;
 }
 
+.regions-right-col > .analytics-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
 .region-stats-extended {
   display: flex;
   flex-direction: column;
@@ -2508,12 +2788,12 @@ header {
 .matrix-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.72rem;
+  font-size: 0.82rem;
 }
 
 .matrix-table th,
 .matrix-table td {
-  padding: 4px 6px;
+  padding: 6px 8px;
   text-align: center;
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
@@ -2522,7 +2802,7 @@ header {
   background: rgba(255, 255, 255, 0.03);
   font-family: var(--font-mono);
   color: var(--text-muted);
-  font-size: 0.65rem;
+  font-size: 0.74rem;
   text-transform: uppercase;
 }
 
@@ -2549,219 +2829,17 @@ header {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.72rem;
+  font-size: 0.82rem;
 }
 
 .depth-hist-label {
-  width: 75px;
+  width: 80px;
   font-family: var(--font-mono);
+  font-size: 0.78rem;
   color: var(--text-muted);
 }
 
 .depth-hist-track {
-  flex: 1;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 3px;
-  overflow: hidden;
-}
-
-.depth-hist-fill {
-  height: 100%;
-  border-radius: 3px;
-  background: linear-gradient(90deg, #38bdf8, #0ea5e9);
-}
-
-.depth-hist-count {
-  width: 70px;
-  text-align: right;
-  font-family: var(--font-mono);
-  color: var(--text-secondary);
-}
-
-/* Health Stats */
-.health-stats {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.health-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
-  font-size: 0.8rem;
-}
-
-.health-label {
-  color: var(--text-muted);
-}
-
-.health-val {
-  font-family: var(--font-mono);
-  font-weight: 700;
-}
-
-.analytics-grid {
-  display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  gap: 22px;
-  padding: 4px 0;
-}
-
-.analytics-card {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
-  transition: border-color 0.25s ease;
-}
-
-.analytics-card:hover {
-  border-color: rgba(56, 189, 248, 0.35);
-}
-
-.card-title-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-  border-bottom: 1px solid var(--border-subtle);
-  padding-bottom: 10px;
-}
-
-.card-title-row h4 {
-  font-size: 0.88rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-secondary);
-  font-weight: 700;
-  margin: 0;
-}
-
-.analytics-badge {
-  font-size: 0.72rem;
-  font-family: var(--font-mono);
-  background: rgba(56, 189, 248, 0.12);
-  color: #38bdf8;
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  padding: 3px 8px;
-  border-radius: 4px;
-  font-weight: 600;
-}
-
-/* Panel 1: Gutenberg-Richter Bars */
-.chart-bars {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.chart-bar-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 0.82rem;
-}
-
-.chart-bar-label {
-  width: 76px;
-  font-family: var(--font-mono);
-  color: var(--text-muted);
-  font-size: 0.78rem;
-}
-
-.chart-bar-track {
-  flex: 1;
-  height: 14px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 7px;
-  overflow: hidden;
-  position: relative;
-}
-
-.chart-bar-fill {
-  height: 100%;
-  border-radius: 7px;
-  transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
-}
-
-.chart-bar-count {
-  width: 55px;
-  text-align: right;
-  font-family: var(--font-mono);
-  font-weight: 700;
-  color: var(--text-primary);
-  font-size: 0.82rem;
-}
-
-/* Panel 2: Depth Stats */
-.depth-stats {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.depth-stat-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 14px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  border-radius: var(--radius-sm);
-  font-size: 0.84rem;
-}
-
-.depth-stat-row strong {
-  font-family: var(--font-mono);
-  font-size: 0.86rem;
-}
-
-/* Panel 3: Regional Seismicity Clusters */
-.region-stats {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.region-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.02);
-  border-radius: var(--radius-sm);
-  font-size: 0.82rem;
-}
-
-.region-name {
-  color: var(--text-primary);
-  font-weight: 600;
-  max-width: 250px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.region-bar-wrap {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex: 1;
-  max-width: 220px;
-  margin: 0 14px;
-}
-
-.region-bar-track {
   flex: 1;
   height: 8px;
   background: rgba(255, 255, 255, 0.05);
@@ -2769,57 +2847,21 @@ header {
   overflow: hidden;
 }
 
-.region-bar-fill {
+.depth-hist-fill {
   height: 100%;
-  background: linear-gradient(90deg, #38bdf8, #818cf8);
   border-radius: 4px;
+  background: linear-gradient(90deg, #38bdf8, #0ea5e9);
 }
 
-.region-count {
+.depth-hist-count {
+  width: 75px;
+  text-align: right;
   font-family: var(--font-mono);
-  color: #38bdf8;
-  font-weight: 700;
-}
-
-/* Panel 4: Ingestion Network Share */
-.source-stats {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.source-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 14px;
-  background: rgba(255, 255, 255, 0.02);
-  border-radius: var(--radius-sm);
-  font-size: 0.84rem;
-}
-
-.source-info {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.source-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-}
-
-.source-name {
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.source-count {
-  font-family: var(--font-mono);
-  font-weight: 700;
+  font-size: 0.80rem;
   color: var(--text-secondary);
 }
+
+
 
 /* Base mobile helper classes */
 .btn-close-sidebar {
@@ -3412,6 +3454,9 @@ header {
     height: 94vh !important;
     max-height: 94vh !important;
     margin: 3vh auto;
+  }
+  .analytics-modal-body {
+    overflow-y: auto !important;
   }
   .modal-analytics-header {
     flex-wrap: wrap;
