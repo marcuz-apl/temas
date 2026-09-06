@@ -870,7 +870,44 @@ header {
   min-width: 175px;
   user-select: none;
   touch-action: none;
-  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease, border-radius 0.2s ease;
+}
+
+/* Universal Collapsed State for Corner Floating Widgets (Desktop & Mobile) */
+.layer-controls.collapsed {
+  min-width: auto;
+  border-radius: 20px;
+  padding: 0;
+  box-shadow: var(--shadow-md);
+}
+
+.layer-controls.collapsed .layer-controls-body {
+  display: none;
+}
+
+.layer-controls.collapsed .layer-drag-header {
+  border-bottom: none;
+  border-radius: 20px;
+  padding: 6px 12px;
+  background: transparent;
+}
+
+.map-legend.collapsed {
+  min-width: auto;
+  border-radius: 20px;
+  padding: 0;
+  box-shadow: var(--shadow-md);
+}
+
+.map-legend.collapsed .legend-items {
+  display: none;
+}
+
+.map-legend.collapsed .legend-drag-header {
+  border-bottom: none;
+  border-radius: 20px;
+  padding: 6px 12px;
+  background: transparent;
 }
 
 .layer-controls.dragging {
@@ -1524,7 +1561,83 @@ header {
 }
 
 .widget-mobile-toggle {
-  display: none;
+  display: inline-block;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-left: 6px;
+  transition: transform 0.25s ease;
+  pointer-events: none;
+}
+
+.layer-controls:not(.collapsed):not(.collapsed-mobile) .widget-mobile-toggle,
+.map-legend:not(.collapsed):not(.collapsed-mobile) .widget-mobile-toggle {
+  transform: rotate(180deg);
+}
+
+.layer-controls.collapsed .widget-mobile-toggle,
+.layer-controls.collapsed-mobile .widget-mobile-toggle,
+.map-legend.collapsed .widget-mobile-toggle,
+.map-legend.collapsed-mobile .widget-mobile-toggle {
+  transform: rotate(0deg);
+}
+
+/* Leaflet One-Click Basemap Toggle Control & Styled Zoom Controls */
+.leaflet-control-zoom.leaflet-bar {
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.15)) !important;
+  border-radius: var(--radius-sm, 6px) !important;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+}
+
+.leaflet-control-zoom.leaflet-bar a {
+  background-color: var(--bg-surface, #1e293b) !important;
+  color: var(--text-primary, #f8fafc) !important;
+  border-bottom: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1)) !important;
+  width: 32px !important;
+  height: 32px !important;
+  line-height: 30px !important;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.leaflet-control-zoom.leaflet-bar a:last-child {
+  border-bottom: none !important;
+}
+
+.leaflet-control-zoom.leaflet-bar a:hover {
+  background-color: var(--bg-surface-hover, #334155) !important;
+  color: #38bdf8 !important;
+}
+
+.leaflet-basemap-toggle.leaflet-bar {
+  margin-top: 8px !important;
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.15)) !important;
+  border-radius: var(--radius-sm, 6px) !important;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+}
+
+.leaflet-basemap-toggle.leaflet-bar a {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 32px !important;
+  height: 32px !important;
+  line-height: 32px !important;
+  background-color: var(--bg-surface, #1e293b) !important;
+  color: var(--text-primary, #f8fafc) !important;
+  text-decoration: none !important;
+  border-bottom: none !important;
+  cursor: pointer !important;
+  transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+.leaflet-basemap-toggle.leaflet-bar a:hover {
+  background-color: var(--bg-surface-hover, #334155) !important;
+  transform: scale(1.08);
+}
+
+.leaflet-basemap-toggle.leaflet-bar a:active {
+  transform: scale(0.95);
 }
 
 /* ==========================================================================
@@ -1871,20 +1984,23 @@ header {
     padding: 0;
     border-radius: var(--radius-md);
   }
-  .layer-controls.collapsed-mobile .layer-controls-body {
+  .layer-controls.collapsed-mobile .layer-controls-body,
+  .layer-controls.collapsed .layer-controls-body {
     display: none;
   }
-  .layer-controls.collapsed-mobile {
+  .layer-controls.collapsed-mobile,
+  .layer-controls.collapsed {
     padding: 0;
     border-radius: 20px;
   }
-  .layer-controls.collapsed-mobile .layer-drag-header {
+  .layer-controls.collapsed-mobile .layer-drag-header,
+  .layer-controls.collapsed .layer-drag-header {
     border-bottom: none;
     border-radius: 20px;
     padding: 5px 10px;
     background: transparent;
   }
-  .layer-controls:not(.collapsed-mobile) .widget-mobile-toggle {
+  .layer-controls:not(.collapsed-mobile):not(.collapsed) .widget-mobile-toggle {
     transform: rotate(180deg);
   }
 
@@ -1897,20 +2013,23 @@ header {
     padding: 0;
     border-radius: var(--radius-md);
   }
-  .map-legend.collapsed-mobile .legend-items {
+  .map-legend.collapsed-mobile .legend-items,
+  .map-legend.collapsed .legend-items {
     display: none;
   }
-  .map-legend.collapsed-mobile {
+  .map-legend.collapsed-mobile,
+  .map-legend.collapsed {
     padding: 0;
     border-radius: 20px;
   }
-  .map-legend.collapsed-mobile .legend-drag-header {
+  .map-legend.collapsed-mobile .legend-drag-header,
+  .map-legend.collapsed .legend-drag-header {
     border-bottom: none;
     border-radius: 20px;
     padding: 5px 10px;
     background: transparent;
   }
-  .map-legend:not(.collapsed-mobile) .widget-mobile-toggle {
+  .map-legend:not(.collapsed-mobile):not(.collapsed) .widget-mobile-toggle {
     transform: rotate(180deg);
   }
 

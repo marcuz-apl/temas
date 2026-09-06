@@ -132,30 +132,107 @@ class TemasApp {
     const legendBox = document.getElementById('map-legend');
     const legendDragHandle = document.getElementById('legend-drag-handle');
 
-    const toggleFloatingWidget = (target, other) => {
-      if (window.innerWidth <= 768) {
-        const isCollapsed = target.classList.contains('collapsed-mobile');
-        if (isCollapsed) {
-          target.classList.remove('collapsed-mobile');
-          if (other && !other.classList.contains('collapsed-mobile')) {
-            other.classList.add('collapsed-mobile');
-          }
-        } else {
-          target.classList.add('collapsed-mobile');
-        }
+    const WIDGET_IDLE_TIMEOUT_MS = 30000; // 30 seconds
+    let layerIdleTimer = null;
+    let legendIdleTimer = null;
+
+    const resetWidgetToCorner = (widget) => {
+      if (!widget) return;
+      widget.style.left = '';
+      widget.style.top = '';
+      widget.style.right = '';
+      widget.style.bottom = '';
+      widget.style.transform = '';
+    };
+
+    const collapseWidget = (widget) => {
+      if (!widget) return;
+      widget.classList.add('collapsed', 'collapsed-mobile');
+      resetWidgetToCorner(widget);
+      if (widget === layerControlsBox && layerIdleTimer) {
+        clearTimeout(layerIdleTimer);
+        layerIdleTimer = null;
+      }
+      if (widget === legendBox && legendIdleTimer) {
+        clearTimeout(legendIdleTimer);
+        legendIdleTimer = null;
       }
     };
+
+    const resetLayerIdleTimer = () => {
+      if (layerIdleTimer) clearTimeout(layerIdleTimer);
+      if (layerControlsBox && !layerControlsBox.classList.contains('collapsed') && !layerControlsBox.classList.contains('collapsed-mobile')) {
+        layerIdleTimer = setTimeout(() => {
+          collapseWidget(layerControlsBox);
+        }, WIDGET_IDLE_TIMEOUT_MS);
+      }
+    };
+
+    const resetLegendIdleTimer = () => {
+      if (legendIdleTimer) clearTimeout(legendIdleTimer);
+      if (legendBox && !legendBox.classList.contains('collapsed') && !legendBox.classList.contains('collapsed-mobile')) {
+        legendIdleTimer = setTimeout(() => {
+          collapseWidget(legendBox);
+        }, WIDGET_IDLE_TIMEOUT_MS);
+      }
+    };
+
+    const expandWidget = (target, other) => {
+      if (!target) return;
+      target.classList.remove('collapsed', 'collapsed-mobile');
+      if (window.innerWidth <= 768 && other) {
+        collapseWidget(other);
+      }
+      if (target === layerControlsBox) resetLayerIdleTimer();
+      if (target === legendBox) resetLegendIdleTimer();
+    };
+
+    const toggleFloatingWidget = (target, other) => {
+      if (!target) return;
+      const isCollapsed = target.classList.contains('collapsed') || target.classList.contains('collapsed-mobile');
+      if (isCollapsed) {
+        expandWidget(target, other);
+      } else {
+        collapseWidget(target);
+      }
+    };
+
+    // On mobile screens, initialize corner widgets in collapsed state
+    if (window.innerWidth <= 768) {
+      if (layerControlsBox) layerControlsBox.classList.add('collapsed', 'collapsed-mobile');
+      if (legendBox) legendBox.classList.add('collapsed', 'collapsed-mobile');
+    }
 
     if (layerControlsBox && layerDragHandle) {
       this.initDraggable(layerControlsBox, layerDragHandle, () => {
         toggleFloatingWidget(layerControlsBox, legendBox);
       });
+
+      // User activity inside layer controls resets its 30s idle countdown
+      ['mousemove', 'mousedown', 'touchstart', 'change', 'click'].forEach((evt) => {
+        layerControlsBox.addEventListener(evt, () => resetLayerIdleTimer(), { passive: true });
+      });
+
+      // On load: if expanded, start 30s auto-collapse countdown
+      if (!layerControlsBox.classList.contains('collapsed') && !layerControlsBox.classList.contains('collapsed-mobile')) {
+        resetLayerIdleTimer();
+      }
     }
 
     if (legendBox && legendDragHandle) {
       this.initDraggable(legendBox, legendDragHandle, () => {
         toggleFloatingWidget(legendBox, layerControlsBox);
       });
+
+      // User activity inside legend box resets its 30s idle countdown
+      ['mousemove', 'mousedown', 'touchstart', 'change', 'click'].forEach((evt) => {
+        legendBox.addEventListener(evt, () => resetLegendIdleTimer(), { passive: true });
+      });
+
+      // On load: if expanded, start 30s auto-collapse countdown
+      if (!legendBox.classList.contains('collapsed') && !legendBox.classList.contains('collapsed-mobile')) {
+        resetLegendIdleTimer();
+      }
     }
 
     const filterDragHandle = document.getElementById('filter-drag-handle');
@@ -165,23 +242,19 @@ class TemasApp {
     if (this.mapEngine && this.mapEngine.map) {
       this.mapEngine.map.on('click', () => {
         if (window.innerWidth <= 768) {
-          if (layerControlsBox && !layerControlsBox.classList.contains('collapsed-mobile')) {
-            layerControlsBox.classList.add('collapsed-mobile');
-          }
-          if (legendBox && !legendBox.classList.contains('collapsed-mobile')) {
-            legendBox.classList.add('collapsed-mobile');
-          }
+          collapseWidget(layerControlsBox);
+          collapseWidget(legendBox);
         }
       });
     }
 
     document.addEventListener('click', (e) => {
       if (window.innerWidth <= 768) {
-        if (layerControlsBox && !layerControlsBox.contains(e.target) && !layerControlsBox.classList.contains('collapsed-mobile')) {
-          layerControlsBox.classList.add('collapsed-mobile');
+        if (layerControlsBox && !layerControlsBox.contains(e.target) && (!layerControlsBox.classList.contains('collapsed') && !layerControlsBox.classList.contains('collapsed-mobile'))) {
+          collapseWidget(layerControlsBox);
         }
-        if (legendBox && !legendBox.contains(e.target) && !legendBox.classList.contains('collapsed-mobile')) {
-          legendBox.classList.add('collapsed-mobile');
+        if (legendBox && !legendBox.contains(e.target) && (!legendBox.classList.contains('collapsed') && !legendBox.classList.contains('collapsed-mobile'))) {
+          collapseWidget(legendBox);
         }
       }
     });
@@ -674,17 +747,20 @@ class TemasApp {
     handle.addEventListener('mousedown', onPointerDown);
     handle.addEventListener('touchstart', onPointerDown, { passive: true });
 
-    // Single-tap on handle collapses/expands floating widget on mobile
+    // Single-tap on handle collapses/expands floating widget
     handle.addEventListener('click', (e) => {
       if (hasMoved) {
         hasMoved = false;
         return;
       }
-      if (window.innerWidth <= 768) {
-        if (onToggle) {
-          onToggle();
+      if (onToggle) {
+        onToggle();
+      } else {
+        const isCollapsed = element.classList.contains('collapsed') || element.classList.contains('collapsed-mobile');
+        if (isCollapsed) {
+          element.classList.remove('collapsed', 'collapsed-mobile');
         } else {
-          element.classList.toggle('collapsed-mobile');
+          element.classList.add('collapsed', 'collapsed-mobile');
         }
       }
     });

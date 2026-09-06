@@ -53,12 +53,25 @@ v2.1.0 (Baseline Architecture)
         │
         ├─► v2.9.11 (Feat: Symmetrical Corner Docking for Layers & Mag, Default Radiant Heatmap, Compact Mobile Feed)
         │
-        └─► v2.9.12 (Feat: Observatory Standard UTC+3 Clock, Remove Redundant Sync & Mobile Admin Link)
+        ├─► v2.9.12 (Feat: Observatory Standard UTC+3 Clock, Remove Redundant Sync & Mobile Admin Link)
+        │
+        └─► v2.9.13 (Feat: 30s Idle Corner Auto-Collapse for Layers & Mag, One-Click SVG Basemap Toggle)
 ```
 
 ---
 
 ## Milestone Change Log Details
+
+### [v2.9.13] — 2026-09-06
+**Feat: 30s Idle Corner Auto-Collapse for Layers & Mag, One-Click SVG Basemap Toggle**
+- **Type**: `feat(ui)` / `ux(interaction)` / `perf(map)`
+- **Scope**: `frontend/index.html`, `frontend/css/style.css`, `frontend/js/map.js`, `frontend/js/app.js`, `VERSION`, `docs/CHANGELOG.md`
+- **Key Deliverables**:
+  - **30-Second Inactivity Auto-Collapse & Corner Snapping**: Instrumented universal 30s idle timers on both `LAYERS` (lower-left) and `MAG` (lower-right) toolbars across desktop and mobile. User interactions inside widgets reset the countdown. When idle, widgets automatically collapse into compact glass pills and reset to their designated corner anchors even if previously dragged.
+  - **One-Click Instant Basemap Toggle**: Replaced multi-step Leaflet radio popup with a custom, direct toggle button docked beneath the zoom controls, featuring vector SVG Map/Moon icons with live contextual tooltips (`Dark Canvas` $\leftrightarrow$ `OpenStreetMap`).
+  - **Cohesive Dark Glass Leaflet UI**: Custom styled `.leaflet-control-zoom` and `.leaflet-basemap-toggle` to integrate seamlessly with the observatory surface palette.
+
+---
 
 ### [v2.9.12] — 2026-09-06
 **Feat: Observatory Standard UTC+3 Clock, Remove Redundant Sync & Mobile Admin Link**
