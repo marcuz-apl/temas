@@ -77,11 +77,24 @@ v2.1.0 (Baseline Architecture)
   │     └─► v2.10.7 (Feat: Timeline Playback Sonification & Live Event Audio Alarm)
   │
   └─► v2.11.0 (Feat: Balanced 3-Column Observatory Header, Centered Telemetry HUD & Sleek Icon Action Dock)
+        │
+        └─► v2.11.1 (Fix: Resilient Corner Widget Drag/Expand Clamping & Crisp Vector Header Icons)
 ```
 
 ---
 
 ## Milestone Change Log Details
+
+### [v2.11.1] — 2026-09-06
+**Fix: Resilient Corner Widget Drag/Expand Clamping & Crisp Vector Header Icons**
+- **Type**: `fix(ui)` / `ergonomics(widgets)` / `patch-bump`
+- **Scope**: `frontend/index.html`, `frontend/css/style.css`, `frontend/js/app.js`, `VERSION`, `docs/CHANGELOG.md`
+- **Key Deliverables**:
+  - **Magnitude & Layer Floating Widgets**: Fixed click-swallowing bug in `initDraggable` by resetting `hasMoved` on an 80ms trailing debounce after drag termination, raised jitter threshold with `Math.hypot`, and enabled 1-tap direct expansion on collapsed widget pills.
+  - **Viewport Clamping on Expand**: Added auto-clamping in `expandWidget` so floating widgets repositioned when collapsed never push expanded legend contents off-screen below the bottom viewport edge.
+  - **Crisp Vector Header Action Dock**: Replaced platform-dependent emoji fallbacks and collapsing inline-flex SVGs with standardized, stroke-aligned Lucide vector icons (`Feed`, `Audio`, `Analytics`, `Table`, `Fullscreen`, `Snapshot`) with rigid $19\times 19$px dimensions and glow states.
+
+---
 
 ### [v2.11.0] — 2026-09-06
 **Feat: Balanced 3-Column Observatory Header, Centered Telemetry HUD & Sleek Icon Action Dock**

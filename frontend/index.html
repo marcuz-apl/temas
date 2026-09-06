@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 
   <!-- Custom Design System -->
-  <link rel="stylesheet" href="/static/css/style.css?v=2.11.0">
+  <link rel="stylesheet" href="/static/css/style.css?v=2.11.1">
   <link rel="icon" type="image/svg+xml" href="/static/assets/favicon.svg">
   <link rel="alternate icon" type="image/x-icon" href="/static/assets/favicon.ico">
 </head>
@@ -95,46 +95,46 @@
     <!-- Right Section: Sleek Icon Action Dock & Mobile Tools -->
     <div class="header-right">
       <div class="header-actions">
-        <button id="btn-toggle-sidebar" class="btn btn-icon-only" title="Toggle Seismic Feed (F)">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-            <rect x="3" y="4" width="18" height="3" rx="1.5"></rect>
-            <rect x="3" y="10.5" width="18" height="3" rx="1.5"></rect>
-            <rect x="3" y="17" width="18" height="3" rx="1.5"></rect>
+        <button id="btn-toggle-sidebar" class="btn btn-icon-only" title="Toggle Seismic Feed (F)" aria-label="Toggle Seismic Feed">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" y1="6" x2="20" y2="6"></line>
+            <line x1="4" y1="12" x2="20" y2="12"></line>
+            <line x1="4" y1="18" x2="20" y2="18"></line>
           </svg>
         </button>
-        <button id="btn-toggle-audio" class="btn btn-icon-only" title="Toggle Seismic Audio (Playback Sonification & Live Alerts)">
-          <span id="audio-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <button id="btn-toggle-audio" class="btn btn-icon-only" title="Toggle Seismic Audio (Playback Sonification & Live Alerts)" aria-label="Toggle Seismic Audio">
+          <span id="audio-icon" class="btn-icon-svg">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor"></polygon>
               <line x1="23" y1="9" x2="17" y2="15"></line>
               <line x1="17" y1="9" x2="23" y2="15"></line>
             </svg>
           </span>
         </button>
-        <button id="btn-analytics" class="btn btn-icon-only" title="View Seismic Analytics Deck (A)">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-            <rect x="3" y="10" width="4.5" height="11" rx="1.5"></rect>
-            <rect x="9.75" y="3" width="4.5" height="18" rx="1.5"></rect>
-            <rect x="16.5" y="7" width="4.5" height="14" rx="1.5"></rect>
+        <button id="btn-analytics" class="btn btn-icon-only" title="View Seismic Analytics Deck (A)" aria-label="View Seismic Analytics">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 3v18h18"></path>
+            <path d="m19 9-5 5-4-4-3 3"></path>
           </svg>
         </button>
-        <button id="btn-table-view" class="btn btn-icon-only" title="View Full Data Table (T)">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="3" width="18" height="18" rx="2.5"></rect>
-            <line x1="3" y1="9" x2="21" y2="9"></line>
-            <line x1="3" y1="15" x2="21" y2="15"></line>
-            <line x1="11" y1="9" x2="11" y2="21"></line>
+        <button id="btn-table-view" class="btn btn-icon-only" title="View Full Data Table (T)" aria-label="View Full Data Table">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="18" height="18" x="3" y="3" rx="2.5"></rect>
+            <path d="M3 9h18"></path>
+            <path d="M3 15h18"></path>
+            <path d="M9 3v18"></path>
+            <path d="M15 3v18"></path>
           </svg>
         </button>
-        <button id="btn-fullscreen" class="btn btn-icon-only" title="Toggle Fullscreen Mode">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <button id="btn-fullscreen" class="btn btn-icon-only" title="Toggle Fullscreen Mode" aria-label="Toggle Fullscreen Mode">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
           </svg>
         </button>
-        <button id="btn-map-snapshot" class="btn btn-icon-only" title="Capture Frontpage Snapshot">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-            <circle cx="12" cy="13" r="4"></circle>
+        <button id="btn-map-snapshot" class="btn btn-icon-only" title="Capture Frontpage Snapshot" aria-label="Capture Snapshot">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path>
+            <circle cx="12" cy="13" r="3"></circle>
           </svg>
         </button>
       </div>
@@ -430,6 +430,6 @@
   <script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
   <!-- Application Entry Point -->
-  <script type="module" src="/static/js/app.js?v=2.11.0"></script>
+  <script type="module" src="/static/js/app.js?v=2.11.1"></script>
 </body>
 </html>

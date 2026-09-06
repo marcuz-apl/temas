@@ -182,6 +182,22 @@ class TemasApp {
     const expandWidget = (target, other) => {
       if (!target) return;
       target.classList.remove('collapsed', 'collapsed-mobile');
+      // If widget was moved while collapsed, keep it fully visible within viewport on expansion
+      if (target.style.top) {
+        requestAnimationFrame(() => {
+          const rect = target.getBoundingClientRect();
+          const pHeight = target.offsetParent ? target.offsetParent.clientHeight : window.innerHeight;
+          const pWidth = target.offsetParent ? target.offsetParent.clientWidth : window.innerWidth;
+          if (rect.bottom > pHeight - 8) {
+            const newTop = Math.max(8, pHeight - rect.height - 8);
+            target.style.top = `${newTop}px`;
+          }
+          if (rect.right > pWidth - 8) {
+            const newLeft = Math.max(8, pWidth - rect.width - 8);
+            target.style.left = `${newLeft}px`;
+          }
+        });
+      }
       if (window.innerWidth <= 768 && other) {
         collapseWidget(other);
       }
@@ -714,7 +730,7 @@ class TemasApp {
         const dx = curX - startX;
         const dy = curY - startY;
 
-        if (!hasMoved && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) {
+        if (!hasMoved && Math.hypot(dx, dy) > 8) {
           hasMoved = true;
           element.classList.add('dragging');
           element.style.right = 'auto';
@@ -749,6 +765,10 @@ class TemasApp {
         document.removeEventListener('mouseup', onPointerUp);
         document.removeEventListener('touchmove', onPointerMove);
         document.removeEventListener('touchend', onPointerUp);
+        // Cleanly reset hasMoved after short trailing window to avoid swallowing future clicks
+        setTimeout(() => {
+          hasMoved = false;
+        }, 80);
       };
 
       document.addEventListener('mousemove', onPointerMove);
@@ -774,6 +794,20 @@ class TemasApp {
           element.classList.remove('collapsed', 'collapsed-mobile');
         } else {
           element.classList.add('collapsed', 'collapsed-mobile');
+        }
+      }
+    });
+
+    // Clicking anywhere on collapsed pill opens it directly
+    element.addEventListener('click', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.target.closest('label')) return;
+      const isCollapsed = element.classList.contains('collapsed') || element.classList.contains('collapsed-mobile');
+      if (isCollapsed && !handle.contains(e.target)) {
+        if (hasMoved) return;
+        if (onToggle) {
+          onToggle();
+        } else {
+          element.classList.remove('collapsed', 'collapsed-mobile');
         }
       }
     });
