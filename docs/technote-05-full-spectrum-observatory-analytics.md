@@ -3,7 +3,7 @@
 **Status**: Active / Production  
 **Component**: Analytics Engine (`frontend/js/app.js`), Observatory Deck (`frontend/index.html`, `frontend/css/style.css`), Seismic Catalog Database (`data/eq-turkey.db`)  
 **Author**: TEMAS Core Engineering Team  
-**Last Updated**: 2026-09-06 (Calibrated for v2.12.1)  
+**Last Updated**: 2026-09-06 (Calibrated for v2.12.2)  
 
 ---
 
@@ -11,7 +11,7 @@
 
 The original TEMAS analytics view provided a simple modal with basic magnitude and depth bar charts. While informative for small samples, it lacked the multidimensional depth required for serious geoscientific analysis, temporal trend discovery, energy quantification, and regional fault-zone profiling across the multi-year catalog (13,423 verified events from 2021 to 2026).
 
-TEMAS `v2.12.0` and `v2.12.1` introduce the **Full-Spectrum Observatory Analytics Deck**, a client-side analytical suite engineered with five foundational principles:
+TEMAS `v2.12.0` – `v2.12.2` introduce the **Full-Spectrum Observatory Analytics Deck**, a client-side analytical suite engineered with five foundational principles:
 
 1. **Zero External Charting Bloat**: Built entirely without heavy third-party graphing dependencies (Chart.js, D3.js, Highcharts). All visual structures utilize semantic HTML5, high-performance inline SVG vectors, and hardware-accelerated CSS.
 2. **Sub-5ms Single-Pass Aggregation**: A single $O(N)$ traversal over the 13,423-event catalog simultaneously calculates magnitude distributions, depth strata, temporal buckets, cumulative energy integrals, and regional fault matrices in under 4 ms in modern JavaScript engines.
@@ -99,6 +99,11 @@ To evaluate catalog detection consistency and anthropogenic noise influence, eve
 ### 3.3 Day-of-Week Profile
 Displays event volume across Monday through Sunday. For real tectonic events, the distribution is statistically uniform ($p > 0.85$ under $\chi^2$ testing), verifying that quarry blasts and industrial explosions are successfully purged from the catalog during curation.
 
+### 3.4 2/3 Height Timeline Layout (v2.12.2)
+To resolve vertical compaction of the 69-month histogram and year ticks, Tab 2 was refactored into an asymmetric vertical split:
+- **Upper Timeline Card (`.analytics-card-timeline`)**: Allocated **two-thirds ($2/3$)** of the modal canvas height (`flex: 2`). The SVG viewport height was expanded from 220px to 280px with a generous 34px bottom padding (`padBottom = 34`). Calendar year ticks (`2021`, `2022`, `2023`, `2024`, `2025`, `2026`) are rendered in prominent 12px bold monospace typography (`font-weight="700"`), complemented by horizontal dashed guide gridlines at 0%, 50%, and 100% of peak height.
+- **Lower Sub-Cyclic Grid (`.analytics-grid-time-lower`)**: Occupies the remaining **one-third ($1/3$)** of the height (`flex: 1`), holding the 24-Hour Diurnal Rhythm and Day-of-Week Activity Profile side-by-side with zero desktop overflow or scrollbars.
+
 ---
 
 ## 4. Tab 3: Geodynamic Energy Release
@@ -184,7 +189,21 @@ Binned in discrete $5\text{ km}$ intervals ($0\text{–}5, 5\text{–}10, 10\tex
 
 ---
 
-## 6. Performance & Computational Benchmark
+## 6. Unified Publication Export Engine (PDF & PNG)
+
+TEMAS provides publication-grade exports for academic citations, emergency management bulletins, and media briefings via two formats:
+- **Print / PDF Vector Export**: Native browser vector print pipeline (`window.print()`) scoped by `@media print`.
+- **PNG High-DPI Snapshot Export**: Client-side canvas rasterization via `html2canvas` generating a high-resolution $2828 \times 2000\text{px}$ A4 bulletin.
+
+### 6.1 Unified Color Palette & Elimination of Black Header Banners
+Early iterations suffered from a color mismatch where the dark-glass header banner (`rgba(10, 15, 29, 0.88)`) persisted into white publication documents. In `v2.12.2`, both print and snapshot pipelines apply unified light-theme overrides:
+- **Header Banner**: Re-styled with a pure `#ffffff` background, deep dark primary typography (`#0f172a`), subtle muted secondary indicators (`#475569`), and a crisp 2.5px dark bottom separator (`border-bottom: 2.5px solid #0f172a`), harmonizing seamlessly with the white bulletin body.
+- **Pills & Navigation Buttons**: Active scope buttons, tab pills, and version tags are rendered in clean light tones (`#e2e8f0` / `#0284c7`) with readable high-contrast dark text.
+- **High-DPI Rasterization Sandbox**: Fixed coordinate culling in `html2canvas` by mounting the temporary clone at `left: 0; top: 0; z-index: -9999; pointer-events: none;` with explicit viewport dimensions (`1414×1000px`), guaranteeing zero element truncation and preventing layout reflow.
+
+---
+
+## 7. Performance & Computational Benchmark
 
 ```
 Catalog Ingestion: 13,423 events (JSON in-memory: ~4.2 MB)
@@ -196,3 +215,4 @@ Total Tab Switch Latency:                 < 6.5 ms @ 60 FPS
 
 - **Zero Garbage Collector Pressure**: Aggregation leverages primitive arithmetic counters and pre-allocated typed arrays, preventing memory churn.
 - **Pure CSS Transitions**: Tab switches trigger instant active class toggles with CSS opacity transitions, guaranteeing instantaneous responsiveness across desktop and mobile devices.
+

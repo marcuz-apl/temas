@@ -83,11 +83,24 @@ v2.1.0 (Baseline Architecture)
   └─► v2.12.0 (Feat: Full-Spectrum Observatory Analytics Deck, 4-Tab Seismological Suite & Technote-05)
         │
         └─► v2.12.1 (Fix/Feat: Decoupled Multi-Year Archive Ingestion, Tall Energy Curve & Top 15 Fault Corridors)
+              │
+              └─► v2.12.2 (Fix: Expanded 2/3 Height Time Trends Timeline & Unified Print/PNG Export Header)
 ```
 
 ---
 
 ## Milestone Change Log Details
+
+### [v2.12.2] — 2026-09-06
+**Fix: Expanded 2/3 Height Time Trends Timeline & Unified Print/PNG Export Header**
+- **Type**: `fix(ui)` / `fix(analytics)` / `feat(export)` / `patch-bump`
+- **Scope**: `frontend/index.html`, `frontend/css/style.css`, `frontend/js/app.js`, `VERSION`, `README.md`, `docs/technote-05-full-spectrum-observatory-analytics.md`, `docs/CHANGELOG.md`
+- **Key Deliverables**:
+  - **2/3 Height Monthly Seismicity Timeline**: In Tab 2 (*Time Trends*), expanded the upper timeline card (`.analytics-card-timeline`) to occupy two-thirds (`flex: 2`) of the modal canvas height, granting generous vertical amplitude to the monthly bar histogram. Increased SVG canvas height from 220px to 280px, increased bar corner radius and spacing, expanded calendar year ticks (`font-size="12" font-weight="700"`, `padBottom = 34`), and integrated dashed horizontal guide gridlines. Lower diurnal and day-of-week cards cleanly occupy the remaining 1/3 height (`flex: 1`) while maintaining strict zero-scroll desktop containment.
+  - **Unified Light Theme Header for PDF & PNG Exports**: Resolved the visual mismatch where exported PDF and PNG bulletins bore a dark header bar over a white publication document. Fully styled `.modal-analytics-header`, `.modal-title-compact h3`, `.modal-version-pill`, `.analytics-scope-toggle`, and `.analytics-tabs-nav` within `@media print` and `.export-a4-snapshot` with the exact clean publication white palette (`#ffffff` background, `#0f172a` primary dark typography, crisp bottom rule, light badges).
+  - **High-DPI html2canvas Rasterization Integrity**: Fixed sandbox coordinate culling by positioning the temporary snapshot container at `left: 0; top: 0; z-index: -9999; pointer-events: none;` with explicit viewport dimensions, preventing canvas clipping while preserving high-DPI (2828×2000px) resolution.
+
+---
 
 ### [v2.12.1] — 2026-09-06
 **Fix/Feat: Decoupled Multi-Year Archive Ingestion, Tall Energy Curve & Top 15 Fault Corridors**

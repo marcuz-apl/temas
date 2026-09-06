@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 
   <!-- Custom Design System -->
-  <link rel="stylesheet" href="/static/css/style.css?v=2.12.1">
+  <link rel="stylesheet" href="/static/css/style.css?v=2.12.2">
   <link rel="icon" type="image/svg+xml" href="/static/assets/favicon.svg">
   <link rel="alternate icon" type="image/x-icon" href="/static/assets/favicon.ico">
 </head>
@@ -362,7 +362,7 @@
           <div class="modal-title-compact">
             <span class="modal-title-icon">📊</span>
             <h3>Seismic Intelligence</h3>
-            <span class="modal-version-pill">v2.12.1</span>
+            <span class="modal-version-pill">v2.12.2</span>
           </div>
           <div class="analytics-scope-toggle" id="analytics-scope-toggle" title="Switch dataset scope: Multi-Year Catalog Archive vs Filtered Map View">
             <button class="scope-btn active" data-scope="archive" id="btn-scope-archive">Archive (<span id="analytics-arch-count">13.4k</span>)</button>
@@ -477,7 +477,7 @@
 
         <!-- TAB 2: TIME TRENDS -->
         <div class="analytics-tab-pane" id="tab-analytics-time">
-          <div class="analytics-card" style="margin-bottom: 20px;">
+          <div class="analytics-card analytics-card-timeline">
             <div class="card-title-row">
               <h4>Monthly Seismicity &amp; Event Rate Timeline (2021 – 2026)</h4>
               <span class="analytics-badge" id="analytics-peak-month-badge">Peak: Feb 2023</span>
@@ -494,7 +494,7 @@
             </div>
           </div>
 
-          <div class="analytics-grid">
+          <div class="analytics-grid analytics-grid-time-lower">
             <!-- Diurnal 24h Rhythm -->
             <div class="analytics-card">
               <div class="card-title-row">
@@ -697,6 +697,6 @@
   <script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
   <!-- Application Entry Point -->
-  <script type="module" src="/static/js/app.js?v=2.12.1"></script>
+  <script type="module" src="/static/js/app.js?v=2.12.2"></script>
 </body>
 </html>

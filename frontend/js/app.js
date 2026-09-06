@@ -1050,7 +1050,7 @@ class TemasApp {
   }
 
   /* ==========================================================================
-     Multi-Tab Analytics Observatory Engine (v2.12.1)
+     Multi-Tab Analytics Observatory Engine (v2.12.2)
      ========================================================================== */
   async fetchFullCatalogCache() {
     if (this.fullCatalogCache && this.fullCatalogCache.length > 0) return this.fullCatalogCache;
@@ -1393,11 +1393,11 @@ class TemasApp {
       }
 
       const svgWidth = 1000;
-      const svgHeight = 220;
-      const padLeft = 45;
+      const svgHeight = 280;
+      const padLeft = 48;
       const padRight = 20;
-      const padTop = 20;
-      const padBottom = 30;
+      const padTop = 22;
+      const padBottom = 34;
 
       const plotW = svgWidth - padLeft - padRight;
       const plotH = svgHeight - padTop - padBottom;
@@ -1405,7 +1405,7 @@ class TemasApp {
 
       const nMonths = sortedMonths.length || 1;
       const barSlotW = plotW / nMonths;
-      const barW = Math.max(3, barSlotW - 1.5);
+      const barW = Math.max(3.5, barSlotW - 1.5);
 
       let barsSvg = '';
       let yearTicks = '';
@@ -1423,7 +1423,7 @@ class TemasApp {
         else if (count >= 200) color = '#f59e0b';
 
         barsSvg += `
-          <rect x="${x}" y="${y}" width="${barW}" height="${Math.max(barH, count > 0 ? 3 : 0)}" rx="1.5" fill="${color}" opacity="${count > 0 ? 0.9 : 0.2}">
+          <rect x="${x}" y="${y}" width="${barW}" height="${Math.max(barH, count > 0 ? 3 : 0)}" rx="2" fill="${color}" opacity="${count > 0 ? 0.92 : 0.2}">
             <title>${ym}: ${count.toLocaleString()} quakes (Max M${(monthMaxM[ym] || 0).toFixed(1)})</title>
           </rect>
         `;
@@ -1431,8 +1431,8 @@ class TemasApp {
         const curYear = ym.substring(0, 4);
         if (curYear !== lastYear) {
           yearTicks += `
-            <text x="${x}" y="${svgHeight - 8}" fill="#94a3b8" font-size="11" font-family="monospace" font-weight="bold">${curYear}</text>
-            <line x1="${x}" y1="${padTop}" x2="${x}" y2="${padTop + plotH}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="3,3" />
+            <text x="${x + 2}" y="${svgHeight - 10}" fill="#cbd5e1" font-size="12" font-family="monospace" font-weight="700">${curYear}</text>
+            <line x1="${x}" y1="${padTop}" x2="${x}" y2="${padTop + plotH}" stroke="rgba(255,255,255,0.08)" stroke-dasharray="3,3" />
           `;
           lastYear = curYear;
         }
@@ -1440,11 +1440,17 @@ class TemasApp {
 
       monthlyContainer.innerHTML = `
         <svg viewBox="0 0 ${svgWidth} ${svgHeight}" preserveAspectRatio="none">
-          <line x1="${padLeft}" y1="${padTop + plotH}" x2="${svgWidth - padRight}" y2="${padTop + plotH}" stroke="rgba(255,255,255,0.15)" stroke-width="1" />
+          <!-- Horizontal Guide Gridlines -->
+          <line x1="${padLeft}" y1="${padTop}" x2="${svgWidth - padRight}" y2="${padTop}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="4,4" />
+          <line x1="${padLeft}" y1="${padTop + plotH / 2}" x2="${svgWidth - padRight}" y2="${padTop + plotH / 2}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="4,4" />
+          <line x1="${padLeft}" y1="${padTop + plotH}" x2="${svgWidth - padRight}" y2="${padTop + plotH}" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" />
+          
           ${yearTicks}
           ${barsSvg}
-          <text x="8" y="${padTop + 14}" fill="#64748b" font-size="10" font-family="monospace">${maxVal}</text>
-          <text x="8" y="${padTop + plotH / 2}" fill="#64748b" font-size="10" font-family="monospace">${Math.round(maxVal / 2)}</text>
+          
+          <!-- Y-Axis Ticks -->
+          <text x="8" y="${padTop + 12}" fill="#94a3b8" font-size="10" font-family="monospace">${maxVal}</text>
+          <text x="8" y="${padTop + plotH / 2 + 4}" fill="#64748b" font-size="10" font-family="monospace">${Math.round(maxVal / 2)}</text>
           <text x="8" y="${padTop + plotH}" fill="#64748b" font-size="10" font-family="monospace">0</text>
         </svg>
       `;
@@ -2300,7 +2306,7 @@ class TemasApp {
     sandbox.id = 'snapshot-sandbox';
     sandbox.style.cssText = `
       position: fixed;
-      left: -99999px;
+      left: 0;
       top: 0;
       width: 1414px;
       height: 1000px;
@@ -2309,6 +2315,7 @@ class TemasApp {
       overflow: hidden;
       background: #ffffff;
       z-index: -9999;
+      pointer-events: none;
     `;
     sandbox.appendChild(clone);
     document.body.appendChild(sandbox);
@@ -2320,7 +2327,11 @@ class TemasApp {
         scale: 2, // 2828x2000px high-DPI output
         backgroundColor: '#ffffff',
         useCORS: true,
-        logging: false
+        logging: false,
+        windowWidth: 1414,
+        windowHeight: 1000,
+        x: 0,
+        y: 0
       });
 
       const link = document.createElement('a');

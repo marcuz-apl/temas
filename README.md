@@ -9,7 +9,7 @@
 
 Founded following the devastating February 6, 2023 Kahramanmaraş earthquake sequence, TEMAS bridges the gap between public seismic awareness and rigorous geoscientific analysis.
 
-- **Current Release**: `v2.12.1` (September 2026)
+- **Current Release**: `v2.12.2` (September 2026)
 - **Author & Copyright**: © 2023–2026, Alfazen Inc.
 - **License**: [MIT License](LICENSE) (Data copyright Boğaziçi Univ. / KOERI)
 
