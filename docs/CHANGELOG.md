@@ -61,12 +61,28 @@ v2.1.0 (Baseline Architecture)
   │
   └─► v2.10.0 (Feat: Full-Spectrum Day/Night Theme Sync, Modern Responsive Dual-Nav & Corner Docking)
         │
-        └─► v2.10.1 (Fix: Concealed Admin Route /samet, Deceptive 404, Purge Passkey Hint, Dynamic Versioning)
+        ├─► v2.10.1 (Fix: Concealed Admin Route /samet, Deceptive 404, Purge Passkey Hint, Dynamic Versioning)
+        │
+        └─► v2.10.2 (Feat: Operations Deck About Modal & Attributions)
 ```
 
 ---
 
 ## Milestone Change Log Details
+
+### [v2.10.2] — 2026-09-06
+**Feat: Operations Deck About Modal & Attributions**
+- **Type**: `feat(admin)` / `feat(ui)` / `docs`
+- **Scope**: `frontend/admin.html`, `frontend/js/admin.js`, `VERSION`, `docs/CHANGELOG.md`
+- **Key Deliverables**:
+  - **Top Command Deck "About" Action**: Embedded a dedicated `About` button in the top-right command bar (`.header-right`) styled with cyber-glow borders and vector info iconography.
+  - **Streamlined Mission & Attribution Manifest**: Formulated a focused, 2-section cyber glass modal presenting:
+    1. *Mission & Heritage*: Outlines TEMAS platform origins from the February 2023 Kahramanmaraş earthquake sequence and modern Anatolian plate monitoring.
+    2. *Data Sources & Attribution*: Explicit technical credits for KOERI, EMSC-CSEM, USGS, and PB2002 plate boundary models.
+  - **Developer Copyright & Armed Status**: Added official copyright manifest (`© 2023-2026, Alfazen Inc. All rights reserved.`) with real-time green live engine status beacon.
+  - **Universal Dismissal Ergonomics**: Instrumented keyboard `Esc` listener, backdrop click-out, and glowing acknowledge button for swift operational control.
+
+---
 
 ### [v2.10.1] — 2026-09-06
 **Fix: Concealed Admin Route /samet, Deceptive 404, Purge Passkey Hint, Dynamic Versioning**

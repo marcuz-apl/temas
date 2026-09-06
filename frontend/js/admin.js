@@ -289,6 +289,8 @@
         if (authVer) authVer.textContent = ver.split('+')[0];
         const deckVer = document.getElementById('admin-version-badge');
         if (deckVer) deckVer.textContent = ver;
+        const aboutVer = document.getElementById('aboutModalVersion');
+        if (aboutVer) aboutVer.textContent = `OPERATIONS CONTROL DECK • ${ver}`;
       }
     } catch (err) {
       console.warn('Could not load version from /api/health:', err);
@@ -363,6 +365,41 @@
   if (openChangePwdBtn) openChangePwdBtn.addEventListener('click', openChangePasswordModal);
   if (closeChangePwdBtn) closeChangePwdBtn.addEventListener('click', closeChangePasswordModal);
   if (cancelChangePwdBtn) cancelChangePwdBtn.addEventListener('click', closeChangePasswordModal);
+
+  // About TEMAS Modal Actions
+  const openAboutBtn = document.getElementById('openAboutBtn');
+  const aboutModal = document.getElementById('aboutModal');
+  const closeAboutModalBtn = document.getElementById('closeAboutModalBtn');
+  const okAboutModalBtn = document.getElementById('okAboutModalBtn');
+
+  function openAboutModal() {
+    if (aboutModal) aboutModal.classList.remove('hidden');
+  }
+
+  function closeAboutModal() {
+    if (aboutModal) aboutModal.classList.add('hidden');
+  }
+
+  if (openAboutBtn) openAboutBtn.addEventListener('click', openAboutModal);
+  if (closeAboutModalBtn) closeAboutModalBtn.addEventListener('click', closeAboutModal);
+  if (okAboutModalBtn) okAboutModalBtn.addEventListener('click', closeAboutModal);
+
+  if (aboutModal) {
+    aboutModal.addEventListener('click', (e) => {
+      if (e.target === aboutModal) closeAboutModal();
+    });
+  }
+
+  // Universal Escape key listener for modal dismissal
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeAboutModal();
+      closeChangePasswordModal();
+      if (confirmModal) confirmModal.classList.add('hidden');
+      const syncModal = document.getElementById('syncResultModal');
+      if (syncModal) syncModal.classList.add('hidden');
+    }
+  });
 
   if (changePwdForm) {
     changePwdForm.addEventListener('submit', async (e) => {
