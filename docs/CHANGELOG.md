@@ -59,26 +59,42 @@ v2.1.0 (Baseline Architecture)
         │
         └─► v2.9.14 (Feat: High-End Mobile 9-Dot Bento Grid & Vector SVG Dual Header Nav)
   │
-  └─► v2.10.0 (Feat: Full-Spectrum Day/Night Theme Sync, Modern Responsive Dual-Nav & Corner Docking)
-        │
-        ├─► v2.10.1 (Fix: Concealed Admin Route /samet, Deceptive 404, Purge Passkey Hint, Dynamic Versioning)
-        │
-        ├─► v2.10.2 (Feat: Operations Deck About Modal & Attributions)
-        │
-        ├─► v2.10.3 (Fix: Full 2021–2026 Chronological Timeline Playback & Canvas Rendering)
-        │
-        ├─► v2.10.4 (Feat: Default 1-Year Time Preset & Adaptive Filter Playback)
-        │
-        ├─► v2.10.5 (Feat/Docs: M4.0+ Default Threshold, Admin Route Concealment Balance & Docs Sync)
-        │
-        ├─► v2.10.6 (Fix: Audio Button Label Duplication & Desktop/Mobile Sync)
-        │
-        └─► v2.10.7 (Feat: Timeline Playback Sonification & Live Event Audio Alarm)
+  │
+  ├─► v2.10.0 (Feat: Full-Spectrum Day/Night Theme Sync, Modern Responsive Dual-Nav & Corner Docking)
+  │     │
+  │     ├─► v2.10.1 (Fix: Concealed Admin Route /samet, Deceptive 404, Purge Passkey Hint, Dynamic Versioning)
+  │     │
+  │     ├─► v2.10.2 (Feat: Operations Deck About Modal & Attributions)
+  │     │
+  │     ├─► v2.10.3 (Fix: Full 2021–2026 Chronological Timeline Playback & Canvas Rendering)
+  │     │
+  │     ├─► v2.10.4 (Feat: Default 1-Year Time Preset & Adaptive Filter Playback)
+  │     │
+  │     ├─► v2.10.5 (Feat/Docs: M4.0+ Default Threshold, Admin Route Concealment Balance & Docs Sync)
+  │     │
+  │     ├─► v2.10.6 (Fix: Audio Button Label Duplication & Desktop/Mobile Sync)
+  │     │
+  │     └─► v2.10.7 (Feat: Timeline Playback Sonification & Live Event Audio Alarm)
+  │
+  └─► v2.11.0 (Feat: Balanced 3-Column Observatory Header, Centered Telemetry HUD & Sleek Icon Action Dock)
 ```
 
 ---
 
 ## Milestone Change Log Details
+
+### [v2.11.0] — 2026-09-06
+**Feat: Balanced 3-Column Observatory Header, Centered Telemetry HUD & Sleek Icon Action Dock**
+- **Type**: `feat(ui)` / `ergonomics(navigation)` / `milestone(minor-bump)`
+- **Scope**: `frontend/index.html`, `frontend/css/style.css`, `frontend/js/app.js`, `VERSION`, `README.md`, `PRD.md`, `docs/README.md`, `docs/CHANGELOG.md`
+- **Key Deliverables**:
+  - **Balanced 3-Column Header Architecture**: Re-engineered desktop navigation bar into three clear functional zones: Brand identity on the left (`.header-left`), centered seismic telemetry HUD capsule (`.header-center`), and quick action icon dock on the right (`.header-right`).
+  - **Floating Telemetry HUD Capsule**: Positioned live UTC+3 observatory clock, total catalog event counter, max recorded quake badge, and 24-hour activity count into a sleek, dark-glass pill in the dead center of the viewport for immediate situational awareness.
+  - **Distraction-Free Icon Action Dock**: Replaced redundant text buttons with uniform $38\times 38$px icon pads (`Feed`, `Audio`, `Analytics`, `Table`, `Fullscreen`, `Snapshot`) with vector SVGs, subtle hover glows, and informative tooltip shortcuts (`(F)`, `(A)`, `(T)`).
+  - **Dynamic Audio State & Sonification Integration**: Integrated dynamic speaker unmuted/muted SVG state synchronization with real-time Web Audio API timeline sonification and live earthquake alarm feedback.
+  - **Responsive Preservation**: Maintained 100% fidelity on mobile devices with Left Feed Drawer burger and Right 9-Dot Bento Tools Grid.
+
+---
 
 ### [v2.10.7] — 2026-09-06
 **Feat: Timeline Playback Sonification & Live Event Audio Alarm**

@@ -97,7 +97,12 @@ def test_frontend_serving():
     assert "TemasApp" in res_js.text
 
 def test_admin_frontend_serving():
-    res = client.get("/admin")
+    # Verify deceptive decoy on legacy /admin
+    res_decoy = client.get("/admin")
+    assert res_decoy.status_code == 404
+
+    # Verify concealed operational route on /samet
+    res = client.get("/samet")
     assert res.status_code == 200
     assert "Observatory Operations Deck" in res.text
     assert "authModal" in res.text

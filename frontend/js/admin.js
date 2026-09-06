@@ -284,7 +284,7 @@
       const res = await fetch('/api/health');
       if (res.ok) {
         const data = await res.json();
-        const ver = data.version || 'v2.10.0';
+        const ver = data.version || 'v2.11.0';
         const authVer = document.getElementById('auth-version-text');
         if (authVer) authVer.textContent = ver.split('+')[0];
         const deckVer = document.getElementById('admin-version-badge');
