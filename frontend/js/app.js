@@ -411,6 +411,97 @@ class TemasApp {
       });
     }
 
+    // Mobile Left Feed Toggle
+    const mobileFeedToggle = document.getElementById('btn-mobile-feed-toggle');
+    if (mobileFeedToggle) {
+      mobileFeedToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (sidebar.classList.contains('mobile-open')) {
+          closeMobileSidebar();
+        } else {
+          openMobileSidebar();
+        }
+      });
+    }
+
+    // Mobile Tools Overflow Menu
+    const mobileToolsToggle = document.getElementById('btn-mobile-tools-toggle');
+    const mobileToolsMenu = document.getElementById('mobile-tools-menu');
+    const mobileToolsBackdrop = document.getElementById('mobile-tools-backdrop');
+
+    const closeMobileTools = () => {
+      if (mobileToolsMenu) mobileToolsMenu.classList.remove('open');
+      if (mobileToolsBackdrop) mobileToolsBackdrop.classList.remove('active');
+    };
+
+    if (mobileToolsToggle && mobileToolsMenu) {
+      mobileToolsToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = mobileToolsMenu.classList.contains('open');
+        if (isOpen) {
+          closeMobileTools();
+        } else {
+          mobileToolsMenu.classList.add('open');
+          if (mobileToolsBackdrop) mobileToolsBackdrop.classList.add('active');
+        }
+      });
+    }
+
+    if (mobileToolsBackdrop) {
+      mobileToolsBackdrop.addEventListener('click', () => closeMobileTools());
+    }
+
+    // Mobile Tools Menu Actions
+    const mAudioBtn = document.getElementById('m-btn-toggle-audio');
+    const mAudioIcon = document.getElementById('m-audio-icon');
+    if (mAudioBtn) {
+      mAudioBtn.addEventListener('click', () => {
+        this.state.audioEnabled = !this.state.audioEnabled;
+        const icon = this.state.audioEnabled ? '🔊' : '🔇';
+        if (mAudioIcon) mAudioIcon.textContent = icon;
+        const desktopAudioIcon = document.getElementById('audio-icon');
+        if (desktopAudioIcon) desktopAudioIcon.textContent = `${icon} Audio`;
+        if (this.state.audioEnabled) this.playSeismicTone(5.0);
+        closeMobileTools();
+      });
+    }
+
+    const mAnalyticsBtn = document.getElementById('m-btn-analytics');
+    if (mAnalyticsBtn) {
+      mAnalyticsBtn.addEventListener('click', () => {
+        closeMobileTools();
+        this.renderAnalytics();
+        const analyticsModal = document.getElementById('analytics-modal');
+        if (analyticsModal) analyticsModal.classList.add('open');
+      });
+    }
+
+    const mTableBtn = document.getElementById('m-btn-table-view');
+    if (mTableBtn) {
+      mTableBtn.addEventListener('click', () => {
+        closeMobileTools();
+        this.renderModalTable();
+        const tableModal = document.getElementById('table-modal');
+        if (tableModal) tableModal.classList.add('open');
+      });
+    }
+
+    const mMapSnapshotBtn = document.getElementById('m-btn-map-snapshot');
+    if (mMapSnapshotBtn) {
+      mMapSnapshotBtn.addEventListener('click', () => {
+        closeMobileTools();
+        this.captureFrontpageSnapshot();
+      });
+    }
+
+    const mSyncBtn = document.getElementById('m-btn-sync');
+    if (mSyncBtn) {
+      mSyncBtn.addEventListener('click', () => {
+        closeMobileTools();
+        this.handleSync();
+      });
+    }
+
     // Interacting with the feed also refreshes idle status
     const feedList = document.getElementById('feed-list');
     if (feedList) {

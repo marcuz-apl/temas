@@ -68,6 +68,18 @@ header {
   flex-shrink: 0;
 }
 
+.header-brand-group {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.btn-mobile-nav,
+.mobile-tools-backdrop,
+.mobile-tools-menu {
+  display: none !important;
+}
+
 .brand {
   display: flex;
   align-items: center;
@@ -1529,32 +1541,130 @@ header {
 }
 
 @media (max-width: 768px) {
-  /* Header icon-only optimization */
-  .btn-label {
-    display: none;
+  /* Mobile Centered Brand & Dual-Burger Layout */
+  header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 12px;
   }
-  #btn-fullscreen {
-    display: none;
-  }
-  .header-actions {
-    gap: 5px;
-  }
-  .header-actions .btn {
-    width: 34px;
-    height: 34px;
-    min-width: 34px;
-    padding: 0;
-    display: inline-flex;
+  .btn-mobile-nav {
+    display: inline-flex !important;
     align-items: center;
     justify-content: center;
-    font-size: 0.88rem;
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    font-size: 1.15rem;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    cursor: pointer;
+    z-index: 101;
+    transition: all 0.15s ease;
+  }
+  .btn-mobile-nav:active {
+    background: rgba(56, 189, 248, 0.15);
+    border-color: #38bdf8;
+    color: #38bdf8;
+  }
+  #btn-mobile-feed-toggle {
+    order: 1;
+  }
+  .header-brand-group {
+    order: 2;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .brand {
+    gap: 8px;
+  }
+  #btn-mobile-tools-toggle {
+    order: 3;
+  }
+  .header-actions {
+    display: none !important;
+  }
+  .header-kpis {
+    gap: 0;
   }
   .header-kpis .kpi-badge {
-    display: none;
+    display: none !important;
   }
   .live-indicator {
     padding: 3px 8px;
-    font-size: 0.70rem;
+    font-size: 0.68rem;
+  }
+
+  /* Mobile Tools Dropdown Menu */
+  .mobile-tools-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 1050;
+  }
+  .mobile-tools-backdrop.active {
+    display: block !important;
+  }
+  .mobile-tools-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 12px;
+    width: 210px;
+    background: rgba(15, 23, 42, 0.96);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
+    padding: 6px;
+    flex-direction: column;
+    gap: 3px;
+    z-index: 1060;
+    animation: menu-slide-down 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .mobile-tools-menu.open {
+    display: flex !important;
+  }
+  @keyframes menu-slide-down {
+    from { opacity: 0; transform: translateY(-8px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .mobile-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: 0.84rem;
+    font-weight: 500;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    transition: all 0.15s ease;
+  }
+  .mobile-menu-item:active,
+  .mobile-menu-item:hover {
+    background: rgba(56, 189, 248, 0.14);
+    color: #38bdf8;
+  }
+  .mobile-menu-item .m-menu-icon {
+    font-size: 1.05rem;
+    width: 22px;
+    display: inline-flex;
+    justify-content: center;
   }
 
   /* Off-canvas mobile sidebar drawer */
@@ -1778,26 +1888,26 @@ header {
     padding: 0 8px;
   }
   .brand {
-    gap: 8px;
+    gap: 6px;
   }
   .brand-icon {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+  }
+  .brand-text h1 {
+    font-size: 0.90rem;
+  }
+  .live-indicator {
+    padding: 2px 5px;
+    font-size: 0.62rem;
+    gap: 3px;
+  }
+  .btn-mobile-nav {
     width: 32px;
     height: 32px;
     min-width: 32px;
-  }
-  .brand-text h1 {
-    font-size: 0.95rem;
-  }
-  .header-actions .btn {
-    width: 30px;
-    height: 30px;
-    min-width: 30px;
-    font-size: 0.80rem;
-  }
-  .live-indicator {
-    padding: 2px 6px;
-    font-size: 0.65rem;
-    gap: 4px;
+    font-size: 1.05rem;
   }
   .filter-bar {
     top: 6px;

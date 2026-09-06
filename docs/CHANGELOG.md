@@ -47,12 +47,26 @@ v2.1.0 (Baseline Architecture)
         │
         ├─► v2.9.8 (Feat: Real-Time Ticking TRT Clock, 3-Minute Auto-Refresh, Mobile Filter Positioning & Scaled Widget Typography)
         │
-        └─► v2.9.9 (Feat: Draggable Filters Bar on Mobile and Desktop Matching Map Layers)
+        ├─► v2.9.9 (Feat: Draggable Filters Bar on Mobile and Desktop Matching Map Layers)
+        │
+        └─► v2.9.10 (Feat: Mobile Dual-Burger Header Architecture with Left Feed & Right Tools Menu)
 ```
 
 ---
 
 ## Milestone Change Log Details
+
+### [v2.9.10] — 2026-09-06
+**Feat: Mobile Dual-Burger Header Architecture with Left Feed & Right Tools Menu**
+- **Type**: `feat(ui)` / `ux(mobile)`
+- **Scope**: `frontend/index.html`, `frontend/css/style.css`, `frontend/js/app.js`
+- **Key Deliverables**:
+  - **Dual-Burger Header Layout on Mobile**: Redesigned mobile header (`<=768px`) with left Feed burger (`☰`) toggling the off-canvas Seismic Events Feed drawer and right Tools menu burger (`⋮`) opening a glassmorphic action dropdown.
+  - **Centered Brand Identity & Live Clock**: Centered brand title (`TEMAS 2`) with seismic wave icon and real-time live clock (`● HH:MM:SS TRT`) on a single line (`white-space: nowrap`), eliminating multi-line squeeze on narrow displays.
+  - **Consolidated Tools Action Sheet**: Collected Audio Alerts, Analytics Deck, Data Moderation Table, Snapshot Camera, Sync Ingestion, and Admin Console into the right tools menu with touch backdrop dismissal.
+  - **Desktop 1-Click Navbar Preservation**: Retained full direct 1-click header buttons (`Feed`, `Audio`, `Analytics`, `Table`, `Fullscreen`, `Snapshot`, `Sync`) and all 3 live KPI badges (`Recorded`, `Max Quake`, `24h Count`) on desktop screens (`>768px`).
+
+---
 
 ### [v2.9.9] — 2026-09-06
 **Feat: Draggable Filters Bar Matching Map Layers & Magnitude Scale**

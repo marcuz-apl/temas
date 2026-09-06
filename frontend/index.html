@@ -23,62 +23,70 @@
 
   <!-- Top Navigation Header -->
   <header>
-    <a href="#" class="brand">
-      <div class="brand-icon" title="TEMAS 2 &bull; Seismic Observatory">
-        <svg class="seismic-wave-icon" viewBox="0 0 40 40" width="36" height="36" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="waveGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#38bdf8"/>
-              <stop offset="50%" stop-color="#f59e0b"/>
-              <stop offset="100%" stop-color="#ef4444"/>
-            </linearGradient>
-            <radialGradient id="epicenterPulse" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stop-color="#ef4444" stop-opacity="1"/>
-              <stop offset="50%" stop-color="#f59e0b" stop-opacity="0.6"/>
-              <stop offset="100%" stop-color="#38bdf8" stop-opacity="0"/>
-            </radialGradient>
-          </defs>
-          <!-- Expanding Seismic Wave Rings -->
-          <circle cx="20" cy="20" r="16" stroke="url(#waveGrad)" stroke-width="1.2" stroke-dasharray="3 2" opacity="0.4" class="anim-wave-outer"/>
-          <circle cx="20" cy="20" r="11.5" stroke="#38bdf8" stroke-width="1.6" opacity="0.65" class="anim-wave-mid"/>
-          <circle cx="20" cy="20" r="7" stroke="#f59e0b" stroke-width="1.8" opacity="0.9" class="anim-wave-inner"/>
-          <!-- Glowing Epicenter Core -->
-          <circle cx="20" cy="20" r="4.5" fill="url(#epicenterPulse)" class="anim-epicenter-glow"/>
-          <circle cx="20" cy="20" r="2" fill="#ffffff"/>
-          <!-- High-Magnitude Seismogram Trace -->
-          <path d="M 3 20 H 11 L 14 14 L 17 26 L 20 8 L 23 32 L 26 15 L 29 23 L 31 20 H 37" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="anim-seismogram"/>
-        </svg>
-      </div>
-      <div class="brand-text">
-        <h1>TEMAS 2</h1>
-        <span>Turkey Earthquake Monitoring &amp; Analysis</span>
-      </div>
-    </a>
+    <!-- Mobile Left Burger: Open Seismic Feed Drawer -->
+    <button id="btn-mobile-feed-toggle" class="btn btn-mobile-nav" title="Toggle Seismic Feed">
+      <span>☰</span>
+    </button>
 
-    <!-- Live Observatory Status & KPIs -->
-    <div class="header-kpis">
-      <div class="live-indicator" title="Observatory Live Feed (TRT) • Real-Time Clock">
-        <span class="live-dot"></span>
-        <span id="live-status-text">--:--:-- TRT</span>
-      </div>
+    <!-- Brand & Observatory Status Group (Centered on Mobile) -->
+    <div class="header-brand-group">
+      <a href="#" class="brand">
+        <div class="brand-icon" title="TEMAS 2 &bull; Seismic Observatory">
+          <svg class="seismic-wave-icon" viewBox="0 0 40 40" width="36" height="36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="waveGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#38bdf8"/>
+                <stop offset="50%" stop-color="#f59e0b"/>
+                <stop offset="100%" stop-color="#ef4444"/>
+              </linearGradient>
+              <radialGradient id="epicenterPulse" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#ef4444" stop-opacity="1"/>
+                <stop offset="50%" stop-color="#f59e0b" stop-opacity="0.6"/>
+                <stop offset="100%" stop-color="#38bdf8" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <!-- Expanding Seismic Wave Rings -->
+            <circle cx="20" cy="20" r="16" stroke="url(#waveGrad)" stroke-width="1.2" stroke-dasharray="3 2" opacity="0.4" class="anim-wave-outer"/>
+            <circle cx="20" cy="20" r="11.5" stroke="#38bdf8" stroke-width="1.6" opacity="0.65" class="anim-wave-mid"/>
+            <circle cx="20" cy="20" r="7" stroke="#f59e0b" stroke-width="1.8" opacity="0.9" class="anim-wave-inner"/>
+            <!-- Glowing Epicenter Core -->
+            <circle cx="20" cy="20" r="4.5" fill="url(#epicenterPulse)" class="anim-epicenter-glow"/>
+            <circle cx="20" cy="20" r="2" fill="#ffffff"/>
+            <!-- High-Magnitude Seismogram Trace -->
+            <path d="M 3 20 H 11 L 14 14 L 17 26 L 20 8 L 23 32 L 26 15 L 29 23 L 31 20 H 37" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="anim-seismogram"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>TEMAS 2</h1>
+          <span>Turkey Earthquake Monitoring &amp; Analysis</span>
+        </div>
+      </a>
 
-      <div class="kpi-badge">
-        <span>Recorded:</span>
-        <span class="val" id="kpi-total">...</span>
-      </div>
+      <!-- Live Observatory Status & KPIs -->
+      <div class="header-kpis">
+        <div class="live-indicator" title="Observatory Live Feed (TRT) • Real-Time Clock">
+          <span class="live-dot"></span>
+          <span id="live-status-text">--:--:-- TRT</span>
+        </div>
 
-      <div class="kpi-badge">
-        <span>Max Quake:</span>
-        <span class="val" id="kpi-max" style="color: #ef4444;">...</span>
-      </div>
+        <div class="kpi-badge">
+          <span>Recorded:</span>
+          <span class="val" id="kpi-total">...</span>
+        </div>
 
-      <div class="kpi-badge">
-        <span>24h Count:</span>
-        <span class="val" id="kpi-24h" style="color: #f59e0b;">...</span>
+        <div class="kpi-badge">
+          <span>Max Quake:</span>
+          <span class="val" id="kpi-max" style="color: #ef4444;">...</span>
+        </div>
+
+        <div class="kpi-badge">
+          <span>24h Count:</span>
+          <span class="val" id="kpi-24h" style="color: #f59e0b;">...</span>
+        </div>
       </div>
     </div>
 
-    <!-- Header Actions -->
+    <!-- Desktop Header Actions (Direct 1-Click Access) -->
     <div class="header-actions">
       <button id="btn-toggle-sidebar" class="btn" title="Toggle Seismic Feed">
         <span>☰</span><span class="btn-label"> Feed</span>
@@ -101,6 +109,40 @@
       <button id="btn-sync" class="btn" title="Fetch live updates from KOERI, EMSC & USGS">
         <span>⚡</span><span class="btn-label"> Sync</span>
       </button>
+    </div>
+
+    <!-- Mobile Right Burger: Toggle Overflow Tools Menu -->
+    <button id="btn-mobile-tools-toggle" class="btn btn-mobile-nav" title="Observatory Tools Menu">
+      <span>⋮</span>
+    </button>
+
+    <!-- Mobile Tools Dropdown Menu & Backdrop -->
+    <div id="mobile-tools-backdrop" class="mobile-tools-backdrop"></div>
+    <div id="mobile-tools-menu" class="mobile-tools-menu">
+      <button id="m-btn-toggle-audio" class="mobile-menu-item">
+        <span class="m-menu-icon" id="m-audio-icon">🔇</span>
+        <span class="m-menu-text">Audio Alerts</span>
+      </button>
+      <button id="m-btn-analytics" class="mobile-menu-item">
+        <span class="m-menu-icon">📈</span>
+        <span class="m-menu-text">Analytics Deck</span>
+      </button>
+      <button id="m-btn-table-view" class="mobile-menu-item">
+        <span class="m-menu-icon">📊</span>
+        <span class="m-menu-text">Data Table</span>
+      </button>
+      <button id="m-btn-map-snapshot" class="mobile-menu-item">
+        <span class="m-menu-icon">📷</span>
+        <span class="m-menu-text">Capture Snapshot</span>
+      </button>
+      <button id="m-btn-sync" class="mobile-menu-item">
+        <span class="m-menu-icon">⚡</span>
+        <span class="m-menu-text">Sync Providers</span>
+      </button>
+      <a href="/admin.html" class="mobile-menu-item" style="text-decoration: none;">
+        <span class="m-menu-icon">🛡️</span>
+        <span class="m-menu-text">Admin Console</span>
+      </a>
     </div>
   </header>
 
