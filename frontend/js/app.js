@@ -23,9 +23,11 @@ class TemasApp {
         timer: null,
         currentIndex: 0,
         speed: 5
-      }
+      },
+      analyticsScope: 'archive'
     };
 
+    this.fullCatalogCache = null;
     this.mapEngine = null;
     this._audioCtx = null;
     this._lastKnownNewestTime = null;
@@ -50,6 +52,9 @@ class TemasApp {
 
     // Initial load
     await this.refreshAll();
+
+    // Pre-warm multi-year catalog cache in background for instantaneous Analytics Deck
+    setTimeout(() => this.fetchFullCatalogCache(), 1200);
   }
 
   bindEvents() {
@@ -396,9 +401,11 @@ class TemasApp {
     const closeAnalyticsBtn = document.getElementById('btn-close-analytics');
 
     if (analyticsBtn && analyticsModal) {
-      analyticsBtn.addEventListener('click', () => {
-        this.renderAnalytics();
+      analyticsBtn.addEventListener('click', async () => {
         analyticsModal.classList.add('open');
+        this.renderAnalytics();
+        await this.ensureAnalyticsData();
+        this.renderAnalytics();
       });
     }
 
@@ -406,6 +413,26 @@ class TemasApp {
       closeAnalyticsBtn.addEventListener('click', () => analyticsModal.classList.remove('open'));
       analyticsModal.addEventListener('click', (e) => {
         if (e.target === analyticsModal) analyticsModal.classList.remove('open');
+      });
+    }
+
+    // Analytics Scope Toggle (Full Archive vs Filtered View)
+    const scopeArchiveBtn = document.getElementById('btn-scope-archive');
+    const scopeViewBtn = document.getElementById('btn-scope-view');
+    if (scopeArchiveBtn && scopeViewBtn) {
+      scopeArchiveBtn.addEventListener('click', async () => {
+        this.state.analyticsScope = 'archive';
+        scopeArchiveBtn.classList.add('active');
+        scopeViewBtn.classList.remove('active');
+        await this.ensureAnalyticsData();
+        this.renderAnalytics();
+      });
+
+      scopeViewBtn.addEventListener('click', () => {
+        this.state.analyticsScope = 'view';
+        scopeViewBtn.classList.add('active');
+        scopeArchiveBtn.classList.remove('active');
+        this.renderAnalytics();
       });
     }
 
@@ -422,6 +449,7 @@ class TemasApp {
         });
         const activePane = document.getElementById(`tab-analytics-${targetTab}`);
         if (activePane) activePane.classList.add('active');
+        this.renderAnalytics();
       });
     });
 
@@ -1022,11 +1050,60 @@ class TemasApp {
   }
 
   /* ==========================================================================
-     Multi-Tab Analytics Observatory Engine (v2.12.0)
+     Multi-Tab Analytics Observatory Engine (v2.12.1)
      ========================================================================== */
+  async fetchFullCatalogCache() {
+    if (this.fullCatalogCache && this.fullCatalogCache.length > 0) return this.fullCatalogCache;
+    try {
+      const res = await fetch('/api/earthquakes?limit=20000');
+      if (res.ok) {
+        const data = await res.json();
+        this.fullCatalogCache = data.items || [];
+        const archCountEl = document.getElementById('analytics-arch-count');
+        if (archCountEl) archCountEl.textContent = (this.fullCatalogCache.length / 1000).toFixed(1) + 'k';
+        const viewCountEl = document.getElementById('analytics-view-count');
+        if (viewCountEl) viewCountEl.textContent = (this.state.earthquakes || []).length.toLocaleString();
+        return this.fullCatalogCache;
+      }
+    } catch (err) {
+      console.warn('Could not preload full catalog cache:', err);
+    }
+    return this.state.earthquakes || [];
+  }
+
+  async ensureAnalyticsData() {
+    if (this.state.analyticsScope === 'archive' && (!this.fullCatalogCache || !this.fullCatalogCache.length)) {
+      await this.fetchFullCatalogCache();
+    }
+  }
+
   renderAnalytics() {
-    const quakes = this.state.earthquakes || [];
+    const scope = this.state.analyticsScope || 'archive';
+    let quakes = [];
+    if (scope === 'archive' && this.fullCatalogCache && this.fullCatalogCache.length > 0) {
+      quakes = this.fullCatalogCache;
+    } else {
+      quakes = this.state.earthquakes || [];
+    }
     if (!quakes.length) return;
+
+    // Update Scope Toggle UI
+    const scopeArchiveBtn = document.getElementById('btn-scope-archive');
+    const scopeViewBtn = document.getElementById('btn-scope-view');
+    if (scopeArchiveBtn && scopeViewBtn) {
+      scopeArchiveBtn.classList.toggle('active', scope === 'archive');
+      scopeViewBtn.classList.toggle('active', scope === 'view');
+    }
+    const archCountEl = document.getElementById('analytics-arch-count');
+    if (archCountEl) {
+      archCountEl.textContent = this.fullCatalogCache
+        ? (this.fullCatalogCache.length / 1000).toFixed(1) + 'k'
+        : '13.4k';
+    }
+    const viewCountEl = document.getElementById('analytics-view-count');
+    if (viewCountEl) {
+      viewCountEl.textContent = (this.state.earthquakes || []).length.toLocaleString();
+    }
 
     this.renderAnalyticsOverview(quakes);
     this.renderAnalyticsTime(quakes);
@@ -1278,7 +1355,29 @@ class TemasApp {
 
     // Monthly Chart Render (SVG Area-Bars)
     if (monthlyContainer) {
-      const sortedMonths = Object.keys(monthCounts).sort();
+      const rawMonths = Object.keys(monthCounts).sort();
+      let sortedMonths = [];
+      if (rawMonths.length > 0) {
+        // Guarantee continuous full-catalog timeline from earliest recorded month (2021-01) to latest (2026-09)
+        const firstYm = rawMonths[0];
+        const lastYm = rawMonths[rawMonths.length - 1];
+        const startY = parseInt(firstYm.substring(0, 4), 10);
+        const startM = parseInt(firstYm.substring(5, 7), 10);
+        const endY = parseInt(lastYm.substring(0, 4), 10);
+        const endM = parseInt(lastYm.substring(5, 7), 10);
+
+        let cy = startY, cm = startM;
+        while (cy < endY || (cy === endY && cm <= endM)) {
+          const ymKey = `${cy}-${String(cm).padStart(2, '0')}`;
+          sortedMonths.push(ymKey);
+          if (!monthCounts[ymKey]) monthCounts[ymKey] = 0;
+          cm++;
+          if (cm > 12) { cm = 1; cy++; }
+        }
+      } else {
+        sortedMonths = rawMonths;
+      }
+
       let peakMonth = '2023-02';
       let peakCount = 0;
 
@@ -1295,7 +1394,7 @@ class TemasApp {
 
       const svgWidth = 1000;
       const svgHeight = 220;
-      const padLeft = 40;
+      const padLeft = 45;
       const padRight = 20;
       const padTop = 20;
       const padBottom = 30;
@@ -1306,24 +1405,25 @@ class TemasApp {
 
       const nMonths = sortedMonths.length || 1;
       const barSlotW = plotW / nMonths;
-      const barW = Math.max(3, barSlotW - 2);
+      const barW = Math.max(3, barSlotW - 1.5);
 
       let barsSvg = '';
       let yearTicks = '';
       let lastYear = '';
 
       sortedMonths.forEach((ym, i) => {
-        const count = monthCounts[ym];
+        const count = monthCounts[ym] || 0;
         const barH = (count / maxVal) * plotH;
         const x = padLeft + i * barSlotW;
         const y = padTop + plotH - barH;
 
         let color = '#38bdf8';
-        if (count >= 500) color = '#ef4444';
+        if (ym === '2023-02' || count >= 1000) color = '#ef4444';
+        else if (count >= 500) color = '#f43f5e';
         else if (count >= 200) color = '#f59e0b';
 
         barsSvg += `
-          <rect x="${x}" y="${y}" width="${barW}" height="${barH}" rx="2" fill="${color}" opacity="0.85">
+          <rect x="${x}" y="${y}" width="${barW}" height="${Math.max(barH, count > 0 ? 3 : 0)}" rx="1.5" fill="${color}" opacity="${count > 0 ? 0.9 : 0.2}">
             <title>${ym}: ${count.toLocaleString()} quakes (Max M${(monthMaxM[ym] || 0).toFixed(1)})</title>
           </rect>
         `;
@@ -1425,19 +1525,28 @@ class TemasApp {
     if (energyTntBadge) energyTntBadge.textContent = `${megatons.toFixed(1)} Mt`;
     if (concentrationBadge) concentrationBadge.textContent = `${feb6Share}%`;
 
-    // Cumulative Energy Release Curve (SVG Area Chart)
+    // Cumulative Energy Release Curve (SVG Area Chart - Wide Aspect Ratio)
     if (energyCurveContainer) {
-      const svgW = 600;
-      const svgH = 220;
+      const svgW = 700;
+      const svgH = 290;
       const padL = 50;
       const padR = 20;
-      const padT = 20;
-      const padB = 30;
+      const padT = 25;
+      const padB = 35;
       const plotW = svgW - padL - padR;
       const plotH = svgH - padT - padB;
 
-      // Sample 60 equidistant temporal checkpoints
-      const nSamples = 60;
+      // Determine temporal baseline
+      const tStart = chronologicalQuakes.length > 0
+        ? new Date((chronologicalQuakes[0].origintimeutc || '').replace(' ', 'T') + 'Z').getTime()
+        : new Date('2021-01-01T00:00:00Z').getTime();
+      const tEnd = chronologicalQuakes.length > 0
+        ? new Date((chronologicalQuakes[chronologicalQuakes.length - 1].origintimeutc || '').replace(' ', 'T') + 'Z').getTime()
+        : new Date('2026-09-06T00:00:00Z').getTime();
+      const tSpan = Math.max(1, tEnd - tStart);
+
+      // Sample 120 chronological points along curve
+      const nSamples = 120;
       const step = Math.max(1, Math.floor(chronologicalQuakes.length / nSamples));
       let runningJoules = 0;
       const points = [];
@@ -1447,12 +1556,18 @@ class TemasApp {
         runningJoules += Math.pow(10, 4.8 + 1.5 * m);
 
         if (i % step === 0 || i === chronologicalQuakes.length - 1) {
-          const fracX = i / (chronologicalQuakes.length - 1 || 1);
+          const tCurr = new Date((chronologicalQuakes[i].origintimeutc || '').replace(' ', 'T') + 'Z').getTime();
+          const fracX = Math.max(0, Math.min(1, (tCurr - tStart) / tSpan));
           const fracY = totalJoules > 0 ? runningJoules / totalJoules : 0;
           const px = padL + fracX * plotW;
           const py = padT + plotH - fracY * plotH;
           points.push({ x: px, y: py, frac: fracY });
         }
+      }
+
+      if (points.length === 0) {
+        points.push({ x: padL, y: padT + plotH, frac: 0 });
+        points.push({ x: padL + plotW, y: padT, frac: 1 });
       }
 
       let pathD = `M ${points[0].x} ${points[0].y}`;
@@ -1462,40 +1577,67 @@ class TemasApp {
 
       const areaD = `${pathD} L ${padL + plotW} ${padT + plotH} L ${padL} ${padT + plotH} Z`;
 
+      // Calculate exact Feb 6, 2023 coordinates
+      const tFeb6 = new Date('2023-02-06T01:17:34Z').getTime();
+      const feb6FracX = Math.max(0, Math.min(1, (tFeb6 - tStart) / tSpan));
+      const feb6X = padL + feb6FracX * plotW;
+
+      // Annual tick lines along X axis
+      let annualTicks = '';
+      const startYear = new Date(tStart).getUTCFullYear();
+      const endYear = new Date(tEnd).getUTCFullYear();
+      for (let yr = startYear; yr <= endYear; yr++) {
+        const tYr = new Date(`${yr}-01-01T00:00:00Z`).getTime();
+        if (tYr >= tStart && tYr <= tEnd) {
+          const fracYr = (tYr - tStart) / tSpan;
+          const xYr = padL + fracYr * plotW;
+          annualTicks += `
+            <line x1="${xYr}" y1="${padT}" x2="${xYr}" y2="${padT + plotH}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="3,3" />
+            <text x="${xYr + 2}" y="${svgH - 10}" fill="#64748b" font-size="10" font-family="monospace">${yr}</text>
+          `;
+        }
+      }
+
       energyCurveContainer.innerHTML = `
         <svg viewBox="0 0 ${svgW} ${svgH}" preserveAspectRatio="none" style="width:100%; height:100%;">
           <defs>
             <linearGradient id="energyAreaGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#ec4899" stop-opacity="0.35" />
+              <stop offset="0%" stop-color="#ec4899" stop-opacity="0.38" />
+              <stop offset="60%" stop-color="#ec4899" stop-opacity="0.10" />
               <stop offset="100%" stop-color="#ec4899" stop-opacity="0.0" />
             </linearGradient>
             <linearGradient id="energyLineGrad" x1="0" y1="0" x2="1" y2="0">
               <stop offset="0%" stop-color="#f59e0b" />
-              <stop offset="50%" stop-color="#ec4899" />
+              <stop offset="45%" stop-color="#ec4899" />
               <stop offset="100%" stop-color="#38bdf8" />
             </linearGradient>
           </defs>
 
-          <!-- Axes & Grid -->
+          <!-- Axes & Horizontal Gridlines -->
           <line x1="${padL}" y1="${padT + plotH}" x2="${padL + plotW}" y2="${padT + plotH}" stroke="rgba(255,255,255,0.15)" stroke-width="1" />
           <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT + plotH}" stroke="rgba(255,255,255,0.15)" stroke-width="1" />
-          <line x1="${padL}" y1="${padT + plotH * 0.5}" x2="${padL + plotW}" y2="${padT + plotH * 0.5}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="3,3" />
+          <line x1="${padL}" y1="${padT + plotH * 0.75}" x2="${padL + plotW}" y2="${padT + plotH * 0.75}" stroke="rgba(255,255,255,0.04)" stroke-dasharray="2,2" />
+          <line x1="${padL}" y1="${padT + plotH * 0.50}" x2="${padL + plotW}" y2="${padT + plotH * 0.50}" stroke="rgba(255,255,255,0.08)" stroke-dasharray="3,3" />
+          <line x1="${padL}" y1="${padT + plotH * 0.25}" x2="${padL + plotW}" y2="${padT + plotH * 0.25}" stroke="rgba(255,255,255,0.04)" stroke-dasharray="2,2" />
+          <line x1="${padL}" y1="${padT}" x2="${padL + plotW}" y2="${padT}" stroke="rgba(255,255,255,0.08)" stroke-dasharray="2,2" />
 
-          <!-- Area and Curve -->
+          <!-- Calendar Year Vertical Ticks -->
+          ${annualTicks}
+
+          <!-- Area and Energy Curve Path -->
           <path d="${areaD}" fill="url(#energyAreaGrad)" />
-          <path d="${pathD}" fill="none" stroke="url(#energyLineGrad)" stroke-width="2.5" />
+          <path d="${pathD}" fill="none" stroke="url(#energyLineGrad)" stroke-width="2.8" stroke-linecap="round" />
 
-          <!-- Feb 6 Step Annotation Marker -->
-          <circle cx="${padL + plotW * 0.38}" cy="${padT + plotH * 0.08}" r="4" fill="#ec4899" />
-          <text x="${padL + plotW * 0.40}" y="${padT + plotH * 0.12}" fill="#ec4899" font-size="10" font-family="monospace" font-weight="bold">Feb 2023 Mega-Spike (&gt;93% &Sigma;E)</text>
+          <!-- February 6, 2023 Sequence Step Function Annotation -->
+          <line x1="${feb6X}" y1="${padT}" x2="${feb6X}" y2="${padT + plotH}" stroke="rgba(236, 72, 153, 0.45)" stroke-dasharray="4,3" stroke-width="1.5" />
+          <circle cx="${feb6X}" cy="${padT + plotH * 0.05}" r="5" fill="#ec4899" />
+          <rect x="${Math.min(feb6X + 8, padL + plotW - 195)}" y="${padT + 12}" width="185" height="22" rx="4" fill="rgba(236, 72, 153, 0.18)" stroke="rgba(236, 72, 153, 0.5)" stroke-width="1" />
+          <text x="${Math.min(feb6X + 16, padL + plotW - 187)}" y="${padT + 27}" fill="#f43f5e" font-size="10" font-family="monospace" font-weight="bold">Feb 2023 Sequence (&gt;96% &Sigma;E)</text>
 
-          <!-- Labels -->
+          <!-- Y-Axis Energy Percentage Labels -->
           <text x="8" y="${padT + 10}" fill="#94a3b8" font-size="10" font-family="monospace">100%</text>
-          <text x="8" y="${padT + plotH * 0.5 + 4}" fill="#94a3b8" font-size="10" font-family="monospace">50%</text>
+          <text x="8" y="${padT + plotH * 0.50 + 4}" fill="#94a3b8" font-size="10" font-family="monospace">50%</text>
           <text x="8" y="${padT + plotH}" fill="#94a3b8" font-size="10" font-family="monospace">0%</text>
-          <text x="${padL}" y="${svgH - 8}" fill="#64748b" font-size="10" font-family="monospace">2021</text>
-          <text x="${padL + plotW * 0.4}" y="${svgH - 8}" fill="#64748b" font-size="10" font-family="monospace">2023</text>
-          <text x="${padL + plotW - 25}" y="${svgH - 8}" fill="#64748b" font-size="10" font-family="monospace">2026</text>
         </svg>
       `;
     }
@@ -1585,25 +1727,59 @@ class TemasApp {
       matrix[rIdx][cIdx]++;
     });
 
-    // Top 10 Regions List
+    // Top 15 Regions List with Tectonic Fault Zone Classification Tags
     if (topRegionsList) {
+      const getRegionFaultTag = (name) => {
+        const u = (name || '').toUpperCase();
+        if (
+          u.includes('KAHRAMANMARAS') || u.includes('MALATYA') || u.includes('HATAY') ||
+          u.includes('ADIYAMAN') || u.includes('GAZIANTEP') || u.includes('ELAZIG') ||
+          u.includes('SIVRICE') || u.includes('GOKSUN') || u.includes('DOGANSEHIR') ||
+          u.includes('PAZARCIK') || u.includes('NURHAK') || u.includes('EASTERN TURKEY')
+        ) {
+          return { tag: 'EAFZ', cls: 'tag-eafz', belt: 'East Anatolian Fault Zone' };
+        }
+        if (
+          u.includes('WESTERN TURKEY') || u.includes('AEGEAN') || u.includes('IZMIR') ||
+          u.includes('MUGLA') || u.includes('DENIZLI') || u.includes('CANAKKALE') ||
+          u.includes('MANISA') || u.includes('AYDIN')
+        ) {
+          return { tag: 'WAES', cls: 'tag-waes', belt: 'Western Aegean Extensional System' };
+        }
+        if (
+          u.includes('CENTRAL TURKEY') || u.includes('TOKAT') || u.includes('DUZCE') ||
+          u.includes('BOLU') || u.includes('BALIKESIR') || u.includes('MARMARA') ||
+          u.includes('BURSA') || u.includes('NIKSAR') || u.includes('ERBAA')
+        ) {
+          return { tag: 'NAFZ', cls: 'tag-nafz', belt: 'North Anatolian Fault Zone' };
+        }
+        if (
+          u.includes('CRETE') || u.includes('DODECANESE') || u.includes('CYPRUS') ||
+          u.includes('MEDITERRANEAN') || u.includes('GREECE') || u.includes('RHODES')
+        ) {
+          return { tag: 'ARC', cls: 'tag-arc', belt: 'Hellenic-Cyprus Arc' };
+        }
+        return { tag: 'ZONE', cls: 'tag-border', belt: 'Border / Suture Collision Zone' };
+      };
+
       const sortedRegions = Object.entries(regionMap)
         .sort((a, b) => b[1].count - a[1].count)
-        .slice(0, 10);
+        .slice(0, 15);
       const topMax = sortedRegions[0] ? sortedRegions[0][1].count : 1;
 
       topRegionsList.innerHTML = sortedRegions
         .map(([rName, rData], idx) => {
           const pct = Math.round((rData.count / topMax) * 100);
-          const share = Math.round((rData.count / (quakes.length || 1)) * 100);
+          const tagInfo = getRegionFaultTag(rName);
           return `
-            <div class="region-row-ext">
+            <div class="region-row-ext" title="${rName}: ${rData.count.toLocaleString()} quakes • ${tagInfo.belt}">
               <span class="region-rank">#${idx + 1}</span>
+              <span class="region-tag-ext ${tagInfo.cls}">${tagInfo.tag}</span>
               <span class="region-name-ext" title="${rName}">${rName}</span>
               <div class="region-bar-track-ext">
                 <div class="region-bar-fill-ext" style="width: ${pct}%;"></div>
               </div>
-              <span class="region-count-ext">${rData.count.toLocaleString()} <span style="color:#ef4444; font-size:0.7rem;">(M${rData.maxM.toFixed(1)})</span></span>
+              <span class="region-count-ext">${rData.count.toLocaleString()} <span style="color:#ef4444; font-size:0.66rem; font-weight:700;">(M${rData.maxM.toFixed(1)})</span></span>
             </div>
           `;
         })

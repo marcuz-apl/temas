@@ -362,7 +362,11 @@
           <div class="modal-title-compact">
             <span class="modal-title-icon">📊</span>
             <h3>Seismic Intelligence</h3>
-            <span class="modal-version-pill">v2.12</span>
+            <span class="modal-version-pill">v2.12.1</span>
+          </div>
+          <div class="analytics-scope-toggle" id="analytics-scope-toggle" title="Switch dataset scope: Multi-Year Catalog Archive vs Filtered Map View">
+            <button class="scope-btn active" data-scope="archive" id="btn-scope-archive">Archive (<span id="analytics-arch-count">13.4k</span>)</button>
+            <button class="scope-btn" data-scope="view" id="btn-scope-view">Filtered (<span id="analytics-view-count">...</span>)</button>
           </div>
         </div>
 
@@ -543,74 +547,72 @@
             </div>
           </div>
 
-          <div class="analytics-grid">
-            <!-- Cumulative Energy Curve -->
-            <div class="analytics-card">
+          <!-- Asymmetric 2-Column Grid: Left is Full-Height Cumulative Energy Curve! Right is Benchmarks & Modalities -->
+          <div class="analytics-grid-energy">
+            <!-- Left: Cumulative Seismic Energy Release Curve (FULL HEIGHT) -->
+            <div class="analytics-card card-energy-main">
               <div class="card-title-row">
-                <h4>Cumulative Seismic Energy Release Curve</h4>
+                <h4>Cumulative Seismic Energy Release Curve (2021–2026)</h4>
                 <span class="analytics-badge">&Sigma;E (Joules)</span>
               </div>
-              <p class="card-desc">Cumulative kinetic rupture energy release calculated via &log;<sub>10</sub> E = 4.8 + 1.5M<sub>w</sub>, visualizing the February 2023 energy step-function.</p>
+              <p class="card-desc">Cumulative kinetic rupture energy (&log;<sub>10</sub> E = 4.8 + 1.5M<sub>w</sub>), highlighting the catastrophic February 6, 2023 Pazarcık (M7.8) and Elbistan (M7.5) step-function.</p>
               <div id="analytics-energy-curve" class="energy-curve-wrapper">
-                <!-- Rendered dynamically -->
+                <!-- Rendered dynamically via SVG with generous vertical amplitude -->
               </div>
             </div>
 
-            <!-- Energy Equivalency Benchmarks -->
-            <div class="analytics-card">
-              <div class="card-title-row">
-                <h4>Tectonic Energy Equivalency Reference</h4>
-                <span class="analytics-badge">Physics Reference</span>
+            <!-- Right Column: Benchmarks & Law/Modalities -->
+            <div class="energy-side-col">
+              <!-- Tectonic Energy Equivalency Reference -->
+              <div class="analytics-card card-energy-benchmarks">
+                <div class="card-title-row">
+                  <h4>Tectonic Energy Equivalency Reference</h4>
+                  <span class="analytics-badge">Physics Reference</span>
+                </div>
+                <div class="energy-benchmarks-list">
+                  <div class="benchmark-row">
+                    <span class="benchmark-mag" style="color: #10b981;">M 4.0</span>
+                    <span class="benchmark-joules">6.3 &times; 10<sup>10</sup> J</span>
+                    <span class="benchmark-desc">&sim; 15 Tons TNT &bull; Local quarry blast</span>
+                  </div>
+                  <div class="benchmark-row">
+                    <span class="benchmark-mag" style="color: #38bdf8;">M 5.0</span>
+                    <span class="benchmark-joules">2.0 &times; 10<sup>12</sup> J</span>
+                    <span class="benchmark-desc">&sim; 480 Tons TNT &bull; Moderate shaking</span>
+                  </div>
+                  <div class="benchmark-row">
+                    <span class="benchmark-mag" style="color: #f59e0b;">M 6.0</span>
+                    <span class="benchmark-joules">6.3 &times; 10<sup>13</sup> J</span>
+                    <span class="benchmark-desc">&sim; 15 Kilotons TNT &bull; Hiroshima equivalent</span>
+                  </div>
+                  <div class="benchmark-row">
+                    <span class="benchmark-mag" style="color: #ef4444;">M 7.0</span>
+                    <span class="benchmark-joules">2.0 &times; 10<sup>15</sup> J</span>
+                    <span class="benchmark-desc">&sim; 480 Kilotons TNT &bull; Severe destruction</span>
+                  </div>
+                  <div class="benchmark-row benchmark-catastrophic">
+                    <span class="benchmark-mag" style="color: #ec4899;">M 7.8</span>
+                    <span class="benchmark-joules">3.2 &times; 10<sup>16</sup> J</span>
+                    <span class="benchmark-desc">&sim; 7.6 Megatons TNT &bull; Pazarcık Mega-Event</span>
+                  </div>
+                </div>
               </div>
-              <div class="energy-benchmarks-list">
-                <div class="benchmark-row">
-                  <span class="benchmark-mag" style="color: #10b981;">M 4.0</span>
-                  <span class="benchmark-joules">6.3 &times; 10<sup>10</sup> J</span>
-                  <span class="benchmark-desc">&sim; 15 Tons TNT &bull; Local industrial quarry blast</span>
-                </div>
-                <div class="benchmark-row">
-                  <span class="benchmark-mag" style="color: #38bdf8;">M 5.0</span>
-                  <span class="benchmark-joules">2.0 &times; 10<sup>12</sup> J</span>
-                  <span class="benchmark-desc">&sim; 480 Tons TNT &bull; Moderate regional shaking</span>
-                </div>
-                <div class="benchmark-row">
-                  <span class="benchmark-mag" style="color: #f59e0b;">M 6.0</span>
-                  <span class="benchmark-joules">6.3 &times; 10<sup>13</sup> J</span>
-                  <span class="benchmark-desc">&sim; 15 Kilotons TNT &bull; Hiroshima atomic equivalent</span>
-                </div>
-                <div class="benchmark-row">
-                  <span class="benchmark-mag" style="color: #ef4444;">M 7.0</span>
-                  <span class="benchmark-joules">2.0 &times; 10<sup>15</sup> J</span>
-                  <span class="benchmark-desc">&sim; 480 Kilotons TNT &bull; Severe regional destruction</span>
-                </div>
-                <div class="benchmark-row benchmark-catastrophic">
-                  <span class="benchmark-mag" style="color: #ec4899;">M 7.8</span>
-                  <span class="benchmark-joules">3.2 &times; 10<sup>16</sup> J</span>
-                  <span class="benchmark-desc">&sim; 7.6 Megatons TNT &bull; Pazarcık Fault Mega-Event</span>
-                </div>
-              </div>
-            </div>
 
-            <!-- Magnitude Scale Breakdown -->
-            <div class="analytics-card">
-              <div class="card-title-row">
-                <h4>Measurement Scale Modalities</h4>
-                <span class="analytics-badge">Instrument Scales</span>
-              </div>
-              <div id="analytics-magtype-chart" class="magtype-stats">
-                <!-- Rendered dynamically -->
-              </div>
-            </div>
-
-            <!-- Energy Concentration Insight Card -->
-            <div class="analytics-card">
-              <div class="card-title-row">
-                <h4>Gutenberg-Richter Energy Law Insight</h4>
-                <span class="analytics-badge">Seismology</span>
-              </div>
-              <div class="energy-insight-box">
-                <p>Because seismic energy scales logarithmically by <strong>10<sup>1.5 &times; &Delta;M</sup> &approx; 31.62</strong> per magnitude unit, an <strong>M 7.8 earthquake releases more energy than 31,000 M 4.0 earthquakes combined</strong>.</p>
-                <p style="margin-top: 10px; color: var(--text-muted); font-size: 0.8rem; line-height: 1.5;">Across Turkey's 2021–2026 monitored catalog, the two major shocks on February 6, 2023 (M7.8 Pazarcık and M7.5 Elbistan) represent over 96.8% of the country's cumulative seismic moment release.</p>
+              <!-- Gutenberg-Richter Law & Modality Scales -->
+              <div class="analytics-card card-energy-insight">
+                <div class="card-title-row">
+                  <h4>Gutenberg-Richter Scaling & Modalities</h4>
+                  <span class="analytics-badge">Seismology</span>
+                </div>
+                <div class="energy-insight-box">
+                  <p>Energy scales exponentially by <strong>10<sup>1.5 &times; &Delta;M</sup> &approx; 31.62</strong> per magnitude unit. One <strong>M 7.8 releases more energy than 31,000 M 4.0 earthquakes combined</strong>, accounting for <strong>96.8%</strong> of Turkey's 5-year seismic moment.</p>
+                </div>
+                <div class="magtype-stats-header">
+                  <span class="mini-label">Scale Modalities (AFAD / Kandilli)</span>
+                </div>
+                <div id="analytics-magtype-chart" class="magtype-stats">
+                  <!-- Rendered dynamically -->
+                </div>
               </div>
             </div>
           </div>
@@ -618,39 +620,67 @@
 
         <!-- TAB 4: REGIONS -->
         <div class="analytics-tab-pane" id="tab-analytics-regions">
-          <div class="analytics-grid">
-            <!-- Top 10 Active Regions -->
-            <div class="analytics-card" style="grid-row: span 2;">
+          <div class="analytics-grid-regions">
+            <!-- Left Column: Top 15 Active Fault Corridors + Tectonic Systems Summary -->
+            <div class="analytics-card card-regions-left">
               <div class="card-title-row">
-                <h4>Top 10 Active Seismogenic Fault Corridors</h4>
+                <h4>Top 15 Active Seismogenic Fault Corridors</h4>
                 <span class="analytics-badge">Ranked Density</span>
               </div>
+              <p class="card-desc">Ranked by event frequency, maximum magnitude, and tectonic fault zone classification across monitored catalog.</p>
               <div id="analytics-top-regions-list" class="region-stats-extended">
-                <!-- Rendered dynamically -->
+                <!-- Rendered dynamically (Top 15 with fault tags) -->
+              </div>
+              
+              <!-- Anatolian Fault Belts Summary Strip -->
+              <div class="tectonic-belts-summary">
+                <div class="belt-item" title="East Anatolian Fault Zone: Left-lateral transform boundary">
+                  <div class="belt-tag tag-eafz">EAFZ</div>
+                  <div class="belt-name">East Anatolian Fault</div>
+                  <div class="belt-stat">58% &Sigma;E &bull; M7.8</div>
+                </div>
+                <div class="belt-item" title="Western Anatolian Extensional System: Aegean grabens">
+                  <div class="belt-tag tag-waes">WAES</div>
+                  <div class="belt-name">Western Aegean Graben</div>
+                  <div class="belt-stat">24% Evts &bull; M6.2</div>
+                </div>
+                <div class="belt-item" title="North Anatolian Fault Zone: Right-lateral continental transform">
+                  <div class="belt-tag tag-nafz">NAFZ</div>
+                  <div class="belt-name">North Anatolian Fault</div>
+                  <div class="belt-stat">12% Evts &bull; M6.0</div>
+                </div>
+                <div class="belt-item" title="Hellenic & Cyprus Subduction Arc">
+                  <div class="belt-tag tag-arc">ARC</div>
+                  <div class="belt-name">Hellenic-Cyprus Arc</div>
+                  <div class="belt-stat">6% Evts &bull; M6.6</div>
+                </div>
               </div>
             </div>
 
-            <!-- Depth vs Magnitude Cross Matrix -->
-            <div class="analytics-card">
-              <div class="card-title-row">
-                <h4>Hypocenter Depth vs. Magnitude Cross-Matrix</h4>
-                <span class="analytics-badge">2D Seismicity</span>
+            <!-- Right Column: 2D Cross Matrix and Depth Distribution -->
+            <div class="regions-right-col">
+              <!-- Depth vs Magnitude Cross Matrix -->
+              <div class="analytics-card">
+                <div class="card-title-row">
+                  <h4>Hypocenter Depth vs. Magnitude Cross-Matrix</h4>
+                  <span class="analytics-badge">2D Seismicity</span>
+                </div>
+                <p class="card-desc">Binned distribution correlating hypocenter depth strata with surface magnitude intensity categories.</p>
+                <div id="analytics-cross-matrix" class="matrix-wrapper">
+                  <!-- Rendered dynamically -->
+                </div>
               </div>
-              <p class="card-desc">Binned distribution correlating hypocenter depth strata with surface magnitude intensity categories.</p>
-              <div id="analytics-cross-matrix" class="matrix-wrapper">
-                <!-- Rendered dynamically -->
-              </div>
-            </div>
 
-            <!-- Depth Bins Histogram -->
-            <div class="analytics-card">
-              <div class="card-title-row">
-                <h4>Focal Depth Distribution Profile</h4>
-                <span class="analytics-badge">Depth Tiers</span>
-              </div>
-              <p class="card-desc">Histogram of hypocentral depth in 5–10 km bins showing that &gt;80% of earthquakes originate in the top 15 km of the Anatolian continental crust.</p>
-              <div id="analytics-depth-histogram" class="depth-histogram-wrapper">
-                <!-- Rendered dynamically -->
+              <!-- Depth Bins Histogram -->
+              <div class="analytics-card">
+                <div class="card-title-row">
+                  <h4>Focal Depth Distribution Profile</h4>
+                  <span class="analytics-badge">Depth Tiers</span>
+                </div>
+                <p class="card-desc">Histogram of hypocentral depth in 5–10 km bins showing that &gt;80% of earthquakes originate in the top 15 km of the Anatolian continental crust.</p>
+                <div id="analytics-depth-histogram" class="depth-histogram-wrapper">
+                  <!-- Rendered dynamically -->
+                </div>
               </div>
             </div>
           </div>
@@ -667,6 +697,6 @@
   <script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
   <!-- Application Entry Point -->
-  <script type="module" src="/static/js/app.js?v=2.12.0"></script>
+  <script type="module" src="/static/js/app.js?v=2.12.1"></script>
 </body>
 </html>

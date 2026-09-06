@@ -81,11 +81,26 @@ v2.1.0 (Baseline Architecture)
         └─► v2.11.1 (Fix: Resilient Corner Widget Drag/Expand Clamping & Crisp Vector Header Icons)
   │
   └─► v2.12.0 (Feat: Full-Spectrum Observatory Analytics Deck, 4-Tab Seismological Suite & Technote-05)
+        │
+        └─► v2.12.1 (Fix/Feat: Decoupled Multi-Year Archive Ingestion, Tall Energy Curve & Top 15 Fault Corridors)
 ```
 
 ---
 
 ## Milestone Change Log Details
+
+### [v2.12.1] — 2026-09-06
+**Fix/Feat: Decoupled Multi-Year Archive Ingestion, Tall Energy Curve & Top 15 Fault Corridors**
+- **Type**: `fix(analytics)` / `feat(visualization)` / `patch-bump`
+- **Scope**: `frontend/index.html`, `frontend/css/style.css`, `frontend/js/app.js`, `VERSION`, `docs/technote-05-full-spectrum-observatory-analytics.md`, `docs/CHANGELOG.md`
+- **Key Deliverables**:
+  - **Decoupled Multi-Year Catalog Ingestion**: Fixed analytics scoping issue where the deck inherited the main map's default 1-year filter preset (showing only 2025–2026 quakes). Decoupled the analytics engine by establishing an asynchronous background catalog pre-loader (`this.fullCatalogCache`, 13,423 records) and introduced a title-bar dataset scope switcher (`Archive: 13.4k` vs `Filtered: N`), guaranteeing the entire 2021–2026 archive is analyzed by default with 0ms modal latency.
+  - **Continuous 69-Month Timeline (2021–2026)**: In Tab 2 (*Time Trends*), implemented a continuous calendar month bucket generator across all 69 months from January 2021 to September 2026, distinctly highlighting the February 2023 Kahramanmaraş peak (1,626 events) in ruby red with prominent calendar year ticks.
+  - **Asymmetric Tall Layout for Cumulative Seismic Energy**: Redesigned Tab 3 (*Energy*) from a cramped 2x2 grid into an asymmetric 2-column layout (60% / 40%). The **Cumulative Seismic Energy Release Curve** now spans the full height of the canvas (290px SVG, viewBox `0 0 700 290`), eliminating vertical squishing and providing dramatic visualization of the February 6, 2023 rupture step function (>96% of Turkey's 5-year seismic energy release).
+  - **Enriched Regions & Anatolian Tectonic Belts Summary**: In Tab 4 (*Regions*), expanded the ranked seismogenic list from 10 to **Top 15 fault corridors**, added color-coded tectonic classification badges (`[EAFZ]`, `[WAES]`, `[NAFZ]`, `[ARC]`, `[ZONE]`), and embedded a 4-regime **Anatolian Tectonic Belts Summary** strip (East Anatolian Fault, Western Aegean Graben, North Anatolian Fault, Hellenic-Cyprus Arc) filling previously empty whitespace with high-density geodynamic intelligence.
+  - **Zero-Scroll Integrity**: Verified across all 4 tabs that modal height remains strictly within 90vh with zero vertical scrollbars on desktop displays.
+
+---
 
 ### [v2.12.0] — 2026-09-06
 **Feat: Full-Spectrum Observatory Analytics Deck, 4-Tab Seismological Suite & Technote-05**

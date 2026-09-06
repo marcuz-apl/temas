@@ -1688,6 +1688,43 @@ header {
   white-space: nowrap;
 }
 
+/* Scope Toggle in Analytics Modal Header */
+.analytics-scope-toggle {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.scope-btn {
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  color: var(--text-muted);
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.scope-btn:hover {
+  color: var(--text-primary);
+}
+
+.scope-btn.active {
+  background: rgba(56, 189, 248, 0.18);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.2);
+}
+
 /* 4-Tab Navigation Squeezed into Center of Header */
 .analytics-tabs-nav {
   display: flex;
@@ -2069,14 +2106,33 @@ header {
   white-space: nowrap;
 }
 
-/* Tab 3: Energy Curve & Benchmarks */
+/* Tab 3: Energy Grid & Asymmetric Layout */
+.analytics-grid-energy {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+}
+
+.card-energy-main {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
 .energy-curve-wrapper {
   width: 100%;
-  height: 135px;
+  flex: 1;
+  min-height: 270px;
+  max-height: 380px;
   background: rgba(0, 0, 0, 0.25);
   border-radius: var(--radius-sm);
   border: 1px solid rgba(255, 255, 255, 0.05);
   overflow: hidden;
+  position: relative;
 }
 
 .energy-curve-wrapper svg {
@@ -2085,10 +2141,25 @@ header {
   display: block;
 }
 
+.energy-side-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+  min-height: 0;
+}
+
+.card-energy-benchmarks {
+  flex: 1.1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
 .energy-benchmarks-list {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
   flex: 1;
   justify-content: center;
 }
@@ -2097,11 +2168,11 @@ header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 5px 8px;
+  padding: 4px 8px;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
-  font-size: 0.74rem;
+  font-size: 0.72rem;
   transition: all 0.15s ease;
 }
 
@@ -2113,21 +2184,21 @@ header {
 .benchmark-mag {
   font-weight: 800;
   font-family: var(--font-mono);
-  font-size: 0.86rem;
-  width: 50px;
+  font-size: 0.82rem;
+  width: 46px;
 }
 
 .benchmark-joules {
   font-family: var(--font-mono);
   color: var(--text-secondary);
   font-weight: 600;
-  width: 110px;
-  font-size: 0.72rem;
+  width: 100px;
+  font-size: 0.70rem;
 }
 
 .benchmark-desc {
   color: var(--text-muted);
-  font-size: 0.70rem;
+  font-size: 0.68rem;
   flex: 1;
   text-align: right;
 }
@@ -2138,21 +2209,37 @@ header {
   box-shadow: 0 0 12px rgba(236, 72, 153, 0.15);
 }
 
+.card-energy-insight {
+  flex: 1.1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  gap: 6px;
+}
+
 .energy-insight-box {
   background: rgba(56, 189, 248, 0.04);
   border: 1px solid rgba(56, 189, 248, 0.2);
   border-radius: var(--radius-sm);
-  padding: 8px 12px;
-  font-size: 0.76rem;
-  line-height: 1.4;
+  padding: 6px 10px;
+  font-size: 0.72rem;
+  line-height: 1.35;
   color: var(--text-secondary);
-  flex: 1;
+}
+
+.magtype-stats-header {
+  font-size: 0.65rem;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 2px;
 }
 
 .magtype-stats {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   flex: 1;
   justify-content: center;
 }
@@ -2161,11 +2248,11 @@ header {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.74rem;
+  font-size: 0.72rem;
 }
 
 .magtype-name {
-  width: 55px;
+  width: 48px;
   font-family: var(--font-mono);
   font-weight: 700;
   color: #38bdf8;
@@ -2173,7 +2260,7 @@ header {
 
 .magtype-bar-track {
   flex: 1;
-  height: 6px;
+  height: 5px;
   background: rgba(255, 255, 255, 0.06);
   border-radius: 999px;
   overflow: hidden;
@@ -2187,27 +2274,54 @@ header {
 
 .magtype-count {
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.70rem;
   color: var(--text-muted);
-  width: 80px;
+  width: 75px;
   text-align: right;
 }
 
-/* Tab 4: Extended Top Regions List */
+/* Tab 4: Regions Layout & Fault Zone Classifications */
+.analytics-grid-regions {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+}
+
+.card-regions-left {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  justify-content: space-between;
+}
+
+.regions-right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+  min-height: 0;
+}
+
 .region-stats-extended {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
   flex: 1;
-  justify-content: center;
+  min-height: 0;
+  overflow-y: hidden;
+  justify-content: space-evenly;
 }
 
 .region-row-ext {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.73rem;
-  padding: 2px 5px;
+  gap: 5px;
+  font-size: 0.70rem;
+  padding: 1px 4px;
   border-radius: var(--radius-sm);
   transition: background 0.15s ease;
 }
@@ -2221,21 +2335,34 @@ header {
   font-family: var(--font-mono);
   color: var(--text-muted);
   font-weight: 700;
-  font-size: 0.70rem;
+  font-size: 0.65rem;
+}
+
+.region-tag-ext {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 800;
+  padding: 1px 4px;
+  border-radius: 3px;
+  width: 40px;
+  text-align: center;
+  flex-shrink: 0;
 }
 
 .region-name-ext {
-  width: 130px;
+  width: 140px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   font-weight: 600;
   color: var(--text-secondary);
+  font-size: 0.70rem;
 }
 
 .region-bar-track-ext {
   flex: 1;
-  height: 6px;
+  height: 5px;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 3px;
   overflow: hidden;
@@ -2249,10 +2376,69 @@ header {
 
 .region-count-ext {
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   color: var(--text-primary);
-  width: 65px;
+  width: 75px;
   text-align: right;
+  white-space: nowrap;
+}
+
+/* Tectonic Belts Summary Strip */
+.tectonic-belts-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+}
+
+.belt-item {
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 4px 6px;
+  gap: 2px;
+  transition: all 0.15s ease;
+}
+
+.belt-item:hover {
+  border-color: rgba(56, 189, 248, 0.3);
+  transform: translateY(-1px);
+}
+
+.belt-tag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.60rem;
+  font-weight: 800;
+  padding: 1px 4px;
+  border-radius: 3px;
+  align-self: flex-start;
+}
+
+.tag-eafz { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); }
+.tag-waes { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); }
+.tag-nafz { background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4); }
+.tag-arc { background: rgba(168, 85, 247, 0.2); color: #a855f7; border: 1px solid rgba(168, 85, 247, 0.4); }
+.tag-border { background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); }
+
+.belt-name {
+  font-size: 0.64rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.belt-stat {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  color: var(--text-muted);
 }
 
 /* 2D Cross Matrix Table */
