@@ -1680,6 +1680,29 @@ header {
     z-index: 101;
     transition: all 0.15s ease;
   }
+  .btn-mobile-nav svg {
+    display: block;
+    pointer-events: none;
+    width: 18px !important;
+    min-width: 18px !important;
+    height: 18px !important;
+    flex-shrink: 0 !important;
+    color: #f8fafc;
+  }
+  .btn-mobile-nav svg line {
+    stroke: #f8fafc;
+  }
+  .btn-mobile-nav svg circle {
+    fill: #f8fafc;
+  }
+  .btn-mobile-nav:hover svg line,
+  .btn-mobile-nav:active svg line {
+    stroke: #38bdf8;
+  }
+  .btn-mobile-nav:hover svg circle,
+  .btn-mobile-nav:active svg circle {
+    fill: #38bdf8;
+  }
   .btn-mobile-nav:active {
     background: rgba(56, 189, 248, 0.15);
     border-color: #38bdf8;
