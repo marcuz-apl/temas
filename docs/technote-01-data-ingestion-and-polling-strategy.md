@@ -3,7 +3,7 @@
 **Status**: Active / Production  
 **Component**: Ingestion Scheduler (`backend/ingestion/scheduler.py`) & Feed Adapters  
 **Author**: TEMAS Core Engineering Team  
-**Last Updated**: 2026-09-05  
+**Last Updated**: 2026-09-06  
 
 ---
 
@@ -21,7 +21,7 @@ This technical note documents the design mindset, seismological physics, provide
 ### 2.1 The 1-Minute Myth (Legacy vs. Modern)
 - **Legacy Prototype (2023 Docker Testlab)**:
   Early proof-of-concept scripts in `legacy/testlab` utilized a simplistic `* * * * *` Linux cron entry that executed a scraper script once every minute. This was acceptable for local 10-minute experimentation on a single laptop but was **never intended for sustained production ingestion**.
-- **Modern Production Architecture (TEMAS v2.1)**:
+- **Modern Production Architecture (TEMAS v2.10)**:
   The active asynchronous background scheduler in `backend/ingestion/scheduler.py` defaults to **180 seconds (3 minutes)**:
   - **Production Cadence**: `Interval = 180 seconds (3 minutes)`
   This is dynamically configurable via the environment variable `TEMAS_SYNC_INTERVAL`.

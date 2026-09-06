@@ -67,12 +67,26 @@ v2.1.0 (Baseline Architecture)
         │
         ├─► v2.10.3 (Fix: Full 2021–2026 Chronological Timeline Playback & Canvas Rendering)
         │
-        └─► v2.10.4 (Feat: Default 1-Year Time Preset & Adaptive Filter Playback)
+        ├─► v2.10.4 (Feat: Default 1-Year Time Preset & Adaptive Filter Playback)
+        │
+        └─► v2.10.5 (Feat/Docs: M4.0+ Default Threshold, Admin Route Concealment Balance & Docs Sync)
 ```
 
 ---
 
 ## Milestone Change Log Details
+
+### [v2.10.5] — 2026-09-06
+**Feat/Docs: M4.0+ Default Threshold, Admin Route Concealment Balance & Docs Sync**
+- **Type**: `feat(ui)` / `ux(filters)` / `docs(security)` / `chore(release)`
+- **Scope**: `frontend/index.html`, `frontend/js/app.js`, `README.md`, `PRD.md`, `docs/README.md`, `docs/technote-01-data-ingestion-and-polling-strategy.md`, `docs/technote-02-seismic-catalog-hygiene-and-storage.md`, `docs/technote-03-security-and-administrative-operations.md`, `VERSION`, `docs/CHANGELOG.md`
+- **Key Deliverables**:
+  - **M4.0+ Default Magnitude Threshold**: Shifted initial magnitude filter from M3.0+ to M4.0+ (`mag-slider` value 4.0, `min_magnitude: 4.0`), focusing default viewport rendering on 174 civilly significant earthquakes from the past year, eliminating visual dot clutter while preserving instant slider drill-down.
+  - **Balanced Public Documentation Strategy**: Replaced plain-text credentials (`Tema$2023`) and exposed `/admin` links in `README.md` with a security-hardened narrative explaining route obfuscation and deceptive 404 decoy behavior, referencing authorized maintainers to `technote-03`.
+  - **2022 Catalog Gap Backfill**: Ingested 664 verified events ($M \ge 3.0$) across May–December 2022 and early January 2023 from the EMSC and USGS archives, restoring unbroken chronological continuity across 2022 (976 events) and elevating total catalog size to 13,408 records.
+  - **Comprehensive Docs Synchronization**: Audited and calibrated `README.md`, `PRD.md`, `docs/README.md`, and all 3 technical architecture notes to accurately reflect current production capabilities, 13,400+ catalog metrics, and `v2.10.5` status.
+
+---
 
 ### [v2.10.4] — 2026-09-06
 **Feat: Default 1-Year Time Preset & Adaptive Filter Playback**

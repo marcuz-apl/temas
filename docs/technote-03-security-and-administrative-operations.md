@@ -3,7 +3,7 @@
 **Status**: Active / Production  
 **Component**: Authentication (`backend/main.py`), Admin Deck UI (`frontend/admin.html`, `frontend/js/admin.js`)  
 **Author**: TEMAS Core Engineering Team  
-**Last Updated**: 2026-09-05  
+**Last Updated**: 2026-09-06  
 
 ---
 
@@ -60,9 +60,20 @@ When an operator successfully updates their passkey:
 ### 2.4 Concealed Administrative Route (`/samet`)
 To insulate the operations panel against automated botnet scanning, brute-force dictionary probes, and common crawler discovery:
 1. **Route Obfuscation**: The administrative deck is routed strictly to `/samet` (`temas` spelled backwards).
+   - **Local Operations URL**: `http://localhost:4070/samet`
 2. **Deceptive 404 on `/admin`**: Requests probing `/admin` receive a standard HTTP 404 Not Found response, concealing the existence of an operational interface.
 3. **Zero Public Links**: No public frontpage headers, mobile menus, or search engine sitemaps link to `/samet`.
 4. **Credential Privacy**: The login interface does not disclose passkey hints; initial credentials (`Tema$2023`) are preserved solely in developer documentation.
+
+### 2.5 Documentation Balance: Public README vs. Internal Engineering Manuals
+A key architectural principle in TEMAS is maintaining a secure balance between open-source transparency and operational hardening:
+- **In Public Documentation (`README.md`)**:
+  - The feature is documented conceptually as the **"Hardened Administrative Operations Deck"**.
+  - Neither the live concealed path (`/samet`) nor the default master passkey (`Tema$2023`) are published in `README.md`.
+  - Probes to `/admin` are explained as returning a deceptive `404 Not Found` decoy.
+  - Legitimate operators and contributors are directed to this technical note (`docs/technote-03-security-and-administrative-operations.md`) for internal onboarding.
+- **In Engineering Manuals (`technote-03`)**:
+  - Complete, un-redacted architectural and deployment details are maintained for authorized system maintainers.
 
 ---
 
@@ -87,3 +98,12 @@ The historical table provides real-time client-side and server-side filtering:
 - **Magnitude Scale Filter**: ML (Local Magnitude), MW (Moment Magnitude), MD (Duration Magnitude), MS, MB.
 - **Regional Autocomplete & Search**: Substring matching on provincial and fault zones.
 - **Deterministic Pagination**: Jump controls (`First`, `Prev`, `Next`, `Last`) with customizable page sizes (25, 50, 100).
+
+### 3.3 Operations Deck "About" Manifest & Attributions (v2.10.2)
+To provide instant institutional transparency without cluttering operational space:
+- **Command Deck Action**: Embedded in the top-right header alongside version badge and passkey controls.
+- **Two-Section Cyber-Glass Modal**:
+  1. *Mission & Heritage*: Documents the project's inception following the Feb 6, 2023 Kahramanmaraş earthquake sequence and its transition to continuous Anatolian plate monitoring.
+  2. *Data Sources & Attribution*: Explicit technical attribution for Boğaziçi University KOERI, EMSC-CSEM, USGS, and Peter Bird's PB2002 plate boundary model.
+- **Developer Identity & Armed Status**: Highlights `@2023-2026, Alfazen Inc. All rights reserved.` alongside a pulsing green live engine status beacon.
+- **Keyboard & Backdrop Ergonomics**: Supports instantaneous dismissal via `Esc` key, background backdrop click, or confirmation button.

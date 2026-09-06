@@ -8,10 +8,10 @@ This directory serves as the engineering knowledge base, seismological design ra
 
 | Document | Title | Core Focus |
 | :--- | :--- | :--- |
-| **[CHANGELOG](file:///mnt/ubt24-vdisk1/projects/temas/docs/CHANGELOG.md)** | **Milestone Calibration (v2.1.0 $\to$ v2.8.1)** | Official 9-milestone semantic progression matrix, feature scopes, and deliverables. |
-| **[TECHNOTE-01](file:///mnt/ubt24-vdisk1/projects/temas/docs/technote-01-data-ingestion-and-polling-strategy.md)** | **Data Ingestion Cadence & Upstream Rate-Limit Safety** | Polling intervals, seismic wave solver latencies, provider courtesy, and circuit-breaker failover. |
-| **[TECHNOTE-02](file:///mnt/ubt24-vdisk1/projects/temas/docs/technote-02-seismic-catalog-hygiene-and-storage.md)** | **Catalog Hygiene, Noise Purging & Deduplication Engine** | M < 2.0 noise cut-off rationale, composite event deduplication, SQLite WAL mechanics, and backfill. |
-| **[TECHNOTE-03](file:///mnt/ubt24-vdisk1/projects/temas/docs/technote-03-security-and-administrative-operations.md)** | **Administrative Access, Dynamic Auth & Operator Ergonomics** | Project birth-year credentials (`Tema$2023`), dynamic database passkey changes, and client-side telemetry. |
+| **[CHANGELOG](CHANGELOG.md)** | **Milestone Calibration (v2.1.0 $\to$ v2.10.4)** | Full semantic progression matrix, feature scopes, and deliverables from inception through Gen2. |
+| **[TECHNOTE-01](technote-01-data-ingestion-and-polling-strategy.md)** | **Data Ingestion Cadence & Upstream Rate-Limit Safety** | Polling intervals, seismic wave solver latencies, provider courtesy, and circuit-breaker failover. |
+| **[TECHNOTE-02](technote-02-seismic-catalog-hygiene-and-storage.md)** | **Catalog Hygiene, Noise Purging & Deduplication Engine** | M < 2.0 noise cut-off rationale, composite event deduplication, SQLite WAL mechanics, and backfill. |
+| **[TECHNOTE-03](technote-03-security-and-administrative-operations.md)** | **Security Architecture, Concealed Route & Operator Ergonomics** | Concealed `/samet` route, deceptive 404 decoy, inception credentials (`Tema$2023`), dynamic passkey changes, and About modal. |
 
 ---
 

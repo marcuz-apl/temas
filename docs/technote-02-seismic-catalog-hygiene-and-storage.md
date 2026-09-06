@@ -3,7 +3,7 @@
 **Status**: Active / Production  
 **Component**: Storage Engine (`backend/database.py`), Admin De-duplication & Moderation  
 **Author**: TEMAS Core Engineering Team  
-**Last Updated**: 2026-09-05  
+**Last Updated**: 2026-09-06  
 
 ---
 
@@ -15,7 +15,7 @@ During system scaling and observatory operations, key questions emerged:
 3. *"Shall we do the Backfill job every time we enter the Admin Panel?"*
 4. *"How can we safely reclaim disk space without corrupting the WAL?"*
 
-This note documents the seismological, data modeling, and SQLite storage decisions implemented in TEMAS v2.1.
+This note documents the seismological, data modeling, and SQLite storage decisions implemented in TEMAS v2.10.
 
 ---
 

@@ -8,8 +8,8 @@
 
 Founded following the devastating February 6, 2023 Kahramanmaraş earthquake sequence, TEMAS bridges the gap between public seismic awareness and rigorous geoscientific analysis.
 
-- **Current Release**: `v2.8.1` (September 2026)
-- **Author**: marcuz-apl
+- **Current Release**: `v2.10.5` (September 2026)
+- **Author & Copyright**: © 2023–2026, Alfazen Inc. / marcuz-apl
 - **License**: Educational & Open Scientific Use (Data copyright Boğaziçi Univ. / KOERI)
 
 ---
@@ -20,20 +20,24 @@ Founded following the devastating February 6, 2023 Kahramanmaraş earthquake seq
   1. **KOERI** (*Boğaziçi University Kandilli Observatory*) — Primary local Turkish network.
   2. **EMSC-CSEM** (*Euro-Med Seismological Centre*) — Secondary FDSN regional network.
   3. **USGS** (*United States Geological Survey*) — Tertiary global teleseismic network.
-- **Continuous 2021–2026 Historical Archive**: Over **12,600 verified earthquake records** (M ≥ 2.0) permanently persisted and indexed in SQLite with zero cloud dependencies.
-- **Seismological Noise Purge**: Automatically discards sub-threshold micro-tremors (M < 2.0) to eliminate storage bloat and focus on actionable civil events.
+- **Continuous 2021–2026 Historical Archive**: Over **13,400 verified earthquake records** (M ≥ 2.0) permanently persisted and indexed in SQLite with zero cloud dependencies.
+- **Adaptive Timeline Playback & 1-Year Default Scope**: Defaults to the past 12 months (~1,600 events) for an instantaneous, lightweight initial paint, with an on-demand `All-Time` mode that streams the full 2021–2026 multi-year archive. Chronological animation seamlessly adapts to whichever temporal filter is active.
+- **Full-Spectrum Day/Night Theme Synchronization**: One-click basemap toggle alternates between CartoDB Dark Matter and OpenStreetMap Light, dynamically syncing header glassmorphism, floating filter toolbars, timeline scrubbers, and corner dock panels.
+- **Seismological Noise Purge**: Automatically discards sub-threshold micro-tremors (M < 2.0) during ingestion to eliminate storage bloat and focus on actionable civil protection events.
 - **Schema-Enforced Deduplication**: Deterministic window partitioning and composite unique constraints (`uq_quaketk_event`) prevent duplicate event ingestion across multi-agency feeds.
-- **Observatory Operations Deck (`/admin`)**:
+- **Hardened Administrative Operations Deck**:
+  - Concealed route architecture with deceptive HTTP 404 responses for unauthorized `/admin` probes.
   - Real-time client-side sync telemetry popups with provider-level round-trip latency cards.
   - Multi-vector catalog filtering (by **Measurement Source**, **Magnitude Scale**, and **Region**).
   - Deterministic table pagination (`⏮ First`, `◀ Prev`, `Next ▶`, `Last ⏭`).
   - WAL database checkpointing (`PRAGMA wal_checkpoint(TRUNCATE)`) and B-Tree defragmentation (`VACUUM`).
-  - Dynamic admin authentication and passkey management modal.
+  - Dynamic runtime passkey management and interactive mission-control About manifest.
 - **Interactive Public Geospatial Map**:
-  - Zero-iframe responsive Single Page Application.
-  - Vector Leaflet map rendered on CartoDB Dark Matter tiles.
+  - Zero-iframe responsive Single Page Application with GPU-accelerated Leaflet HTML5 Canvas rendering.
   - Logarithmic energy-scaled hypocenters and depth color-coding.
   - Active tectonic fault line overlays (PB2002 plate boundary model) and provincial administrative boundaries.
+  - Mobile-first dual-navigation header (Left Feed Drawer + Right 9-Dot Bento Tools Grid).
+  - Symmetrical floating corner docks (Layers & Magnitude Legend) with 30-second idle auto-collapse and edge peek.
   - One-click dataset export to CSV and GeoJSON.
 - **Alfazen Versioning**: Managed under `versioning-alfazen` with automated Conventional Commits semantic bumping.
 
@@ -45,8 +49,8 @@ Founded following the devastating February 6, 2023 Kahramanmaraş earthquake seq
 | :--- | :--- |
 | **Backend** | Python 3.11+, FastAPI, Uvicorn, Async HTTPX, AnyIO |
 | **Database** | SQLite3 in Write-Ahead Logging (WAL) mode with multi-column B-Tree indexes |
-| **Frontend** | Vanilla ESM JavaScript, Semantic HTML5, CSS Glassmorphism, Leaflet.js |
-| **Mapping & GIS** | CartoDB Dark Matter, PB2002 Plate Boundaries GeoJSON, Turkey Province Boundaries |
+| **Frontend** | Vanilla ESM JavaScript, Semantic HTML5, CSS Glassmorphism, Leaflet.js (Canvas Mode) |
+| **Mapping & GIS** | CartoDB Dark Matter, OpenStreetMap Standard, PB2002 Plate Boundaries GeoJSON, Turkey Province Boundaries |
 | **DevOps** | Docker, Docker Compose, Automated Git Versioning Hooks |
 
 ---
@@ -64,8 +68,8 @@ cd temas
 docker compose up -d --build
 ```
 Access the application:
-- **Public Map**: [http://localhost:4070](http://localhost:4070)
-- **Admin Operations Deck**: [http://localhost:4070/admin](http://localhost:4070/admin)
+- **Public Map & Spatial Dashboard**: [http://localhost:4070](http://localhost:4070)
+- **Admin Operations Deck (Authorized Operators)**: Mounted on an obfuscated route for botnet shielding. Refer to [TECHNOTE-03](docs/technote-03-security-and-administrative-operations.md) for deployment access instructions.
 
 ---
 
@@ -86,13 +90,22 @@ Open **http://localhost:4070** in your browser.
 
 ---
 
-## Administrative Operations Deck (`/admin`)
+## Administrative Operations Deck
 
 The Operations Deck provides administrative oversight, manual event injection, provider failover control, and database maintenance:
 
-- **URL**: `http://localhost:4070/admin`
-- **Default Master Passkey**: `Tema$2023` (marks the inception year of the TEMAS project)
-- **Dynamic Password Management**: Operators can update the passkey at any time via the **Password** button in the top deck bar. New passkeys persist in SQLite without server restarts.
+### Security & Route Concealment Balance
+In compliance with observatory security best practices, the administrative deck balances operational convenience with botnet defense:
+- **Concealed Route**: To shield the deck from automated internet crawlers, vulnerability scanners, and dictionary attacks, the administrative console is mounted on an obfuscated path.
+- **Deceptive 404 Decoy**: Requests probing conventional paths (such as `/admin`) receive an intentional `404 Not Found` response, concealing the presence of administrative functionality.
+- **Dynamic Passkey Authentication**: Access is guarded by a session-authenticated passkey that can be dynamically updated by operators directly from the command bar, persisting in SQLite without server restarts.
+- **Zero Public Hyperlinks**: No public visitor pages or search sitemaps advertise administrative paths.
+
+> [!NOTE]
+> **Authorized Operator Documentation**:
+> Full configuration details, default setup credentials, and route access instructions are documented in the internal engineering manual:  
+> 📖 **[TECHNOTE-03: Security Architecture & Administrative Operations](docs/technote-03-security-and-administrative-operations.md)**
+
 - **Configurable Cadence**: Upstream background sync interval defaults to 180 seconds and can be adjusted via:
   ```bash
   export TEMAS_SYNC_INTERVAL=300  # Sets 5-minute sync cadence
@@ -104,10 +117,10 @@ The Operations Deck provides administrative oversight, manual event injection, p
 
 Detailed architectural rationale, seismological design considerations, and operational protocols are documented in the [`docs/`](docs/) directory:
 
-- **[Milestone Changelog (`docs/CHANGELOG.md`)](docs/CHANGELOG.md)**: Full semantic progression from the 2023 prototypes (`v0.1.0`) to the modern platform (`v2.8.1`).
+- **[Milestone Changelog (`docs/CHANGELOG.md`)](docs/CHANGELOG.md)**: Full semantic progression from the 2023 prototypes (`v0.1.0`) to the modern platform (`v2.10.5`).
 - **[TECHNOTE-01: Ingestion Cadence & Upstream Courtesy](docs/technote-01-data-ingestion-and-polling-strategy.md)**: Seismological wave arrival delays, solver latencies, and provider fair-use policies.
 - **[TECHNOTE-02: Catalog Hygiene & Storage Optimization](docs/technote-02-seismic-catalog-hygiene-and-storage.md)**: Noise filtering cut-off (M < 2.0), multi-agency deduplication, and SQLite WAL checkpointing.
-- **[TECHNOTE-03: Security & Operator Ergonomics](docs/technote-03-security-and-administrative-operations.md)**: Dynamic authentication architecture and client-side mission-control telemetry.
+- **[TECHNOTE-03: Security & Operator Ergonomics](docs/technote-03-security-and-administrative-operations.md)**: Concealed route architecture (`/samet`), dynamic authentication, and client-side mission-control telemetry.
 
 ---
 
@@ -128,10 +141,10 @@ During initial proof-of-concept development in February–March 2023, TEMAS was 
 ## Live Earthquake Maps
 
 ### Real-Time Epicenter Map
-![Bubble Map](resources/live-earthquake-map-1.png)
+![Bubble Map](assets/live-earthquake-map-1.png)
 
 ### Seismic Intensity Heat Map
-![Heat Map](resources/live-earthquake-map-2.png)
+![Heat Map](assets/live-earthquake-map-2.png)
 
 ---
 

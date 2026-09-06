@@ -13,7 +13,7 @@ class TemasApp {
       stats: null,
       selectedEvent: null,
       filters: {
-        min_magnitude: 3.0,
+        min_magnitude: 4.0,
         preset: '1y',
         region: '',
         limit: 20000
@@ -59,7 +59,7 @@ class TemasApp {
     const updateFilterSummary = () => {
       if (!filterSummary) return;
       const activePreset = document.querySelector('.pill-btn.active')?.textContent || 'All';
-      const magVal = document.getElementById('mag-val')?.textContent || 'M3.0+';
+      const magVal = document.getElementById('mag-val')?.textContent || 'M4.0+';
       filterSummary.textContent = `${activePreset} • ${magVal}`;
     };
 
