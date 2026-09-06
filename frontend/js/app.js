@@ -16,7 +16,7 @@ class TemasApp {
         min_magnitude: 3.0,
         preset: 'all',
         region: '',
-        limit: 1500
+        limit: 20000
       },
       playback: {
         isPlaying: false,
@@ -822,6 +822,7 @@ class TemasApp {
       const dateDisplay = document.getElementById('timeline-date-display');
       if (scrubber) scrubber.value = 100;
       if (dateDisplay) dateDisplay.textContent = 'All Records Visible';
+      this.state.playback.currentIndex = Math.max(0, this.state.sortedChronological.length - 1);
     } catch (err) {
       console.error('Failed loading earthquakes:', err);
     }
@@ -850,6 +851,7 @@ class TemasApp {
     if (scrubber && parseInt(scrubber.value, 10) >= 100) {
       scrubber.value = 0;
       this.state.playback.currentIndex = 0;
+      this.renderPlaybackFrame();
     }
 
     const intervalMs = Math.max(40, 500 / this.state.playback.speed);
@@ -899,7 +901,8 @@ class TemasApp {
 
     const dateDisplay = document.getElementById('timeline-date-display');
     if (dateDisplay) {
-      dateDisplay.textContent = `Date: ${(currentEvent.eventtime || currentEvent.origintimeutc).substring(0, 16)} TRT`;
+      const dt = currentEvent.eventtime || currentEvent.origintimeutc;
+      dateDisplay.textContent = `Date: ${dt.substring(0, 16)} UTC+3`;
     }
   }
 

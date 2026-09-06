@@ -61,6 +61,7 @@ export class TemasMap {
       zoom: 6,
       minZoom: 4,
       maxZoom: 15,
+      preferCanvas: true,
       zoomControl: false,
       attributionControl: false, // Disables Leaflet attribution bar at lower-right corner
       trackResize: false // Handled cleanly via window resize & fullscreenchange listeners

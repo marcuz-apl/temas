@@ -159,7 +159,7 @@ async def get_earthquakes(
     region: Optional[str] = Query(None, description="Fuzzy match region or province name"),
     measmethod: Optional[str] = Query(None, description="Filter measurement source / agency"),
     magtype: Optional[str] = Query(None, description="Filter magnitude scale (e.g. ML, Mw, MB)"),
-    limit: int = Query(500, ge=1, le=5000),
+    limit: int = Query(500, ge=1, le=25000),
     offset: int = Query(0, ge=0),
 ):
     """Returns earthquakes with dynamic filtering and total matching count."""

@@ -63,12 +63,27 @@ v2.1.0 (Baseline Architecture)
         │
         ├─► v2.10.1 (Fix: Concealed Admin Route /samet, Deceptive 404, Purge Passkey Hint, Dynamic Versioning)
         │
-        └─► v2.10.2 (Feat: Operations Deck About Modal & Attributions)
+        ├─► v2.10.2 (Feat: Operations Deck About Modal & Attributions)
+        │
+        └─► v2.10.3 (Fix: Full 2021–2026 Chronological Timeline Playback & Canvas Rendering)
 ```
 
 ---
 
 ## Milestone Change Log Details
+
+### [v2.10.3] — 2026-09-06
+**Fix: Full 2021–2026 Chronological Timeline Playback & Canvas Rendering**
+- **Type**: `fix(timeline)` / `perf(map)` / `refactor`
+- **Scope**: `backend/main.py`, `frontend/js/app.js`, `frontend/js/map.js`, `VERSION`, `docs/CHANGELOG.md`
+- **Key Deliverables**:
+  - **Uncapped API Catalog Limit**: Elevated FastAPI `/api/earthquakes` limit validation ceiling from 5,000 to 25,000, and configured frontend query parameter `limit: 20000` to fetch the complete multi-year archive (11,600+ events) in `All-Time` mode.
+  - **Full-Archive Playback Origin (2021 Start)**: Corrected chronological playback engine so that clicking `Play` or scrubbing to zero starts precisely at the catalog inception (`2021-01-01 03:00 UTC+3`), smoothly progressing through the entire historical record through 2026.
+  - **Instant First-Frame Paint**: Added immediate frame rendering upon playback start/restart to ensure the map instantly syncs to the earliest timestamp without waiting for the first timer interval.
+  - **Leaflet HTML5 Canvas Acceleration (`preferCanvas: true`)**: Enabled GPU-accelerated canvas marker rendering in Leaflet to guarantee smooth 60 FPS animation without DOM SVG bottlenecking across 11,000+ points.
+  - **Standardized UTC+3 Playback Timestamp**: Calibrated live timeline date badge to display scientific observatory `UTC+3` standard.
+
+---
 
 ### [v2.10.2] — 2026-09-06
 **Feat: Operations Deck About Modal & Attributions**
