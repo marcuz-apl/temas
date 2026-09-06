@@ -2,7 +2,8 @@
 name = "temas"
 version = "2.1.0"
 description = "Turkey Earthquake Monitoring and Analysis System"
-authors = [{ name = "marcuz-apl", email = "marcus.zou@icloud.com" }]
+authors = [{ name = "Alfazen Inc." }]
+license = { text = "MIT" }
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [

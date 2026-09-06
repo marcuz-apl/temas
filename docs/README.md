@@ -12,6 +12,7 @@ This directory serves as the engineering knowledge base, seismological design ra
 | **[TECHNOTE-01](technote-01-data-ingestion-and-polling-strategy.md)** | **Data Ingestion Cadence & Upstream Rate-Limit Safety** | Polling intervals, seismic wave solver latencies, provider courtesy, and circuit-breaker failover. |
 | **[TECHNOTE-02](technote-02-seismic-catalog-hygiene-and-storage.md)** | **Catalog Hygiene, Noise Purging & Deduplication Engine** | M < 2.0 noise cut-off rationale, composite event deduplication, SQLite WAL mechanics, and backfill. |
 | **[TECHNOTE-03](technote-03-security-and-administrative-operations.md)** | **Security Architecture, Concealed Route & Operator Ergonomics** | Concealed `/samet` route, deceptive 404 decoy, inception credentials (`Tema$2023`), dynamic passkey changes, and About modal. |
+| **[TECHNOTE-04](technote-04-geospatial-cartography-and-multimodal-ux.md)** | **Geospatial Cartography, Multimodal Sonification & UI Ergonomics** | Leaflet Canvas mapping, fault-line overlays, Web Audio sonification, 3-column header HUD, and mobile dual-nav. |
 
 ---
 

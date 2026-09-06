@@ -107,3 +107,18 @@ To provide instant institutional transparency without cluttering operational spa
   2. *Data Sources & Attribution*: Explicit technical attribution for Boğaziçi University KOERI, EMSC-CSEM, USGS, and Peter Bird's PB2002 plate boundary model.
 - **Developer Identity & Armed Status**: Highlights `@2023-2026, Alfazen Inc. All rights reserved.` alongside a pulsing green live engine status beacon.
 - **Keyboard & Backdrop Ergonomics**: Supports instantaneous dismissal via `Esc` key, background backdrop click, or confirmation button.
+
+### 3.4 Ingestion Cadence & Environment Controls
+The upstream multi-agency background worker executes on a configurable schedule managed via environment variables:
+- **Default Polling Cadence**: 180 seconds (3 minutes), balancing prompt warning propagation with upstream observatory courtesy.
+- **Runtime Override**:
+  ```bash
+  export TEMAS_SYNC_INTERVAL=300  # Configures a 5-minute sync cadence
+  ```
+- **Manual Override**: Operators can trigger an immediate out-of-band sync across all or individual providers directly from the operations console without altering the background schedule.
+
+### 3.5 Database Maintenance Operations
+The operations console provides one-click storage health controls executed directly against SQLite:
+- **WAL Checkpointing (`PRAGMA wal_checkpoint(TRUNCATE)`)**: Flushes all committed transactions from the write-ahead log back into the primary database file, preventing unbounded log growth.
+- **B-Tree Defragmentation (`VACUUM`)**: Reclaims unused disk space, reorganizes table leaf pages, and repacks sparse indexes following major noise purges or catalog backfills.
+- **Noise Purge Routine**: Discards sub-threshold events below configurable cutoffs ($M < 2.0$), keeping the mission catalog focused strictly on actionable seismic activity.
