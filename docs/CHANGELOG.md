@@ -69,12 +69,24 @@ v2.1.0 (Baseline Architecture)
         │
         ├─► v2.10.4 (Feat: Default 1-Year Time Preset & Adaptive Filter Playback)
         │
-        └─► v2.10.5 (Feat/Docs: M4.0+ Default Threshold, Admin Route Concealment Balance & Docs Sync)
+        ├─► v2.10.5 (Feat/Docs: M4.0+ Default Threshold, Admin Route Concealment Balance & Docs Sync)
+        │
+        └─► v2.10.6 (Fix: Audio Button Label Duplication & Desktop/Mobile Sync)
 ```
 
 ---
 
 ## Milestone Change Log Details
+
+### [v2.10.6] — 2026-09-06
+**Fix: Audio Button Label Duplication & Desktop/Mobile Sync**
+- **Type**: `fix(ui)` / `ux(audio)`
+- **Scope**: `frontend/js/app.js`, `VERSION`, `docs/CHANGELOG.md`
+- **Key Deliverables**:
+  - **Eliminated Duplicate "Audio" Caption**: Corrected `#audio-icon` text assignments to update solely the speaker emoji (`🔊` / `🔇`) without appending the word `"Audio"`, fixing a bug where clicking the button resulted in `"🔊 Audio Audio"`.
+  - **Unified Audio State Synchronization**: Established unified `syncAudioUI()` helper maintaining bidirectional active classes and emoji synchronization between desktop and mobile tools navigation.
+
+---
 
 ### [v2.10.5] — 2026-09-06
 **Feat/Docs: M4.0+ Default Threshold, Admin Route Concealment Balance & Docs Sync**

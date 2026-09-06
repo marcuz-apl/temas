@@ -320,14 +320,22 @@ class TemasApp {
     // Seismic Audio Alerts Toggle
     const audioBtn = document.getElementById('btn-toggle-audio');
     const audioIcon = document.getElementById('audio-icon');
+    const syncAudioUI = () => {
+      const icon = this.state.audioEnabled ? '🔊' : '🔇';
+      if (audioIcon) audioIcon.textContent = icon;
+      if (audioBtn) audioBtn.classList.toggle('active', this.state.audioEnabled);
+      const mAudioIcon = document.getElementById('m-audio-icon');
+      if (mAudioIcon) mAudioIcon.textContent = icon;
+      const mAudioBtn = document.getElementById('m-btn-toggle-audio');
+      if (mAudioBtn) mAudioBtn.classList.toggle('active', this.state.audioEnabled);
+    };
+
     if (audioBtn) {
       audioBtn.addEventListener('click', () => {
         this.state.audioEnabled = !this.state.audioEnabled;
+        syncAudioUI();
         if (this.state.audioEnabled) {
-          audioIcon.textContent = '🔊 Audio';
           this.playSeismicTone(5.0);
-        } else {
-          audioIcon.textContent = '🔇 Audio';
         }
       });
     }
@@ -574,14 +582,10 @@ class TemasApp {
 
     // Mobile Tools Menu Actions
     const mAudioBtn = document.getElementById('m-btn-toggle-audio');
-    const mAudioIcon = document.getElementById('m-audio-icon');
     if (mAudioBtn) {
       mAudioBtn.addEventListener('click', () => {
         this.state.audioEnabled = !this.state.audioEnabled;
-        const icon = this.state.audioEnabled ? '🔊' : '🔇';
-        if (mAudioIcon) mAudioIcon.textContent = icon;
-        const desktopAudioIcon = document.getElementById('audio-icon');
-        if (desktopAudioIcon) desktopAudioIcon.textContent = `${icon} Audio`;
+        syncAudioUI();
         if (this.state.audioEnabled) this.playSeismicTone(5.0);
         closeMobileTools();
       });

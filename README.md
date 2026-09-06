@@ -8,7 +8,7 @@
 
 Founded following the devastating February 6, 2023 Kahramanmaraş earthquake sequence, TEMAS bridges the gap between public seismic awareness and rigorous geoscientific analysis.
 
-- **Current Release**: `v2.10.5` (September 2026)
+- **Current Release**: `v2.10.6` (September 2026)
 - **Author & Copyright**: © 2023–2026, Alfazen Inc. / marcuz-apl
 - **License**: Educational & Open Scientific Use (Data copyright Boğaziçi Univ. / KOERI)
 
@@ -117,7 +117,7 @@ In compliance with observatory security best practices, the administrative deck 
 
 Detailed architectural rationale, seismological design considerations, and operational protocols are documented in the [`docs/`](docs/) directory:
 
-- **[Milestone Changelog (`docs/CHANGELOG.md`)](docs/CHANGELOG.md)**: Full semantic progression from the 2023 prototypes (`v0.1.0`) to the modern platform (`v2.10.5`).
+- **[Milestone Changelog (`docs/CHANGELOG.md`)](docs/CHANGELOG.md)**: Full semantic progression from the 2023 prototypes (`v0.1.0`) to the modern platform (`v2.10.6`).
 - **[TECHNOTE-01: Ingestion Cadence & Upstream Courtesy](docs/technote-01-data-ingestion-and-polling-strategy.md)**: Seismological wave arrival delays, solver latencies, and provider fair-use policies.
 - **[TECHNOTE-02: Catalog Hygiene & Storage Optimization](docs/technote-02-seismic-catalog-hygiene-and-storage.md)**: Noise filtering cut-off (M < 2.0), multi-agency deduplication, and SQLite WAL checkpointing.
 - **[TECHNOTE-03: Security & Operator Ergonomics](docs/technote-03-security-and-administrative-operations.md)**: Concealed route architecture (`/samet`), dynamic authentication, and client-side mission-control telemetry.
