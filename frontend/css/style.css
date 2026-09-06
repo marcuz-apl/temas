@@ -1590,8 +1590,18 @@ header {
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    cursor: pointer;
+    cursor: grab;
     user-select: none;
+    touch-action: none;
+  }
+  .filter-mobile-header:active {
+    cursor: grabbing;
+  }
+  .filter-mobile-header .drag-icon {
+    color: #38bdf8;
+    font-size: 0.75rem;
+    letter-spacing: -1px;
+    margin-right: 4px;
   }
   .filter-mobile-title {
     font-size: 0.78rem;

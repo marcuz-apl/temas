@@ -45,12 +45,25 @@ v2.1.0 (Baseline Architecture)
         │
         ├─► v2.9.7 (Feat: Mobile-Friendly Responsive Layout, Touch Drawer & Floating Control Accordions)
         │
-        └─► v2.9.8 (Feat: Real-Time Ticking TRT Clock, 3-Minute Auto-Refresh, Mobile Filter Positioning & Scaled Widget Typography)
+        ├─► v2.9.8 (Feat: Real-Time Ticking TRT Clock, 3-Minute Auto-Refresh, Mobile Filter Positioning & Scaled Widget Typography)
+        │
+        └─► v2.9.9 (Feat: Draggable Filters Bar on Mobile and Desktop Matching Map Layers)
 ```
 
 ---
 
 ## Milestone Change Log Details
+
+### [v2.9.9] — 2026-09-06
+**Feat: Draggable Filters Bar Matching Map Layers & Magnitude Scale**
+- **Type**: `feat(ui)` / `style(mobile)`
+- **Scope**: `frontend/index.html`, `frontend/css/style.css`, `frontend/js/app.js`
+- **Key Deliverables**:
+  - **Draggable Filter Accordion Pill**: Integrated the Filters bar header into the floating draggable engine, enabling users to freely drag and reposition the filter pill across the map on both mobile and desktop matching Map Layers and Magnitude Scale.
+  - **Discrete Drag Handle**: Added a dedicated drag handle (`⋮⋮`) to `.filter-mobile-header` for seamless touch and mouse dragging without interfering with the expand/collapse tap action.
+  - **Non-Blocking Tap vs Drag**: Added movement threshold detection to differentiate between quick taps (toggling the filter dropdown) and pointer drags (repositioning).
+
+---
 
 ### [v2.9.8] — 2026-09-06
 **Feat: Real-Time Ticking TRT Clock, 3-Minute Auto-Refresh, Mobile Filter Positioning & Scaled Widget Typography**

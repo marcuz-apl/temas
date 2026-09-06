@@ -64,8 +64,7 @@ class TemasApp {
     };
 
     if (filterMobileHeader && filterBar) {
-      filterMobileHeader.addEventListener('click', (e) => {
-        e.stopPropagation();
+      this.initDraggable(filterBar, filterMobileHeader, () => {
         filterBar.classList.toggle('mobile-collapsed');
         updateFilterSummary();
       });
@@ -444,7 +443,7 @@ class TemasApp {
    * Makes floating elements smoothly draggable across the viewport (mouse and touch),
    * constrained within parent boundaries without jumping or disappearing offscreen.
    */
-  initDraggable(element, handle) {
+  initDraggable(element, handle, onToggle = null) {
     if (!element || !handle) return;
 
     // Prevent Leaflet map from capturing drag and scroll events on the floating widget
@@ -543,7 +542,11 @@ class TemasApp {
         return;
       }
       if (window.innerWidth <= 768) {
-        element.classList.toggle('collapsed-mobile');
+        if (onToggle) {
+          onToggle();
+        } else {
+          element.classList.toggle('collapsed-mobile');
+        }
       }
     });
   }
