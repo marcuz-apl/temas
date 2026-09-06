@@ -29,7 +29,7 @@ v2.1.0 (Baseline Architecture)
   │     │
   │     └─► v2.8.2 (Fix: Main Window Brand Calibration to TEMAS 2 Gen2)
   │
-  └─► v2.9.0 (Feat: Left Sidebar Full-Height Vertical Scroll & 30s Idle Auto-Hide with Edge Peek)
+  ├─► v2.9.0 (Feat: Left Sidebar Full-Height Vertical Scroll & 30s Idle Auto-Hide with Edge Peek)
         │
         ├─► v2.9.1 (Fix/Feat: Map Drift Prevention, Large Analytics Deck, Auto-Deduplication on Sync, Clean Visitor Header)
         │
@@ -58,11 +58,25 @@ v2.1.0 (Baseline Architecture)
         ├─► v2.9.13 (Feat: 30s Idle Corner Auto-Collapse for Layers & Mag, One-Click SVG Basemap Toggle)
         │
         └─► v2.9.14 (Feat: High-End Mobile 9-Dot Bento Grid & Vector SVG Dual Header Nav)
+  │
+  └─► v2.10.0 (Feat: Full-Spectrum Day/Night Theme Sync, Modern Responsive Dual-Nav & Corner Docking)
 ```
 
 ---
 
 ## Milestone Change Log Details
+
+### [v2.10.0] — 2026-09-06
+**Feat: Full-Spectrum Day/Night Theme Sync, Modern Responsive Dual-Nav & Corner Docking**
+- **Type**: `feat(theme)` / `feat(ui)` / `major-ui-milestone`
+- **Scope**: `frontend/css/style.css`, `frontend/js/map.js`, `VERSION`, `docs/CHANGELOG.md`
+- **Key Deliverables**:
+  - **Full-Spectrum Day/Night Theme Synchronization**: Integrated global theme switching driven directly by the one-click basemap toggle. Switching to OpenStreetMap dynamically activates a high-visibility frosted glass Light Theme across headers, floating filter bars, timeline scrubbers, corner pills, feed sidebars, and modals.
+  - **Persistent Observatory Theme Preference**: Synchronized active theme state to `localStorage` (`temas_theme`), restoring user preferences seamlessly across page reloads and sessions.
+  - **High-Contrast Cartographic & Cyber-Dark Aesthetics**: Formulated CSS custom property overrides for borders, shadows, text, and SVG iconography ensuring equal legibility across both solar daytime cartography and midnight cyber-observatory monitoring.
+  - **Consolidation of v2.10 Series**: Marks the completion of the mobile dual-nav, 30-second corner docking, and vector SVG iconography enhancements into a unified minor milestone.
+
+---
 
 ### [v2.9.14] — 2026-09-06
 **Feat: High-End Mobile 9-Dot Bento Grid & Vector SVG Dual Header Nav**

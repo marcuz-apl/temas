@@ -35,6 +35,262 @@
   --radius-full: 9999px;
 }
 
+/* ==========================================================================
+   Light Mode Theme Overrides (Synced with OpenStreetMap Basemap)
+   ========================================================================== */
+html[data-theme="light"] {
+  --bg-dark: #f1f5f9;
+  --bg-surface: #ffffff;
+  --bg-card: rgba(255, 255, 255, 0.94);
+  --bg-glass: rgba(255, 255, 255, 0.90);
+  --border-subtle: rgba(0, 0, 0, 0.12);
+  --border-focus: rgba(2, 132, 199, 0.5);
+
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+
+  --shadow-lg: 0 10px 30px -5px rgba(0, 0, 0, 0.14), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+html[data-theme="light"] header {
+  background: var(--bg-glass);
+  border-bottom: 1px solid var(--border-subtle);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+html[data-theme="light"] .brand-text h1 {
+  color: #0f172a;
+}
+
+html[data-theme="light"] .brand-text span {
+  color: #475569;
+}
+
+html[data-theme="light"] .btn {
+  background: rgba(0, 0, 0, 0.04);
+  color: #0f172a;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+html[data-theme="light"] .btn:hover {
+  background: rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.22);
+  color: #0284c7;
+}
+
+html[data-theme="light"] .btn-mobile-nav {
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.14);
+}
+
+html[data-theme="light"] .btn-mobile-nav svg {
+  color: #0f172a;
+}
+
+html[data-theme="light"] .btn-mobile-nav svg line {
+  stroke: #0f172a;
+}
+
+html[data-theme="light"] .btn-mobile-nav svg circle {
+  fill: #0f172a;
+}
+
+html[data-theme="light"] .btn-mobile-nav:active svg line {
+  stroke: #0284c7;
+}
+
+html[data-theme="light"] .btn-mobile-nav:active svg circle {
+  fill: #0284c7;
+}
+
+html[data-theme="light"] .kpi-badge {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #334155;
+}
+
+html[data-theme="light"] .kpi-badge .val {
+  color: #0284c7;
+}
+
+html[data-theme="light"] .live-indicator {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #059669;
+}
+
+html[data-theme="light"] .live-dot {
+  background-color: #059669;
+}
+
+/* Floating Bars in Map (Light Mode) */
+html[data-theme="light"] .filter-bar,
+html[data-theme="light"] .layer-controls,
+html[data-theme="light"] .map-legend,
+html[data-theme="light"] .timeline-bar {
+  background: var(--bg-glass);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+html[data-theme="light"] .pill-select {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+html[data-theme="light"] .pill-btn {
+  color: #475569;
+}
+
+html[data-theme="light"] .pill-btn.active {
+  background: #0284c7;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25);
+}
+
+html[data-theme="light"] .search-box input {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.12);
+  color: #0f172a;
+}
+
+html[data-theme="light"] .search-box input:focus {
+  background: #ffffff;
+  border-color: #0284c7;
+}
+
+html[data-theme="light"] .slider-container input[type="range"]::-webkit-slider-runnable-track {
+  background: rgba(0, 0, 0, 0.14);
+}
+
+html[data-theme="light"] .slider-container input[type="range"]::-moz-range-track {
+  background: rgba(0, 0, 0, 0.14);
+}
+
+html[data-theme="light"] .layer-drag-header,
+html[data-theme="light"] .legend-drag-header,
+html[data-theme="light"] .filter-drag-header,
+html[data-theme="light"] .filter-mobile-header {
+  background: rgba(0, 0, 0, 0.03);
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+
+html[data-theme="light"] .layer-drag-header:hover,
+html[data-theme="light"] .legend-drag-header:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+html[data-theme="light"] .layer-drag-title,
+html[data-theme="light"] .legend-drag-title,
+html[data-theme="light"] .filter-drag-title {
+  color: #475569;
+}
+
+html[data-theme="light"] .toggle-item {
+  color: #334155;
+}
+
+html[data-theme="light"] .toggle-item:hover {
+  color: #0f172a;
+}
+
+html[data-theme="light"] .legend-item {
+  color: #0f172a;
+}
+
+html[data-theme="light"] .timeline-speed-select {
+  background: rgba(0, 0, 0, 0.04);
+  color: #0f172a;
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+html[data-theme="light"] .timeline-speed-select option {
+  background: #ffffff;
+  color: #0f172a;
+}
+
+html[data-theme="light"] .timeline-scrubber-wrapper input[type="range"]::-webkit-slider-runnable-track {
+  background: rgba(0, 0, 0, 0.14);
+}
+
+html[data-theme="light"] .timeline-scrubber-wrapper input[type="range"]::-moz-range-track {
+  background: rgba(0, 0, 0, 0.14);
+}
+
+/* Leaflet Map Controls in Light Mode */
+html[data-theme="light"] .leaflet-control-zoom.leaflet-bar,
+html[data-theme="light"] .leaflet-basemap-toggle.leaflet-bar {
+  border-color: rgba(0, 0, 0, 0.15) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+}
+
+html[data-theme="light"] .leaflet-control-zoom.leaflet-bar a,
+html[data-theme="light"] .leaflet-basemap-toggle.leaflet-bar a {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-bottom-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+html[data-theme="light"] .leaflet-control-zoom.leaflet-bar a:hover,
+html[data-theme="light"] .leaflet-basemap-toggle.leaflet-bar a:hover {
+  background-color: #f1f5f9 !important;
+  color: #0284c7 !important;
+}
+
+/* Mobile Tools Menu in Light Mode */
+html[data-theme="light"] .mobile-tools-menu {
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.14);
+}
+
+html[data-theme="light"] .mobile-menu-item {
+  color: #0f172a;
+}
+
+html[data-theme="light"] .mobile-menu-item:hover,
+html[data-theme="light"] .mobile-menu-item:active {
+  background: rgba(2, 132, 199, 0.1);
+  color: #0284c7;
+}
+
+/* Sidebar & Cards in Light Mode */
+html[data-theme="light"] .sidebar {
+  background: #ffffff;
+  border-right-color: rgba(0, 0, 0, 0.1);
+}
+
+html[data-theme="light"] .feed-header {
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+
+html[data-theme="light"] .event-card {
+  background: rgba(248, 250, 252, 0.92);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+html[data-theme="light"] .event-card:hover {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.16);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+html[data-theme="light"] .event-card.active {
+  border-color: #0284c7;
+  background: rgba(2, 132, 199, 0.08);
+}
+
+html[data-theme="light"] .modal-dialog {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2);
+}
+
+html[data-theme="light"] .modal-header {
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+
 * {
   box-sizing: border-box;
   margin: 0;

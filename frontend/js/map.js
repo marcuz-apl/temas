@@ -109,8 +109,8 @@ export class TemasMap {
 
     // One-Click Basemap Toggle Control (Dark Canvas <-> OpenStreetMap)
     this.activeBasemap = 'dark';
-    const mapSvg = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>';
-    const moonSvg = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
+    this.mapSvgIcon = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>';
+    this.moonSvgIcon = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
 
     const BaseMapToggleControl = L.Control.extend({
       options: { position: 'topright' },
@@ -118,35 +118,32 @@ export class TemasMap {
         const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-basemap-toggle');
         const btn = L.DomUtil.create('a', 'basemap-toggle-btn', container);
         btn.href = '#';
+        btn.id = 'btn-basemap-toggle';
         btn.setAttribute('role', 'button');
         btn.setAttribute('aria-label', 'Toggle Base Map');
         btn.title = 'Current: Dark Canvas • Click to switch to OpenStreetMap';
-        btn.innerHTML = mapSvg;
+        btn.innerHTML = this.mapSvgIcon;
 
         L.DomEvent.disableClickPropagation(container);
         L.DomEvent.disableScrollPropagation(container);
 
+        this.basemapToggleBtn = btn;
+
         L.DomEvent.on(btn, 'click', (e) => {
           L.DomEvent.stop(e);
-          if (this.activeBasemap === 'dark') {
-            if (this.map.hasLayer(this.darkBase)) this.map.removeLayer(this.darkBase);
-            if (this.map.hasLayer(this.darkLabels)) this.map.removeLayer(this.darkLabels);
-            if (!this.map.hasLayer(this.osmTiles)) this.osmTiles.addTo(this.map);
-            this.osmTiles.bringToBack();
-            this.activeBasemap = 'osm';
-            btn.title = 'Current: OpenStreetMap • Click to switch to Dark Canvas';
-            btn.innerHTML = moonSvg;
-          } else {
-            if (this.map.hasLayer(this.osmTiles)) this.map.removeLayer(this.osmTiles);
-            if (!this.map.hasLayer(this.darkBase)) this.darkBase.addTo(this.map);
-            if (!this.map.hasLayer(this.darkLabels)) this.darkLabels.addTo(this.map);
-            this.darkBase.bringToBack();
-            this.darkLabels.bringToBack();
-            this.activeBasemap = 'dark';
-            btn.title = 'Current: Dark Canvas • Click to switch to OpenStreetMap';
-            btn.innerHTML = mapSvg;
-          }
+          this.doToggleBasemap();
         });
+
+        // Restore saved theme preference if previously chosen
+        try {
+          if (localStorage.getItem('temas_theme') === 'light') {
+            setTimeout(() => {
+              if (this.activeBasemap === 'dark') {
+                this.doToggleBasemap();
+              }
+            }, 100);
+          }
+        } catch (err) {}
 
         return container;
       }
@@ -157,6 +154,38 @@ export class TemasMap {
     this.faultLayerGroup.addTo(this.map);
     this.provinceLayerGroup.addTo(this.map); // Active by default
     this.heatLayerGroup.addTo(this.map); // Active by default
+  }
+
+  doToggleBasemap(forcedMode = null) {
+    const btn = this.basemapToggleBtn;
+    const targetMode = forcedMode || (this.activeBasemap === 'dark' ? 'osm' : 'dark');
+
+    if (targetMode === 'osm') {
+      if (this.map.hasLayer(this.darkBase)) this.map.removeLayer(this.darkBase);
+      if (this.map.hasLayer(this.darkLabels)) this.map.removeLayer(this.darkLabels);
+      if (!this.map.hasLayer(this.osmTiles)) this.osmTiles.addTo(this.map);
+      this.osmTiles.bringToBack();
+      this.activeBasemap = 'osm';
+      if (btn) {
+        btn.title = 'Current: OpenStreetMap • Click to switch to Dark Canvas';
+        btn.innerHTML = this.moonSvgIcon;
+      }
+      document.documentElement.setAttribute('data-theme', 'light');
+      try { localStorage.setItem('temas_theme', 'light'); } catch (err) {}
+    } else {
+      if (this.map.hasLayer(this.osmTiles)) this.map.removeLayer(this.osmTiles);
+      if (!this.map.hasLayer(this.darkBase)) this.darkBase.addTo(this.map);
+      if (!this.map.hasLayer(this.darkLabels)) this.darkLabels.addTo(this.map);
+      this.darkBase.bringToBack();
+      this.darkLabels.bringToBack();
+      this.activeBasemap = 'dark';
+      if (btn) {
+        btn.title = 'Current: Dark Canvas • Click to switch to OpenStreetMap';
+        btn.innerHTML = this.mapSvgIcon;
+      }
+      document.documentElement.removeAttribute('data-theme');
+      try { localStorage.setItem('temas_theme', 'dark'); } catch (err) {}
+    }
   }
 
   loadTectonicBoundaries(geojsonData) {
