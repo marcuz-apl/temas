@@ -156,7 +156,7 @@
     <div id="sidebar-hover-zone" class="sidebar-hover-zone" title="Hover to reveal seismic feed"></div>
 
     <!-- Left Sidebar: Chronological Seismic Feed (Auto-Hidden by default) -->
-    <aside class="sidebar auto-hidden">
+    <aside id="sidebar" class="sidebar auto-hidden">
       <div class="sidebar-header">
         <div class="sidebar-title-group">
           <h2>Seismic Events</h2>
@@ -213,7 +213,7 @@
       <div class="layer-controls collapsed-mobile" id="layer-controls">
         <div class="layer-drag-header" id="layer-drag-handle" title="Drag or tap to toggle layers">
           <span class="drag-icon">⋮⋮</span>
-          <span class="layer-drag-title">Map Layers</span>
+          <span class="layer-drag-title">Layers</span>
           <span class="widget-mobile-toggle" id="toggle-layer-chevron">▾</span>
         </div>
         <div class="layer-controls-body" id="layer-controls-body">
@@ -226,7 +226,7 @@
             <span>Turkish Provinces</span>
           </label>
           <label class="toggle-item">
-            <input type="checkbox" id="toggle-heatmap">
+            <input type="checkbox" id="toggle-heatmap" checked>
             <span>Seismic HeatMap</span>
           </label>
         </div>
@@ -255,7 +255,7 @@
       <div class="map-legend collapsed-mobile" id="map-legend">
         <div class="legend-drag-header" id="legend-drag-handle" title="Drag or tap to toggle legend">
           <span class="drag-icon">⋮⋮</span>
-          <span class="legend-drag-title">Magnitude Scale</span>
+          <span class="legend-drag-title">Mag</span>
           <span class="widget-mobile-toggle" id="toggle-legend-chevron">▾</span>
         </div>
         <div class="legend-items" id="legend-items">

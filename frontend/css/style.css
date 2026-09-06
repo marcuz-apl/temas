@@ -853,15 +853,17 @@ header {
 /* Toggle Layers Widget (Draggable / Mobile Floating Box) */
 .layer-controls {
   position: absolute;
-  top: 80px;
-  right: 24px;
+  bottom: 24px;
+  left: 24px;
+  top: auto;
+  right: auto;
   background: var(--bg-glass);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   padding: 0;
-  z-index: 450;
+  z-index: 800;
   box-shadow: var(--shadow-lg);
   display: flex;
   flex-direction: column;
@@ -1682,16 +1684,75 @@ header {
     width: 86vw;
     max-width: 350px;
     z-index: 1050;
+    margin-left: 0 !important;
     transform: translateX(-100%);
     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     box-shadow: 10px 0 35px rgba(0, 0, 0, 0.85);
   }
   .sidebar.mobile-open {
     transform: translateX(0) !important;
+    margin-left: 0 !important;
   }
   .sidebar.auto-hidden:not(.mobile-open),
   .sidebar.collapsed:not(.mobile-open) {
     transform: translateX(-100%) !important;
+    margin-left: 0 !important;
+  }
+  .sidebar-header {
+    padding: 10px 14px;
+  }
+  .sidebar-header h2 {
+    font-size: 0.82rem;
+  }
+
+  /* Compact mobile feed cards (Region & Magnitude only) */
+  .feed-list {
+    padding: 8px 10px;
+    gap: 6px;
+  }
+  .event-card {
+    min-height: auto;
+    padding: 8px 10px;
+    gap: 10px;
+    align-items: center;
+    border-radius: var(--radius-sm);
+    margin-bottom: 5px;
+  }
+  .event-card::before {
+    width: 3px;
+  }
+  .mag-pill {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    margin-top: 0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  }
+  .mag-pill small {
+    display: none;
+  }
+  .event-details {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .event-region {
+    font-size: 0.76rem;
+    font-weight: 600;
+    line-height: 1.25;
+    margin-bottom: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .event-meta {
+    display: none; /* Hide verbose secondary metadata on mobile */
   }
 
   /* Collapsible floating filter bar */
@@ -1802,19 +1863,26 @@ header {
     font-size: 0.72rem;
   }
   .layer-controls {
-    right: 8px;
-    top: 54px;
-    max-width: 150px;
-    padding: 4px 8px;
+    left: 8px;
+    right: auto;
+    bottom: 58px;
+    top: auto;
+    max-width: 160px;
+    padding: 0;
+    border-radius: var(--radius-md);
   }
   .layer-controls.collapsed-mobile .layer-controls-body {
     display: none;
   }
   .layer-controls.collapsed-mobile {
-    padding: 5px 10px;
+    padding: 0;
+    border-radius: 20px;
   }
   .layer-controls.collapsed-mobile .layer-drag-header {
-    margin-bottom: 0;
+    border-bottom: none;
+    border-radius: 20px;
+    padding: 5px 10px;
+    background: transparent;
   }
   .layer-controls:not(.collapsed-mobile) .widget-mobile-toggle {
     transform: rotate(180deg);
@@ -1822,18 +1890,25 @@ header {
 
   .map-legend {
     right: 8px;
-    bottom: 60px;
-    max-width: 150px;
-    padding: 4px 8px;
+    left: auto;
+    bottom: 58px;
+    top: auto;
+    max-width: 160px;
+    padding: 0;
+    border-radius: var(--radius-md);
   }
   .map-legend.collapsed-mobile .legend-items {
     display: none;
   }
   .map-legend.collapsed-mobile {
-    padding: 5px 10px;
+    padding: 0;
+    border-radius: 20px;
   }
   .map-legend.collapsed-mobile .legend-drag-header {
-    margin-bottom: 0;
+    border-bottom: none;
+    border-radius: 20px;
+    padding: 5px 10px;
+    background: transparent;
   }
   .map-legend:not(.collapsed-mobile) .widget-mobile-toggle {
     transform: rotate(180deg);
@@ -1915,6 +1990,18 @@ header {
   .layer-drag-title,
   .legend-drag-title {
     font-size: 0.52rem !important;
+  }
+  .layer-controls {
+    bottom: 66px;
+    left: 6px;
+    right: auto;
+    top: auto;
+  }
+  .map-legend {
+    bottom: 66px;
+    right: 6px;
+    left: auto;
+    top: auto;
   }
 
   /* Compact timeline layout */

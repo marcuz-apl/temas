@@ -49,12 +49,27 @@ v2.1.0 (Baseline Architecture)
         │
         ├─► v2.9.9 (Feat: Draggable Filters Bar on Mobile and Desktop Matching Map Layers)
         │
-        └─► v2.9.10 (Feat: Mobile Dual-Burger Header Architecture with Left Feed & Right Tools Menu)
+        ├─► v2.9.10 (Feat: Mobile Dual-Burger Header Architecture with Left Feed & Right Tools Menu)
+        │
+        └─► v2.9.11 (Feat: Symmetrical Corner Docking for Layers & Mag, Default Radiant Heatmap, Compact Mobile Feed)
 ```
 
 ---
 
 ## Milestone Change Log Details
+
+### [v2.9.11] — 2026-09-06
+**Feat: Symmetrical Corner Docking for Layers & Mag, Default Radiant Heatmap, Compact Mobile Feed**
+- **Type**: `feat(ui)` / `style(mobile)` / `perf(map)`
+- **Scope**: `frontend/index.html`, `frontend/css/style.css`, `frontend/js/map.js`, `frontend/js/app.js`
+- **Key Deliverables**:
+  - **Symmetrical Lower-Corner Docking**: Positioned `LAYERS` at the lower-left corner (`bottom: 24px; left: 24px;` on desktop; `bottom: 58px; left: 8px;` on mobile) and `MAG` at the lower-right corner (`bottom: 24px; right: 24px;` on desktop; `bottom: 58px; right: 8px;` on mobile), perfectly clearing the northern map, Black Sea, Istanbul, and Leaflet controls.
+  - **Shortened Widget Titles**: Streamlined titles from "Map Layers" $\rightarrow$ `Layers` and "Magnitude Scale" $\rightarrow$ `Mag` for clean, compact corner pills.
+  - **All Map Layers Active by Default**: Enabled Tectonic Fault Lines, Turkish Provinces, and Seismic HeatMap on initial load.
+  - **Calibrated Radiant Heatmap**: Scaled normalized intensity curve (`minOpacity: 0.35`, radius `34px`) so seismic density clouds along the North and East Anatolian faults glow immediately and visibly upon boot.
+  - **Compact Mobile Feed Cards**: Streamlined mobile drawer items to display Magnitude and Region only, hiding secondary metadata and reducing card height for effortless scrolling.
+
+---
 
 ### [v2.9.10] — 2026-09-06
 **Feat: Mobile Dual-Burger Header Architecture with Left Feed & Right Tools Menu**

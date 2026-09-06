@@ -126,17 +126,65 @@ class TemasApp {
       heatToggle.addEventListener('change', (e) => this.mapEngine.setHeatmapVisibility(e.target.checked));
     }
 
-    // Make Floating Controls Mobile & Draggable
+    // Make Floating Controls Mobile & Draggable (Docked at Lower-Left and Lower-Right)
     const layerControlsBox = document.getElementById('layer-controls');
     const layerDragHandle = document.getElementById('layer-drag-handle');
-    this.initDraggable(layerControlsBox, layerDragHandle);
-
     const legendBox = document.getElementById('map-legend');
     const legendDragHandle = document.getElementById('legend-drag-handle');
-    this.initDraggable(legendBox, legendDragHandle);
+
+    const toggleFloatingWidget = (target, other) => {
+      if (window.innerWidth <= 768) {
+        const isCollapsed = target.classList.contains('collapsed-mobile');
+        if (isCollapsed) {
+          target.classList.remove('collapsed-mobile');
+          if (other && !other.classList.contains('collapsed-mobile')) {
+            other.classList.add('collapsed-mobile');
+          }
+        } else {
+          target.classList.add('collapsed-mobile');
+        }
+      }
+    };
+
+    if (layerControlsBox && layerDragHandle) {
+      this.initDraggable(layerControlsBox, layerDragHandle, () => {
+        toggleFloatingWidget(layerControlsBox, legendBox);
+      });
+    }
+
+    if (legendBox && legendDragHandle) {
+      this.initDraggable(legendBox, legendDragHandle, () => {
+        toggleFloatingWidget(legendBox, layerControlsBox);
+      });
+    }
 
     const filterDragHandle = document.getElementById('filter-drag-handle');
     this.initDraggable(filterBar, filterDragHandle);
+
+    // Auto-minimize floating toolbars on mobile when clicking anywhere on map or document
+    if (this.mapEngine && this.mapEngine.map) {
+      this.mapEngine.map.on('click', () => {
+        if (window.innerWidth <= 768) {
+          if (layerControlsBox && !layerControlsBox.classList.contains('collapsed-mobile')) {
+            layerControlsBox.classList.add('collapsed-mobile');
+          }
+          if (legendBox && !legendBox.classList.contains('collapsed-mobile')) {
+            legendBox.classList.add('collapsed-mobile');
+          }
+        }
+      });
+    }
+
+    document.addEventListener('click', (e) => {
+      if (window.innerWidth <= 768) {
+        if (layerControlsBox && !layerControlsBox.contains(e.target) && !layerControlsBox.classList.contains('collapsed-mobile')) {
+          layerControlsBox.classList.add('collapsed-mobile');
+        }
+        if (legendBox && !legendBox.contains(e.target) && !legendBox.classList.contains('collapsed-mobile')) {
+          legendBox.classList.add('collapsed-mobile');
+        }
+      }
+    });
 
     // Reset Map View
     const resetMapBtn = document.getElementById('btn-reset-map');
@@ -568,14 +616,6 @@ class TemasApp {
       initialLeft = elRect.left - parentRect.left;
       initialTop = elRect.top - parentRect.top;
 
-      // Clear right, bottom, and transform styling so absolute left/top take effect seamlessly
-      element.style.right = 'auto';
-      element.style.bottom = 'auto';
-      element.style.transform = 'none';
-      element.style.left = `${initialLeft}px`;
-      element.style.top = `${initialTop}px`;
-      element.classList.add('dragging');
-
       const onPointerMove = (moveEvent) => {
         if (!isDragging) return;
         if (moveEvent.cancelable && moveEvent.type.startsWith('touch')) {
@@ -588,23 +628,31 @@ class TemasApp {
         const dx = curX - startX;
         const dy = curY - startY;
 
-        if (Math.abs(dx) > 6 || Math.abs(dy) > 6) {
+        if (!hasMoved && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) {
           hasMoved = true;
+          element.classList.add('dragging');
+          element.style.right = 'auto';
+          element.style.bottom = 'auto';
+          element.style.transform = 'none';
+          element.style.left = `${initialLeft}px`;
+          element.style.top = `${initialTop}px`;
         }
 
-        let newLeft = initialLeft + dx;
-        let newTop = initialTop + dy;
+        if (hasMoved) {
+          let newLeft = initialLeft + dx;
+          let newTop = initialTop + dy;
 
-        const pWidth = element.offsetParent ? element.offsetParent.clientWidth : window.innerWidth;
-        const pHeight = element.offsetParent ? element.offsetParent.clientHeight : window.innerHeight;
-        const maxLeft = pWidth - elRect.width - 8;
-        const maxTop = pHeight - elRect.height - 8;
+          const pWidth = element.offsetParent ? element.offsetParent.clientWidth : window.innerWidth;
+          const pHeight = element.offsetParent ? element.offsetParent.clientHeight : window.innerHeight;
+          const maxLeft = pWidth - elRect.width - 8;
+          const maxTop = pHeight - elRect.height - 8;
 
-        newLeft = Math.max(8, Math.min(newLeft, maxLeft));
-        newTop = Math.max(8, Math.min(newTop, maxTop));
+          newLeft = Math.max(8, Math.min(newLeft, maxLeft));
+          newTop = Math.max(8, Math.min(newTop, maxTop));
 
-        element.style.left = `${newLeft}px`;
-        element.style.top = `${newTop}px`;
+          element.style.left = `${newLeft}px`;
+          element.style.top = `${newTop}px`;
+        }
       };
 
       const onPointerUp = () => {

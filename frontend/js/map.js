@@ -117,6 +117,7 @@ export class TemasMap {
     this.markerLayerGroup.addTo(this.map);
     this.faultLayerGroup.addTo(this.map);
     this.provinceLayerGroup.addTo(this.map); // Active by default
+    this.heatLayerGroup.addTo(this.map); // Active by default
   }
 
   loadTectonicBoundaries(geojsonData) {
@@ -187,21 +188,33 @@ export class TemasMap {
   updateHeatMap(earthquakes) {
     if (!window.L || !L.heatLayer) return;
     const points = earthquakes
-      .map((eq) => [
-        parseFloat(eq.latitude),
-        parseFloat(eq.longitude),
-        Math.min(1.0, Math.pow(parseFloat(eq.magnitude) / 7.0, 2))
-      ])
-      .filter((pt) => !isNaN(pt[0]) && !isNaN(pt[1]));
+      .map((eq) => {
+        const mag = parseFloat(eq.magnitude);
+        if (isNaN(mag)) return null;
+        const lat = parseFloat(eq.latitude);
+        const lon = parseFloat(eq.longitude);
+        if (isNaN(lat) || isNaN(lon)) return null;
+        // Normalized intensity: scale M2.0-M7.0 smoothly into 0.3-1.0 range
+        const intensity = Math.min(1.0, Math.max(0.3, (mag - 1.8) / 4.5));
+        return [lat, lon, intensity];
+      })
+      .filter((pt) => pt !== null);
 
     if (this.heatLayer) {
       this.heatLayerGroup.removeLayer(this.heatLayer);
     }
     this.heatLayer = L.heatLayer(points, {
-      radius: 28,
-      blur: 18,
-      maxZoom: 10,
-      gradient: { 0.2: '#38bdf8', 0.5: '#f59e0b', 0.8: '#ef4444', 1.0: '#ec4899' }
+      radius: 34,
+      blur: 20,
+      maxZoom: 12,
+      minOpacity: 0.35,
+      gradient: {
+        0.2: '#0284c7', // Sky Blue
+        0.4: '#10b981', // Emerald Green
+        0.6: '#f59e0b', // Amber
+        0.8: '#ef4444', // Red
+        1.0: '#ec4899'  // Fuchsia
+      }
     });
     this.heatLayer.addTo(this.heatLayerGroup);
   }
