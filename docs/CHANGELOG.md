@@ -65,12 +65,28 @@ v2.1.0 (Baseline Architecture)
         │
         ├─► v2.10.2 (Feat: Operations Deck About Modal & Attributions)
         │
-        └─► v2.10.3 (Fix: Full 2021–2026 Chronological Timeline Playback & Canvas Rendering)
+        ├─► v2.10.3 (Fix: Full 2021–2026 Chronological Timeline Playback & Canvas Rendering)
+        │
+        └─► v2.10.4 (Feat: Default 1-Year Time Preset & Adaptive Filter Playback)
 ```
 
 ---
 
 ## Milestone Change Log Details
+
+### [v2.10.4] — 2026-09-06
+**Feat: Default 1-Year Time Preset & Adaptive Filter Playback**
+- **Type**: `feat(ui)` / `ux(presets)` / `perf(rendering)`
+- **Scope**: `frontend/index.html`, `frontend/js/app.js`, `VERSION`, `docs/CHANGELOG.md`
+- **Key Deliverables**:
+  - **1-Year Default Temporal Window**: Established `1 Year` as the primary initial filter preset (`data-preset="1y"`), loading $\sim$1,594 events ($M \ge 3.0$) in under 20ms for an immediate, clean, and balanced map experience upon opening the app.
+  - **Preserved All-Time Heavy Duty Mode**: Maintained `All-Time` as an explicit on-demand preset, loading the full 11,600+ multi-year historical archive from 2021 to 2026 when requested.
+  - **Adaptive Scope Timeline Animation**: The timeline `Play` engine dynamically binds to whichever temporal window is selected in the filter toolbar:
+    - Under `1 Year` $\implies$ Animates the past 12 months chronologically.
+    - Under `All-Time` $\implies$ Animates the entire catalog from 2021 through 2026.
+    - Under `Feb '23 Sequence` $\implies$ Animates the Kahramanmaraş earthquake sequence.
+
+---
 
 ### [v2.10.3] — 2026-09-06
 **Fix: Full 2021–2026 Chronological Timeline Playback & Canvas Rendering**

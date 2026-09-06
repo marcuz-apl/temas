@@ -14,7 +14,7 @@ class TemasApp {
       selectedEvent: null,
       filters: {
         min_magnitude: 3.0,
-        preset: 'all',
+        preset: '1y',
         region: '',
         limit: 20000
       },
@@ -798,6 +798,9 @@ class TemasApp {
     } else if (this.state.filters.preset === '7d') {
       const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
       queryParams.start_date = weekAgo.toISOString().replace('T', ' ').substring(0, 19);
+    } else if (this.state.filters.preset === '1y') {
+      const yearAgo = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+      queryParams.start_date = yearAgo.toISOString().replace('T', ' ').substring(0, 19);
     } else if (this.state.filters.preset === 'feb2023') {
       queryParams.start_date = '2023-02-06 00:00:00';
       queryParams.end_date = '2023-02-28 23:59:59';
