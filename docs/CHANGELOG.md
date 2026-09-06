@@ -60,11 +60,25 @@ v2.1.0 (Baseline Architecture)
         └─► v2.9.14 (Feat: High-End Mobile 9-Dot Bento Grid & Vector SVG Dual Header Nav)
   │
   └─► v2.10.0 (Feat: Full-Spectrum Day/Night Theme Sync, Modern Responsive Dual-Nav & Corner Docking)
+        │
+        └─► v2.10.1 (Fix: Concealed Admin Route /samet, Deceptive 404, Purge Passkey Hint, Dynamic Versioning)
 ```
 
 ---
 
 ## Milestone Change Log Details
+
+### [v2.10.1] — 2026-09-06
+**Fix: Concealed Admin Route /samet, Deceptive 404, Purge Passkey Hint, Dynamic Versioning**
+- **Type**: `fix(security)` / `feat(admin)` / `docs`
+- **Scope**: `backend/main.py`, `frontend/admin.html`, `frontend/js/admin.js`, `docs/technote-03-security-and-administrative-operations.md`, `VERSION`, `docs/CHANGELOG.md`
+- **Key Deliverables**:
+  - **Concealed Administrative Route (`/samet`)**: Relocated the mission-control operations panel from predictable `/admin` to `/samet` (`temas` spelled backwards), shielding the deck from automated botnet dictionary attacks.
+  - **Deceptive 404 on `/admin`**: Requests probing `/admin` return an explicit HTTP 404 Not Found error rather than redirects, preventing vulnerability scanners from discerning administrative endpoints.
+  - **Purged Passkey Hint from UI**: Completely removed the default password hint (`DEFAULT: Tema$2023`) from the operator login card, preserving initial credentials exclusively within developer technical documentation (`technote-03`).
+  - **Dynamic Version Synchronization**: Added asynchronous `/api/health` handshake to dynamically bind the project version (`v2.10.1`) to the login deck subtitle and mission control badge, eliminating version drift.
+
+---
 
 ### [v2.10.0] — 2026-09-06
 **Feat: Full-Spectrum Day/Night Theme Sync, Modern Responsive Dual-Nav & Corner Docking**

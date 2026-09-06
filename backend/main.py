@@ -142,7 +142,7 @@ def get_version_tag() -> str:
 async def health_check():
     return {
         "status": "healthy",
-        "service": "TEMAS-2.8",
+        "service": "TEMAS-2.10",
         "version": get_version_tag(),
         "sync_state": SYNC_STATE
     }
@@ -355,13 +355,19 @@ os.makedirs(FRONTEND_DIR, exist_ok=True)
 app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
 
 
-@app.get("/admin")
+@app.get("/samet")
 async def serve_admin():
-    """Serves Admin Panel UI."""
+    """Serves Admin Panel UI at secret route /samet."""
     admin_file = os.path.join(FRONTEND_DIR, "admin.html")
     if os.path.exists(admin_file):
         return FileResponse(admin_file)
-    return {"message": "Admin UI under construction."}
+    raise HTTPException(status_code=404, detail="Not Found")
+
+
+@app.get("/admin")
+async def dummy_admin():
+    """Deceptive 404 for automated bots scanning for /admin."""
+    raise HTTPException(status_code=404, detail="Not Found")
 
 
 @app.get("/")

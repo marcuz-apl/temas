@@ -279,6 +279,23 @@
   setInterval(updateClock, 1000);
   updateClock();
 
+  async function loadVersion() {
+    try {
+      const res = await fetch('/api/health');
+      if (res.ok) {
+        const data = await res.json();
+        const ver = data.version || 'v2.10.0';
+        const authVer = document.getElementById('auth-version-text');
+        if (authVer) authVer.textContent = ver.split('+')[0];
+        const deckVer = document.getElementById('admin-version-badge');
+        if (deckVer) deckVer.textContent = ver;
+      }
+    } catch (err) {
+      console.warn('Could not load version from /api/health:', err);
+    }
+  }
+  loadVersion();
+
   async function verifyKey(keyToTest) {
     try {
       const res = await fetch('/api/admin/auth', {

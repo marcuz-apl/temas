@@ -57,6 +57,13 @@ When an operator successfully updates their passkey:
    ```
 3. Direct download anchor links (e.g. SQLite database snapshot) are dynamically re-parameterized with the new key, ensuring zero 401 unauthorized session drops.
 
+### 2.4 Concealed Administrative Route (`/samet`)
+To insulate the operations panel against automated botnet scanning, brute-force dictionary probes, and common crawler discovery:
+1. **Route Obfuscation**: The administrative deck is routed strictly to `/samet` (`temas` spelled backwards).
+2. **Deceptive 404 on `/admin`**: Requests probing `/admin` receive a standard HTTP 404 Not Found response, concealing the existence of an operational interface.
+3. **Zero Public Links**: No public frontpage headers, mobile menus, or search engine sitemaps link to `/samet`.
+4. **Credential Privacy**: The login interface does not disclose passkey hints; initial credentials (`Tema$2023`) are preserved solely in developer documentation.
+
 ---
 
 ## 3. Mission-Control Operator Ergonomics
