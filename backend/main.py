@@ -47,8 +47,9 @@ ADMIN_KEY = DEFAULT_ADMIN_KEY
 async def lifespan(app: FastAPI):
     # Startup
     init_db()
-    # Start background sync worker task
-    task = asyncio.create_task(background_sync_worker(interval_seconds=180))
+    # Start background sync worker task (defaults to 180s = 3 minutes)
+    sync_interval = int(os.environ.get("TEMAS_SYNC_INTERVAL", "180"))
+    task = asyncio.create_task(background_sync_worker(interval_seconds=sync_interval))
     yield
     # Shutdown
     task.cancel()

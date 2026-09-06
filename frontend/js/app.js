@@ -33,6 +33,8 @@ class TemasApp {
   async init() {
     this.mapEngine = new TemasMap('map', (eq) => this.handleMarkerClick(eq));
     this.bindEvents();
+    this.startRealtimeClock();
+    this.startDatasetAutoRefresh();
 
     // Load tectonic boundaries
     fetchTectonicBoundaries()
@@ -838,45 +840,59 @@ class TemasApp {
   }
 
   /* ==========================================================================
+     Real-Time Clock & Periodic Auto-Refresh
+     ========================================================================== */
+  startRealtimeClock() {
+    const elSync = document.getElementById('live-status-text');
+    const update = () => {
+      if (!elSync) return;
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('en-GB', {
+        timeZone: 'Europe/Istanbul',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+      elSync.textContent = `${timeStr} TRT`;
+    };
+    update();
+    setInterval(update, 1000);
+  }
+
+  startDatasetAutoRefresh() {
+    if (this._datasetRefreshTimer) {
+      clearInterval(this._datasetRefreshTimer);
+    }
+    // Automatically updates the dataset every 3 minutes (180,000 ms)
+    this._datasetRefreshTimer = setInterval(async () => {
+      // Do not interrupt chronological timeline replay if active
+      if (this.state.playback.isPlaying) return;
+      try {
+        await this.refreshAll();
+      } catch (err) {
+        console.warn('Periodic 3-minute dataset refresh encountered an error:', err);
+      }
+    }, 180000);
+  }
+
+  /* ==========================================================================
      KPI & Feed Rendering
      ========================================================================== */
   renderKPIs(stats) {
     const elTotal = document.getElementById('kpi-total');
     const elMax = document.getElementById('kpi-max');
     const el24h = document.getElementById('kpi-24h');
-    const elSync = document.getElementById('live-status-text');
 
     if (elTotal) elTotal.textContent = stats.total_count ? stats.total_count.toLocaleString() : '0';
     if (elMax) elMax.textContent = stats.max_magnitude ? `M${stats.max_magnitude.toFixed(1)}` : '-';
     if (el24h) el24h.textContent = stats.last_24h_count || '0';
-    if (elSync && stats.sync) {
-      let trtTime = '';
-      if (stats.sync.last_sync_time_trt) {
-        trtTime = stats.sync.last_sync_time_trt.substring(11, 16);
-      } else if (stats.sync.last_sync_time) {
-        try {
-          const clean = stats.sync.last_sync_time.replace(' UTC', 'Z').replace(' ', 'T');
-          const d = new Date(clean.endsWith('Z') ? clean : clean + 'Z');
-          if (!isNaN(d.getTime())) {
-            trtTime = d.toLocaleTimeString('en-GB', {
-              timeZone: 'Europe/Istanbul',
-              hour: '2-digit',
-              minute: '2-digit',
-              hour12: false
-            });
-          }
-        } catch (e) {}
-        if (!trtTime) {
-          trtTime = stats.sync.last_sync_time.substring(11, 16);
-        }
-      }
 
-      if (trtTime) {
-        elSync.textContent = `Live: ${trtTime} TRT`;
-        const parentIndicator = elSync.closest('.live-indicator');
-        if (parentIndicator) {
-          parentIndicator.title = `Turkey Standard Time (TRT / UTC+3) • Synchronized at ${trtTime}`;
-        }
+    if (stats.sync) {
+      const parentIndicator = document.querySelector('.live-indicator');
+      if (parentIndicator) {
+        const syncTime = stats.sync.last_sync_time_trt || stats.sync.last_sync_time || 'Just now';
+        parentIndicator.title = `Turkey Standard Time (TRT / UTC+3) • Real-Time Clock\nLast Dataset Update: ${syncTime}\nDataset Auto-Refresh: Every 3 minutes`;
       }
     }
   }
@@ -1343,6 +1359,10 @@ class TemasApp {
 }
 
 // Boot application
-window.addEventListener('DOMContentLoaded', () => {
+if (document.readyState === 'loading') {
+  window.addEventListener('DOMContentLoaded', () => {
+    window.app = new TemasApp();
+  });
+} else {
   window.app = new TemasApp();
-});
+}

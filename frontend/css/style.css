@@ -136,11 +136,16 @@ header {
   filter: drop-shadow(0 0 3px rgba(56, 189, 248, 0.85));
 }
 
+.brand-text {
+  white-space: nowrap;
+}
+
 .brand-text h1 {
   font-size: 1.15rem;
   font-weight: 800;
   letter-spacing: -0.02em;
   color: #ffffff;
+  white-space: nowrap;
 }
 
 .brand-text span {
@@ -239,6 +244,8 @@ header {
   border: 1px solid rgba(16, 185, 129, 0.25);
   padding: 4px 10px;
   border-radius: var(--radius-full);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 .live-dot {
@@ -1602,7 +1609,7 @@ header {
     transition: transform 0.2s ease;
   }
   .filter-bar {
-    top: 58px;
+    top: 8px;
     width: calc(100% - 20px);
     max-width: 420px;
     padding: 6px 12px;
@@ -1660,16 +1667,25 @@ header {
   /* Compact Floating Widgets */
   .widget-mobile-toggle {
     display: inline-block;
-    font-size: 0.75rem;
+    font-size: 0.68rem;
     color: #94a3b8;
     margin-left: auto;
     transition: transform 0.2s ease;
   }
+  .layer-drag-title,
+  .legend-drag-title {
+    font-size: 0.60rem !important;
+    letter-spacing: 0.04em;
+  }
+  .layer-drag-header .drag-icon,
+  .legend-drag-header .drag-icon {
+    font-size: 0.72rem;
+  }
   .layer-controls {
     right: 8px;
-    top: 100px;
-    max-width: 180px;
-    padding: 6px 10px;
+    top: 54px;
+    max-width: 150px;
+    padding: 4px 8px;
   }
   .layer-controls.collapsed-mobile .layer-controls-body {
     display: none;
@@ -1687,8 +1703,8 @@ header {
   .map-legend {
     right: 8px;
     bottom: 60px;
-    max-width: 180px;
-    padding: 6px 10px;
+    max-width: 150px;
+    padding: 4px 8px;
   }
   .map-legend.collapsed-mobile .legend-items {
     display: none;
@@ -1772,6 +1788,13 @@ header {
     padding: 2px 6px;
     font-size: 0.65rem;
     gap: 4px;
+  }
+  .filter-bar {
+    top: 6px;
+  }
+  .layer-drag-title,
+  .legend-drag-title {
+    font-size: 0.52rem !important;
   }
 
   /* Compact timeline layout */

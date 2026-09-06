@@ -43,12 +43,27 @@ v2.1.0 (Baseline Architecture)
         │
         ├─► v2.9.6 (Feat: Live Observatory Time Calibration to Turkey Time TRT / UTC+3)
         │
-        └─► v2.9.7 (Feat: Mobile-Friendly Responsive Layout, Touch Drawer & Floating Control Accordions)
+        ├─► v2.9.7 (Feat: Mobile-Friendly Responsive Layout, Touch Drawer & Floating Control Accordions)
+        │
+        └─► v2.9.8 (Feat: Real-Time Ticking TRT Clock, 3-Minute Auto-Refresh, Mobile Filter Positioning & Scaled Widget Typography)
 ```
 
 ---
 
 ## Milestone Change Log Details
+
+### [v2.9.8] — 2026-09-06
+**Feat: Real-Time Ticking TRT Clock, 3-Minute Auto-Refresh, Mobile Filter Positioning & Scaled Widget Typography**
+- **Type**: `feat(ui)` / `feat(ingestion)` / `style(mobile)`
+- **Scope**: `frontend/index.html`, `frontend/css/style.css`, `frontend/js/app.js`, `frontend/admin.html`, `frontend/js/admin.js`, `backend/main.py`, `docker-compose.yml`
+- **Key Deliverables**:
+  - **Real-Time Ticking TRT Clock**: Removed redundant "Live:" text and implemented a live clock ticking every second in Turkey Standard Time (`HH:MM:SS TRT`) next to the pulsing green indicator.
+  - **Single-Line Brand Preservation**: Styled `.brand-text` and `.brand-text h1` with `white-space: nowrap` to ensure "TEMAS 2" never wraps into two lines on narrow smartphone screens.
+  - **Elevated Mobile Filter Bar**: Adjusted `.filter-bar` top position on mobile screens (`top: 8px` / `top: 6px`) so the floating pill sits directly below the header title bar with zero dead space.
+  - **Compact Widget Typography**: Scaled down the header titles and drag icons for "Map Layers" and "Magnitude Scale" on mobile screens (`0.58rem` / `0.52rem`) for a sleek, unobtrusive appearance.
+  - **3-Minute Dataset Auto-Refresh**: Added client-side periodic refresh timer (`180,000ms`) in sync with the backend ingestion scheduler to auto-update seismic markers, feed, and KPIs without manual page reloads.
+
+---
 
 ### [v2.9.7] — 2026-09-06
 **Feat: Mobile-Friendly Responsive Layout, Off-Canvas Touch Drawer & Floating Accordions**

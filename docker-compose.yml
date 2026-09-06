@@ -11,3 +11,4 @@ services:
     environment:
       - TEMAS_DB_PATH=/app/data/eq-turkey.db
       - PYTHONUNBUFFERED=1
+      - TEMAS_SYNC_INTERVAL=180
