@@ -49,6 +49,26 @@ class TemasApp {
   }
 
   bindEvents() {
+    // Mobile Filter Header & Summary Sync
+    const filterBar = document.getElementById('filter-bar');
+    const filterMobileHeader = document.getElementById('filter-mobile-header');
+    const filterSummary = document.getElementById('filter-mobile-summary');
+
+    const updateFilterSummary = () => {
+      if (!filterSummary) return;
+      const activePreset = document.querySelector('.pill-btn.active')?.textContent || 'All';
+      const magVal = document.getElementById('mag-val')?.textContent || 'M3.0+';
+      filterSummary.textContent = `${activePreset} • ${magVal}`;
+    };
+
+    if (filterMobileHeader && filterBar) {
+      filterMobileHeader.addEventListener('click', (e) => {
+        e.stopPropagation();
+        filterBar.classList.toggle('mobile-collapsed');
+        updateFilterSummary();
+      });
+    }
+
     // Magnitude Slider
     const magSlider = document.getElementById('mag-slider');
     const magValue = document.getElementById('mag-val');
@@ -57,6 +77,7 @@ class TemasApp {
         const val = parseFloat(e.target.value);
         magValue.textContent = `M${val.toFixed(1)}+`;
         this.state.filters.min_magnitude = val;
+        updateFilterSummary();
         this.loadEarthquakes();
       });
     }
@@ -69,6 +90,7 @@ class TemasApp {
         btn.classList.add('active');
         const preset = btn.dataset.preset;
         this.state.filters.preset = preset;
+        updateFilterSummary();
         this.stopPlayback();
         this.loadEarthquakes();
       });
@@ -112,7 +134,6 @@ class TemasApp {
     const legendDragHandle = document.getElementById('legend-drag-handle');
     this.initDraggable(legendBox, legendDragHandle);
 
-    const filterBar = document.getElementById('filter-bar');
     const filterDragHandle = document.getElementById('filter-drag-handle');
     this.initDraggable(filterBar, filterDragHandle);
 
@@ -316,18 +337,74 @@ class TemasApp {
       resetIdleTimer();
     });
 
-    // Toggle button still works manually to collapse or wake
+    // Mobile Drawer Elements
+    const backdrop = document.getElementById('sidebar-backdrop');
+    const closeBtn = document.getElementById('btn-close-sidebar');
+
+    const openMobileSidebar = () => {
+      sidebar.classList.add('mobile-open');
+      sidebar.classList.remove('auto-hidden', 'collapsed', 'hover-peek');
+      if (backdrop) backdrop.classList.add('active');
+    };
+
+    const closeMobileSidebar = () => {
+      sidebar.classList.remove('mobile-open', 'hover-peek');
+      sidebar.classList.add('auto-hidden');
+      if (backdrop) backdrop.classList.remove('active');
+    };
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (window.innerWidth <= 768) {
+          closeMobileSidebar();
+        } else {
+          sidebar.classList.add('collapsed');
+          setTimeout(() => this.mapEngine?.invalidateMapSize(true), 120);
+        }
+      });
+    }
+
+    if (backdrop) {
+      backdrop.addEventListener('click', () => closeMobileSidebar());
+    }
+
+    // Touch swipe left on mobile sidebar to dismiss drawer
+    let touchStartX = 0;
+    let touchStartY = 0;
+    sidebar.addEventListener('touchstart', (e) => {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    sidebar.addEventListener('touchend', (e) => {
+      const diffX = e.changedTouches[0].clientX - touchStartX;
+      const diffY = e.changedTouches[0].clientY - touchStartY;
+      if (diffX < -50 && Math.abs(diffX) > Math.abs(diffY)) {
+        closeMobileSidebar();
+      }
+    }, { passive: true });
+
+    // Toggle button works on both mobile (drawer) and desktop (wake/collapse)
     if (sidebarToggle) {
       sidebarToggle.addEventListener('click', () => {
-        if (sidebar.classList.contains('auto-hidden')) {
-          wakeSidebar();
-        } else {
-          sidebar.classList.toggle('collapsed');
-          if (sidebar.classList.contains('collapsed') && hoverZone) {
-            hoverZone.classList.add('hidden');
+        if (window.innerWidth <= 768) {
+          if (sidebar.classList.contains('mobile-open')) {
+            closeMobileSidebar();
+          } else {
+            openMobileSidebar();
           }
-          setTimeout(() => this.mapEngine?.invalidateMapSize(true), 120);
-          setTimeout(() => this.mapEngine?.invalidateMapSize(true), 360);
+        } else {
+          if (sidebar.classList.contains('auto-hidden')) {
+            wakeSidebar();
+          } else {
+            sidebar.classList.toggle('collapsed');
+            if (sidebar.classList.contains('collapsed') && hoverZone) {
+              hoverZone.classList.add('hidden');
+            }
+            setTimeout(() => this.mapEngine?.invalidateMapSize(true), 120);
+            setTimeout(() => this.mapEngine?.invalidateMapSize(true), 360);
+          }
         }
         resetIdleTimer();
       });
@@ -343,6 +420,19 @@ class TemasApp {
     sidebar.classList.add('auto-hidden');
     if (hoverZone) hoverZone.classList.remove('hidden');
     setTimeout(() => this.mapEngine?.invalidateMapSize(true), 150);
+
+    // Responsive viewport resize & orientation adaptation
+    window.addEventListener('resize', () => {
+      clearTimeout(this._resizeTimer);
+      this._resizeTimer = setTimeout(() => {
+        this.mapEngine?.invalidateMapSize(true);
+      }, 150);
+    });
+    window.addEventListener('orientationchange', () => {
+      setTimeout(() => {
+        this.mapEngine?.invalidateMapSize(true);
+      }, 250);
+    });
 
     // Arm initial 30s idle countdown
     resetIdleTimer();
@@ -362,6 +452,7 @@ class TemasApp {
     }
 
     let isDragging = false;
+    let hasMoved = false;
     let startX = 0;
     let startY = 0;
     let initialLeft = 0;
@@ -371,9 +462,8 @@ class TemasApp {
       // Ignore clicks on form inputs, buttons, or checkboxes
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.target.closest('label')) return;
 
-      e.stopPropagation();
-
       isDragging = true;
+      hasMoved = false;
       const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
       const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
 
@@ -405,6 +495,10 @@ class TemasApp {
 
         const dx = curX - startX;
         const dy = curY - startY;
+
+        if (Math.abs(dx) > 6 || Math.abs(dy) > 6) {
+          hasMoved = true;
+        }
 
         let newLeft = initialLeft + dx;
         let newTop = initialTop + dy;
@@ -439,6 +533,17 @@ class TemasApp {
 
     handle.addEventListener('mousedown', onPointerDown);
     handle.addEventListener('touchstart', onPointerDown, { passive: true });
+
+    // Single-tap on handle collapses/expands floating widget on mobile
+    handle.addEventListener('click', (e) => {
+      if (hasMoved) {
+        hasMoved = false;
+        return;
+      }
+      if (window.innerWidth <= 768) {
+        element.classList.toggle('collapsed-mobile');
+      }
+    });
   }
 
   async refreshAll() {
@@ -835,6 +940,16 @@ class TemasApp {
       if (matchingCard) {
         matchingCard.classList.add('active');
         matchingCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+    // If selecting on mobile drawer, auto-dismiss drawer to reveal map focus
+    if (window.innerWidth <= 768) {
+      const sidebar = document.getElementById('sidebar');
+      const backdrop = document.getElementById('sidebar-backdrop');
+      if (sidebar && sidebar.classList.contains('mobile-open')) {
+        sidebar.classList.remove('mobile-open', 'hover-peek');
+        sidebar.classList.add('auto-hidden');
+        if (backdrop) backdrop.classList.remove('active');
       }
     }
     this.playSeismicTone(eq.magnitude);

@@ -80,17 +80,17 @@
 
     <!-- Header Actions -->
     <div class="header-actions">
-      <button id="btn-toggle-sidebar" class="btn" title="Toggle Sidebar">
-        <span>☰ Feed</span>
+      <button id="btn-toggle-sidebar" class="btn" title="Toggle Seismic Feed">
+        <span>☰</span><span class="btn-label"> Feed</span>
       </button>
-      <button id="btn-toggle-audio" class="btn" title="Toggle Seismic Audio Effects">
-        <span id="audio-icon">🔇 Audio</span>
+      <button id="btn-toggle-audio" class="btn" title="Toggle Seismic Audio Alerts">
+        <span id="audio-icon">🔇</span><span class="btn-label"> Audio</span>
       </button>
       <button id="btn-analytics" class="btn" title="View Seismic Analytics">
-        <span>📈 Analytics</span>
+        <span>📈</span><span class="btn-label"> Analytics</span>
       </button>
       <button id="btn-table-view" class="btn" title="View Full Data Table">
-        <span>📊 Data Table</span>
+        <span>📊</span><span class="btn-label"> Table</span>
       </button>
       <button id="btn-fullscreen" class="btn" title="Toggle Fullscreen">
         <span>⛶</span>
@@ -99,7 +99,7 @@
         <span>📷</span>
       </button>
       <button id="btn-sync" class="btn" title="Fetch live updates from KOERI, EMSC & USGS">
-        <span>⚡ Sync</span>
+        <span>⚡</span><span class="btn-label"> Sync</span>
       </button>
     </div>
   </header>
@@ -107,14 +107,20 @@
   <!-- Main Viewport -->
   <div class="app-container">
 
+    <!-- Mobile Off-Canvas Drawer Backdrop -->
+    <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
+
     <!-- Left Screen Edge Hover Trigger Zone (reveals auto-hidden sidebar on hover) -->
     <div id="sidebar-hover-zone" class="sidebar-hover-zone" title="Hover to reveal seismic feed"></div>
 
     <!-- Left Sidebar: Chronological Seismic Feed (Auto-Hidden by default) -->
     <aside class="sidebar auto-hidden">
       <div class="sidebar-header">
-        <h2>Seismic Events</h2>
-        <span class="feed-counter" id="feed-count">Loading...</span>
+        <div class="sidebar-title-group">
+          <h2>Seismic Events</h2>
+          <span class="feed-counter" id="feed-count">Loading...</span>
+        </div>
+        <button id="btn-close-sidebar" class="btn-close-sidebar" title="Close feed">✕</button>
       </div>
       <div class="feed-list" id="feed-list">
         <!-- Event cards rendered via app.js -->
@@ -126,7 +132,13 @@
       <div id="map"></div>
 
       <!-- Floating Filter Control Drawer -->
-      <div class="filter-bar" id="filter-bar">
+      <div class="filter-bar mobile-collapsed" id="filter-bar">
+        <div class="filter-mobile-header" id="filter-mobile-header" title="Tap to toggle filters">
+          <span class="filter-mobile-title">⚙ Filters</span>
+          <span class="filter-mobile-summary" id="filter-mobile-summary">All-Time • M3.0+</span>
+          <span class="filter-mobile-chevron" id="filter-mobile-chevron">▾</span>
+        </div>
+
         <div class="filter-drag-handle" id="filter-drag-handle" title="Drag to reposition toolbar">⋮⋮</div>
         <div class="filter-group">
           <span class="filter-label">Time:</span>
@@ -155,12 +167,13 @@
       </div>
 
       <!-- Floating Layer Controls (Draggable / Mobile) -->
-      <div class="layer-controls" id="layer-controls">
-        <div class="layer-drag-header" id="layer-drag-handle" title="Drag to reposition anywhere on map">
+      <div class="layer-controls collapsed-mobile" id="layer-controls">
+        <div class="layer-drag-header" id="layer-drag-handle" title="Drag or tap to toggle layers">
           <span class="drag-icon">⋮⋮</span>
           <span class="layer-drag-title">Map Layers</span>
+          <span class="widget-mobile-toggle" id="toggle-layer-chevron">▾</span>
         </div>
-        <div class="layer-controls-body">
+        <div class="layer-controls-body" id="layer-controls-body">
           <label class="toggle-item">
             <input type="checkbox" id="toggle-faults" checked>
             <span>Tectonic Fault Lines</span>
@@ -196,12 +209,13 @@
       </div>
 
       <!-- Magnitude Scale Legend (Draggable / Mobile Floating Box) -->
-      <div class="map-legend" id="map-legend">
-        <div class="legend-drag-header" id="legend-drag-handle" title="Drag to reposition anywhere on map">
+      <div class="map-legend collapsed-mobile" id="map-legend">
+        <div class="legend-drag-header" id="legend-drag-handle" title="Drag or tap to toggle legend">
           <span class="drag-icon">⋮⋮</span>
           <span class="legend-drag-title">Magnitude Scale</span>
+          <span class="widget-mobile-toggle" id="toggle-legend-chevron">▾</span>
         </div>
-        <div class="legend-items">
+        <div class="legend-items" id="legend-items">
           <div class="legend-item">
             <span class="legend-dot" style="background: #10b981;"></span>
             <span>&lt; 3.0 Minor</span>

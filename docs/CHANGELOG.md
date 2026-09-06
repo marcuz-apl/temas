@@ -41,12 +41,27 @@ v2.1.0 (Baseline Architecture)
         │
         ├─► v2.9.5 (Feat: Fancy Seismic Wave Icon, Clean Map Attribution, Snapshot Box Fix, Legacy Purge)
         │
-        └─► v2.9.6 (Feat: Live Observatory Time Calibration to Turkey Time TRT / UTC+3)
+        ├─► v2.9.6 (Feat: Live Observatory Time Calibration to Turkey Time TRT / UTC+3)
+        │
+        └─► v2.9.7 (Feat: Mobile-Friendly Responsive Layout, Touch Drawer & Floating Control Accordions)
 ```
 
 ---
 
 ## Milestone Change Log Details
+
+### [v2.9.7] — 2026-09-06
+**Feat: Mobile-Friendly Responsive Layout, Off-Canvas Touch Drawer & Floating Accordions**
+- **Type**: `feat(ui)` / `feat(responsive)`
+- **Scope**: `frontend/index.html`, `frontend/css/style.css`, `frontend/js/app.js`
+- **Key Deliverables**:
+  - **Responsive Header & Icon-Only Collapse**: Transformed top navigation on small screens (`<=768px`) to an ultra-clean mobile header with compact brand identity, live TRT indicator, and icon-only actions with touch-friendly 40px targets.
+  - **Off-Canvas Mobile Feed Drawer**: Implemented a slide-out drawer for the seismic feed on mobile with backdrop blur overlay, dedicated close button, and swipe-to-dismiss touch gestures. Feed item clicks seamlessly focus the earthquake on the map and auto-dismiss the drawer.
+  - **Collapsible Floating Filter Accordion**: Converted the top filter bar on small viewports into a sleek floating pill (`⚙ Filters All-Time • M3.0+ ▾`) that expands on tap and updates dynamically based on current filtering criteria.
+  - **Mobile Widget Accordions**: Added collapsible chevrons to floating Map Layers and Magnitude Scale widgets, keeping the mobile viewport over 85% clear for map exploration while preserving drag & drop on desktop.
+  - **Thumb-Friendly Timeline Controls**: Optimized bottom playback scrubber bar to fit cleanly across 360px–480px viewports with responsive controls.
+
+---
 
 ### [v2.9.6] — 2026-09-06
 **Feat: Live Observatory Time Calibration to Turkey Time (TRT / UTC+3)**
