@@ -71,12 +71,25 @@ v2.1.0 (Baseline Architecture)
         │
         ├─► v2.10.5 (Feat/Docs: M4.0+ Default Threshold, Admin Route Concealment Balance & Docs Sync)
         │
-        └─► v2.10.6 (Fix: Audio Button Label Duplication & Desktop/Mobile Sync)
+        ├─► v2.10.6 (Fix: Audio Button Label Duplication & Desktop/Mobile Sync)
+        │
+        └─► v2.10.7 (Feat: Timeline Playback Sonification & Live Event Audio Alarm)
 ```
 
 ---
 
 ## Milestone Change Log Details
+
+### [v2.10.7] — 2026-09-06
+**Feat: Timeline Playback Sonification & Live Event Audio Alarm**
+- **Type**: `feat(audio)` / `ux(sonification)`
+- **Scope**: `frontend/js/app.js`, `frontend/index.html`, `VERSION`, `docs/CHANGELOG.md`
+- **Key Deliverables**:
+  - **Timeline Playback Sonification**: Dynamically generates acoustic seismic tones synchronized with timeline animation frames. Higher magnitudes emit deep tectonic sub-bass rumbles (down to 50 Hz with extra infrasound impact for $M \ge 6.5$), turning historical replay into an immersive multimodal experience.
+  - **Live Event Audio Alarm**: Automatically sounds a dual-tone seismic warning chime (523 Hz $\to$ 784 Hz + resonant sub-frequency) accompanied by a visual alert toast whenever new live earthquakes ($M \ge 4.0$) are ingested during periodic 3-minute background auto-refreshes or manual syncs.
+  - **Single Shared Web Audio Context**: Implemented `getAudioContext()` to reuse a single hardware audio context instance across the lifecycle, preventing browser audio context exhaustion.
+
+---
 
 ### [v2.10.6] — 2026-09-06
 **Fix: Audio Button Label Duplication & Desktop/Mobile Sync**

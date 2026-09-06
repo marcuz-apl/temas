@@ -27,6 +27,8 @@ class TemasApp {
     };
 
     this.mapEngine = null;
+    this._audioCtx = null;
+    this._lastKnownNewestTime = null;
     this.init();
   }
 
@@ -336,6 +338,9 @@ class TemasApp {
         syncAudioUI();
         if (this.state.audioEnabled) {
           this.playSeismicTone(5.0);
+          this.showToast('🔊 Audio ON: Timeline Sonification & Live Alerts Active', 'info');
+        } else {
+          this.showToast('🔇 Audio Muted', 'info');
         }
       });
     }
@@ -812,7 +817,33 @@ class TemasApp {
 
     try {
       const data = await fetchEarthquakes(queryParams);
-      this.state.earthquakes = data.items || [];
+      const incoming = data.items || [];
+
+      // Check for incoming live seismic events when catalog is already active
+      if (this._lastKnownNewestTime && incoming.length > 0) {
+        const newEvents = incoming.filter((eq) => eq.origintimeutc > this._lastKnownNewestTime);
+        if (newEvents.length > 0) {
+          const mostSignificant = newEvents.reduce(
+            (prev, curr) => (parseFloat(curr.magnitude) || 0) > (parseFloat(prev.magnitude) || 0) ? curr : prev,
+            newEvents[0]
+          );
+          this.playLiveAlertAlarm(mostSignificant);
+          this.showToast(
+            `🚨 Live Event Alert: M${mostSignificant.magnitude} • ${mostSignificant.region || 'Turkey Seismic Zone'}`,
+            'warning'
+          );
+        }
+      }
+
+      if (incoming.length > 0) {
+        const newestTime = incoming.reduce(
+          (max, eq) => (eq.origintimeutc > max ? eq.origintimeutc : max),
+          incoming[0].origintimeutc
+        );
+        this._lastKnownNewestTime = newestTime;
+      }
+
+      this.state.earthquakes = incoming;
       // Chronologically sorted for playback
       this.state.sortedChronological = [...this.state.earthquakes].sort(
         (a, b) => a.origintimeutc.localeCompare(b.origintimeutc)
@@ -858,7 +889,7 @@ class TemasApp {
     if (scrubber && parseInt(scrubber.value, 10) >= 100) {
       scrubber.value = 0;
       this.state.playback.currentIndex = 0;
-      this.renderPlaybackFrame();
+      this.renderPlaybackFrame(0, 0);
     }
 
     const intervalMs = Math.max(40, 500 / this.state.playback.speed);
@@ -870,6 +901,7 @@ class TemasApp {
         return;
       }
 
+      const prevIdx = this.state.playback.currentIndex;
       this.state.playback.currentIndex += Math.max(1, Math.floor(total / 100));
       if (this.state.playback.currentIndex >= total) {
         this.state.playback.currentIndex = total - 1;
@@ -877,7 +909,7 @@ class TemasApp {
 
       const percent = Math.floor((this.state.playback.currentIndex / (total - 1)) * 100);
       if (scrubber) scrubber.value = percent;
-      this.renderPlaybackFrame();
+      this.renderPlaybackFrame(prevIdx, this.state.playback.currentIndex);
     }, intervalMs);
   }
 
@@ -893,11 +925,12 @@ class TemasApp {
   setPlaybackProgress(percent) {
     const total = this.state.sortedChronological.length;
     if (!total) return;
+    const prevIdx = this.state.playback.currentIndex;
     this.state.playback.currentIndex = Math.floor((percent / 100) * (total - 1));
-    this.renderPlaybackFrame();
+    this.renderPlaybackFrame(prevIdx, this.state.playback.currentIndex);
   }
 
-  renderPlaybackFrame() {
+  renderPlaybackFrame(prevIdx = null, currIdx = null) {
     const total = this.state.sortedChronological.length;
     if (!total) return;
     const currentEvent = this.state.sortedChronological[this.state.playback.currentIndex];
@@ -910,6 +943,27 @@ class TemasApp {
     if (dateDisplay) {
       const dt = currentEvent.eventtime || currentEvent.origintimeutc;
       dateDisplay.textContent = `Date: ${dt.substring(0, 16)} UTC+3`;
+    }
+
+    // Playback Sonification
+    if (
+      this.state.playback.isPlaying &&
+      this.state.audioEnabled &&
+      prevIdx !== null &&
+      currIdx !== null &&
+      currIdx > prevIdx
+    ) {
+      const stepEvents = this.state.sortedChronological.slice(prevIdx, currIdx + 1);
+      if (stepEvents.length > 0) {
+        let maxMag = 0;
+        for (let i = 0; i < stepEvents.length; i++) {
+          const m = parseFloat(stepEvents[i].magnitude) || 0;
+          if (m > maxMag) maxMag = m;
+        }
+        if (maxMag >= 3.0) {
+          this.playPlaybackTone(maxMag);
+        }
+      }
     }
   }
 
@@ -1200,21 +1254,126 @@ class TemasApp {
     this.mapEngine.focusEarthquake(eq);
   }
 
+  getAudioContext() {
+    if (!this._audioCtx || this._audioCtx.state === 'closed') {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (AudioContextClass) {
+        this._audioCtx = new AudioContextClass();
+      }
+    }
+    if (this._audioCtx && this._audioCtx.state === 'suspended') {
+      this._audioCtx.resume().catch(() => {});
+    }
+    return this._audioCtx;
+  }
+
   playSeismicTone(mag) {
     if (!this.state.audioEnabled) return;
     try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const ctx = this.getAudioContext();
+      if (!ctx) return;
+      const now = ctx.currentTime;
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       const baseFreq = Math.max(55, 175 - (parseFloat(mag) * 15));
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(baseFreq, ctx.currentTime);
-      gain.gain.setValueAtTime(0.12, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.45);
+      osc.frequency.setValueAtTime(baseFreq, now);
+      gain.gain.setValueAtTime(0.15, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
       osc.connect(gain);
       gain.connect(ctx.destination);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.45);
+      osc.start(now);
+      osc.stop(now + 0.45);
+    } catch (e) {}
+  }
+
+  playPlaybackTone(mag) {
+    if (!this.state.audioEnabled) return;
+    try {
+      const ctx = this.getAudioContext();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      // Lower frequency for higher magnitudes (deep tectonic rumble)
+      const baseFreq = Math.max(50, 190 - (parseFloat(mag) * 16));
+      osc.type = mag >= 6.0 ? 'sawtooth' : 'sine';
+      osc.frequency.setValueAtTime(baseFreq, now);
+
+      // Magnitude-scaled volume
+      const peakGain = Math.min(0.25, 0.04 + Math.max(0, (mag - 3.0) * 0.04));
+      const duration = mag >= 6.0 ? 0.32 : 0.16;
+
+      gain.gain.setValueAtTime(peakGain, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + duration);
+
+      // Extra sub-bass boom for massive earthquakes (M >= 6.5)
+      if (mag >= 6.5) {
+        const subOsc = ctx.createOscillator();
+        const subGain = ctx.createGain();
+        subOsc.type = 'triangle';
+        subOsc.frequency.setValueAtTime(45, now);
+        subGain.gain.setValueAtTime(0.2, now);
+        subGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.45);
+        subOsc.connect(subGain);
+        subGain.connect(ctx.destination);
+        subOsc.start(now);
+        subOsc.stop(now + 0.45);
+      }
+    } catch (e) {}
+  }
+
+  playLiveAlertAlarm(event) {
+    if (!this.state.audioEnabled) return;
+    try {
+      const ctx = this.getAudioContext();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+
+      // Alert chime 1: C5 (523.25 Hz)
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.type = 'triangle';
+      osc1.frequency.setValueAtTime(523.25, now);
+      gain1.gain.setValueAtTime(0.18, now);
+      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+      osc1.start(now);
+      osc1.stop(now + 0.18);
+
+      // Alert chime 2: G5 (783.99 Hz)
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(783.99, now + 0.16);
+      gain2.gain.setValueAtTime(0.22, now + 0.16);
+      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+      osc2.start(now + 0.16);
+      osc2.stop(now + 0.55);
+
+      // Resonant seismic low rumble if M >= 4.0
+      const mag = parseFloat(event.magnitude) || 0;
+      if (mag >= 4.0) {
+        const subOsc = ctx.createOscillator();
+        const subGain = ctx.createGain();
+        subOsc.type = 'sawtooth';
+        subOsc.frequency.setValueAtTime(Math.max(50, 110 - (mag * 8)), now + 0.12);
+        subGain.gain.setValueAtTime(0.15, now + 0.12);
+        subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
+        subOsc.connect(subGain);
+        subGain.connect(ctx.destination);
+        subOsc.start(now + 0.12);
+        subOsc.stop(now + 0.7);
+      }
     } catch (e) {}
   }
 

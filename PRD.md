@@ -18,9 +18,9 @@ The current repository represents an early-stage prototype combining Python web 
 ### 1.3 Modernization Vision (TEMAS 2.0)
 Transform TEMAS into a sleek, production-grade, responsive Earthquake Monitoring and Spatial Intelligence platform. It will feature real-time multi-source data ingestion (KOERI, AFAD, USGS, EMSC), high-performance client-side rendering (MapLibre GL / Leaflet / Cesium), interactive filtering and timeline playback, and responsive modern UI aesthetics without heavy iframe nesting.
 
-### 1.4 Production Delivery Status (TEMAS v2.10.6, September 2026)
+### 1.4 Production Delivery Status (TEMAS v2.10.7, September 2026)
 As of September 2026, the TEMAS platform has fully achieved its modernization objectives and operates as an integrated seismic observatory:
-- **Production Release**: `v2.10.6`
+- **Production Release**: `v2.10.7`
 - **Data Catalog**: Continuous 2021–2026 multi-year archive with over 13,400 verified seismic records ($M \ge 2.0$).
 - **Zero Iframes**: Unified Single Page Application with GPU-accelerated Leaflet HTML5 Canvas rendering.
 - **Resilient Multi-Agency Ingestion**: Asynchronous multi-tier pipeline (KOERI, EMSC, USGS) with composite unique deduplication.
