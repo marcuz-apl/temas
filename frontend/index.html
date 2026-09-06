@@ -359,8 +359,8 @@
     <div class="modal-dialog modal-analytics-dialog">
       <div class="modal-header">
         <div class="modal-title-group">
-          <h3>Seismic Intelligence & Gutenberg-Richter Analytics</h3>
-          <p class="modal-subtitle">Real-time catalog distribution, focal depth profiles, regional clustering, and multi-network telemetry</p>
+          <h3>Seismic Intelligence &amp; Gutenberg-Richter Analytics</h3>
+          <p class="modal-subtitle">Full-spectrum catalog distribution, temporal trends, seismic energy physics, and regional fault matrices</p>
         </div>
         <div class="analytics-header-actions">
           <button id="btn-export-analytics-pdf" class="btn btn-sm btn-report" title="Generate 1-Page Official PDF Bulletin">
@@ -372,49 +372,282 @@
           <button id="btn-close-analytics" class="btn btn-sm" style="padding: 6px 12px; font-weight: bold;">✕ Close</button>
         </div>
       </div>
-      <div class="modal-body">
-        <div class="analytics-grid">
-          <!-- Panel 1: Magnitude Distribution -->
-          <div class="analytics-card">
-            <div class="card-title-row">
-              <h4>Magnitude Distribution (Gutenberg-Richter)</h4>
-              <span class="analytics-badge" id="analytics-total-quakes">...</span>
+
+      <!-- 4-Tab Navigation Bar -->
+      <div class="analytics-tabs-nav" id="analytics-tabs-nav">
+        <button class="analytics-tab-btn active" data-tab="overview">
+          <span class="tab-icon">📊</span>
+          <span>Overview</span>
+        </button>
+        <button class="analytics-tab-btn" data-tab="time">
+          <span class="tab-icon">⏱</span>
+          <span>Time Trends</span>
+        </button>
+        <button class="analytics-tab-btn" data-tab="energy">
+          <span class="tab-icon">⚡</span>
+          <span>Energy</span>
+        </button>
+        <button class="analytics-tab-btn" data-tab="regions">
+          <span class="tab-icon">📍</span>
+          <span>Regions</span>
+        </button>
+      </div>
+
+      <div class="modal-body analytics-modal-body">
+        <!-- TAB 1: OVERVIEW -->
+        <div class="analytics-tab-pane active" id="tab-analytics-overview">
+          <!-- KPI Ribbon -->
+          <div class="analytics-kpi-ribbon">
+            <div class="kpi-chip">
+              <span class="kpi-label">CATALOG EVENTS</span>
+              <span class="kpi-val text-sky" id="analytics-total-quakes">...</span>
+              <span class="kpi-sub" id="analytics-date-range">2021 – 2026 Archive</span>
             </div>
-            <div id="analytics-mag-chart" class="chart-bars">
-              <!-- Rendered dynamically -->
+            <div class="kpi-chip">
+              <span class="kpi-label">MEAN HYPOCENTER</span>
+              <span class="kpi-val text-emerald" id="analytics-avg-depth-kpi">...</span>
+              <span class="kpi-sub">Crustal / Seismogenic</span>
+            </div>
+            <div class="kpi-chip">
+              <span class="kpi-label">MAX RECORDED</span>
+              <span class="kpi-val text-rose" id="analytics-max-mag-kpi">M8.0</span>
+              <span class="kpi-sub" id="analytics-max-loc-kpi">Gaziantep / Pazarcık</span>
+            </div>
+            <div class="kpi-chip">
+              <span class="kpi-label">LAST 24 HOURS</span>
+              <span class="kpi-val text-amber" id="analytics-24h-kpi">...</span>
+              <span class="kpi-sub">Active Microseismicity</span>
             </div>
           </div>
 
-          <!-- Panel 2: Depth Stratification -->
-          <div class="analytics-card">
-            <div class="card-title-row">
-              <h4>Hypocentral Depth Stratification</h4>
-              <span class="analytics-badge" id="analytics-avg-depth">...</span>
+          <div class="analytics-grid">
+            <!-- Panel 1: Magnitude Distribution -->
+            <div class="analytics-card">
+              <div class="card-title-row">
+                <h4>Magnitude Distribution (Gutenberg-Richter)</h4>
+                <span class="analytics-badge" id="analytics-mag-badge">Spectrum</span>
+              </div>
+              <div id="analytics-mag-chart" class="chart-bars">
+                <!-- Rendered dynamically -->
+              </div>
             </div>
-            <div id="analytics-depth-summary" class="depth-stats">
-              <!-- Rendered dynamically -->
+
+            <!-- Panel 2: Depth Stratification -->
+            <div class="analytics-card">
+              <div class="card-title-row">
+                <h4>Hypocentral Depth Stratification</h4>
+                <span class="analytics-badge" id="analytics-avg-depth">Mean: ...</span>
+              </div>
+              <div id="analytics-depth-summary" class="depth-stats">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+
+            <!-- Panel 3: Ingestion Network Breakdown -->
+            <div class="analytics-card">
+              <div class="card-title-row">
+                <h4>Multi-Network Sensor Ingestion</h4>
+                <span class="analytics-badge">Providers</span>
+              </div>
+              <div id="analytics-source-chart" class="source-stats">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+
+            <!-- Panel 4: Catalog Observational Health -->
+            <div class="analytics-card">
+              <div class="card-title-row">
+                <h4>Catalog Health &amp; Observational Metrics</h4>
+                <span class="analytics-badge" id="analytics-health-badge">Live Health</span>
+              </div>
+              <div id="analytics-health-summary" class="health-stats">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: TIME TRENDS -->
+        <div class="analytics-tab-pane" id="tab-analytics-time">
+          <div class="analytics-card" style="margin-bottom: 20px;">
+            <div class="card-title-row">
+              <h4>Monthly Seismicity &amp; Event Rate Timeline (2021 – 2026)</h4>
+              <span class="analytics-badge" id="analytics-peak-month-badge">Peak: Feb 2023</span>
+            </div>
+            <div class="chart-timeline-container">
+              <div id="analytics-monthly-chart" class="chart-monthly-svg">
+                <!-- Rendered dynamically -->
+              </div>
+              <div class="chart-timeline-legend">
+                <span class="legend-chip"><span class="legend-color-dot" style="background:#38bdf8;"></span> Baseline Activity (&lt; 200/mo)</span>
+                <span class="legend-chip"><span class="legend-color-dot" style="background:#f59e0b;"></span> Elevated Aftershocks (200–500/mo)</span>
+                <span class="legend-chip"><span class="legend-color-dot" style="background:#ef4444;"></span> Major Sequences (&ge; 500/mo)</span>
+              </div>
             </div>
           </div>
 
-          <!-- Panel 3: Regional Seismicity Clusters -->
-          <div class="analytics-card">
-            <div class="card-title-row">
-              <h4>Top Active Seismogenic Regions</h4>
-              <span class="analytics-badge">Epicentral Density</span>
+          <div class="analytics-grid">
+            <!-- Diurnal 24h Rhythm -->
+            <div class="analytics-card">
+              <div class="card-title-row">
+                <h4>24-Hour Diurnal Rhythm (Hourly TRT UTC+3)</h4>
+                <span class="analytics-badge">Diurnal Cycle</span>
+              </div>
+              <p class="card-desc">Hourly earthquake frequency distribution comparing daytime anthropogenic noise thresholds with nighttime high-fidelity sensor detection.</p>
+              <div id="analytics-diurnal-chart" class="chart-diurnal-bars">
+                <!-- Rendered dynamically -->
+              </div>
             </div>
-            <div id="analytics-region-chart" class="region-stats">
-              <!-- Rendered dynamically -->
+
+            <!-- Day of Week Distribution -->
+            <div class="analytics-card">
+              <div class="card-title-row">
+                <h4>Day-of-the-Week Activity Profile</h4>
+                <span class="analytics-badge">Weekly Cycle</span>
+              </div>
+              <p class="card-desc">Analysis of tectonic strain release distribution across the 7-day calendar cycle demonstrating natural non-periodic stochasticity.</p>
+              <div id="analytics-dow-chart" class="chart-dow-bars">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 3: ENERGY -->
+        <div class="analytics-tab-pane" id="tab-analytics-energy">
+          <!-- Energy KPI Ribbon -->
+          <div class="analytics-kpi-ribbon">
+            <div class="kpi-chip">
+              <span class="kpi-label">TOTAL SEISMIC ENERGY</span>
+              <span class="kpi-val text-amber" id="analytics-energy-joules">...</span>
+              <span class="kpi-sub">Gutenberg-Richter Formula</span>
+            </div>
+            <div class="kpi-chip">
+              <span class="kpi-label">TNT EQUIVALENT</span>
+              <span class="kpi-val text-rose" id="analytics-energy-tnt">...</span>
+              <span class="kpi-sub">Megatons TNT</span>
+            </div>
+            <div class="kpi-chip">
+              <span class="kpi-label">ENERGY CONCENTRATION</span>
+              <span class="kpi-val text-purple" id="analytics-energy-concentration">96.8%</span>
+              <span class="kpi-sub">Feb 6, 2023 Sequence Share</span>
+            </div>
+            <div class="kpi-chip">
+              <span class="kpi-label">ENERGY MULTIPLIER</span>
+              <span class="kpi-val text-sky">31.62&times;</span>
+              <span class="kpi-sub">Scale increase per +1.0 Mag</span>
             </div>
           </div>
 
-          <!-- Panel 4: Ingestion Network Breakdown -->
-          <div class="analytics-card">
-            <div class="card-title-row">
-              <h4>Multi-Network Sensor Ingestion</h4>
-              <span class="analytics-badge">Source Share</span>
+          <div class="analytics-grid">
+            <!-- Cumulative Energy Curve -->
+            <div class="analytics-card">
+              <div class="card-title-row">
+                <h4>Cumulative Seismic Energy Release Curve</h4>
+                <span class="analytics-badge">&Sigma;E (Joules)</span>
+              </div>
+              <p class="card-desc">Cumulative kinetic rupture energy release calculated via &log;<sub>10</sub> E = 4.8 + 1.5M<sub>w</sub>, visualizing the February 2023 energy step-function.</p>
+              <div id="analytics-energy-curve" class="energy-curve-wrapper">
+                <!-- Rendered dynamically -->
+              </div>
             </div>
-            <div id="analytics-source-chart" class="source-stats">
-              <!-- Rendered dynamically -->
+
+            <!-- Energy Equivalency Benchmarks -->
+            <div class="analytics-card">
+              <div class="card-title-row">
+                <h4>Tectonic Energy Equivalency Reference</h4>
+                <span class="analytics-badge">Physics Reference</span>
+              </div>
+              <div class="energy-benchmarks-list">
+                <div class="benchmark-row">
+                  <span class="benchmark-mag" style="color: #10b981;">M 4.0</span>
+                  <span class="benchmark-joules">6.3 &times; 10<sup>10</sup> J</span>
+                  <span class="benchmark-desc">&sim; 15 Tons TNT &bull; Local industrial quarry blast</span>
+                </div>
+                <div class="benchmark-row">
+                  <span class="benchmark-mag" style="color: #38bdf8;">M 5.0</span>
+                  <span class="benchmark-joules">2.0 &times; 10<sup>12</sup> J</span>
+                  <span class="benchmark-desc">&sim; 480 Tons TNT &bull; Moderate regional shaking</span>
+                </div>
+                <div class="benchmark-row">
+                  <span class="benchmark-mag" style="color: #f59e0b;">M 6.0</span>
+                  <span class="benchmark-joules">6.3 &times; 10<sup>13</sup> J</span>
+                  <span class="benchmark-desc">&sim; 15 Kilotons TNT &bull; Hiroshima atomic equivalent</span>
+                </div>
+                <div class="benchmark-row">
+                  <span class="benchmark-mag" style="color: #ef4444;">M 7.0</span>
+                  <span class="benchmark-joules">2.0 &times; 10<sup>15</sup> J</span>
+                  <span class="benchmark-desc">&sim; 480 Kilotons TNT &bull; Severe regional destruction</span>
+                </div>
+                <div class="benchmark-row benchmark-catastrophic">
+                  <span class="benchmark-mag" style="color: #ec4899;">M 7.8</span>
+                  <span class="benchmark-joules">3.2 &times; 10<sup>16</sup> J</span>
+                  <span class="benchmark-desc">&sim; 7.6 Megatons TNT &bull; Pazarcık Fault Mega-Event</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Magnitude Scale Breakdown -->
+            <div class="analytics-card">
+              <div class="card-title-row">
+                <h4>Measurement Scale Modalities</h4>
+                <span class="analytics-badge">Instrument Scales</span>
+              </div>
+              <div id="analytics-magtype-chart" class="magtype-stats">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+
+            <!-- Energy Concentration Insight Card -->
+            <div class="analytics-card">
+              <div class="card-title-row">
+                <h4>Gutenberg-Richter Energy Law Insight</h4>
+                <span class="analytics-badge">Seismology</span>
+              </div>
+              <div class="energy-insight-box">
+                <p>Because seismic energy scales logarithmically by <strong>10<sup>1.5 &times; &Delta;M</sup> &approx; 31.62</strong> per magnitude unit, an <strong>M 7.8 earthquake releases more energy than 31,000 M 4.0 earthquakes combined</strong>.</p>
+                <p style="margin-top: 10px; color: var(--text-muted); font-size: 0.8rem; line-height: 1.5;">Across Turkey's 2021–2026 monitored catalog, the two major shocks on February 6, 2023 (M7.8 Pazarcık and M7.5 Elbistan) represent over 96.8% of the country's cumulative seismic moment release.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 4: REGIONS -->
+        <div class="analytics-tab-pane" id="tab-analytics-regions">
+          <div class="analytics-grid">
+            <!-- Top 10 Active Regions -->
+            <div class="analytics-card" style="grid-row: span 2;">
+              <div class="card-title-row">
+                <h4>Top 10 Active Seismogenic Fault Corridors</h4>
+                <span class="analytics-badge">Ranked Density</span>
+              </div>
+              <div id="analytics-top-regions-list" class="region-stats-extended">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+
+            <!-- Depth vs Magnitude Cross Matrix -->
+            <div class="analytics-card">
+              <div class="card-title-row">
+                <h4>Hypocenter Depth vs. Magnitude Cross-Matrix</h4>
+                <span class="analytics-badge">2D Seismicity</span>
+              </div>
+              <p class="card-desc">Binned distribution correlating hypocenter depth strata with surface magnitude intensity categories.</p>
+              <div id="analytics-cross-matrix" class="matrix-wrapper">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+
+            <!-- Depth Bins Histogram -->
+            <div class="analytics-card">
+              <div class="card-title-row">
+                <h4>Focal Depth Distribution Profile</h4>
+                <span class="analytics-badge">Depth Tiers</span>
+              </div>
+              <p class="card-desc">Histogram of hypocentral depth in 5–10 km bins showing that &gt;80% of earthquakes originate in the top 15 km of the Anatolian continental crust.</p>
+              <div id="analytics-depth-histogram" class="depth-histogram-wrapper">
+                <!-- Rendered dynamically -->
+              </div>
             </div>
           </div>
         </div>
@@ -430,6 +663,6 @@
   <script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
   <!-- Application Entry Point -->
-  <script type="module" src="/static/js/app.js?v=2.11.1"></script>
+  <script type="module" src="/static/js/app.js?v=2.12.0"></script>
 </body>
 </html>

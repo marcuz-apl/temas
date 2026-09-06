@@ -8,11 +8,12 @@ This directory serves as the engineering knowledge base, seismological design ra
 
 | Document | Title | Core Focus |
 | :--- | :--- | :--- |
-| **[CHANGELOG](CHANGELOG.md)** | **Milestone Calibration (v2.1.0 $\to$ v2.11.0)** | Full semantic progression matrix, feature scopes, and deliverables from inception through Gen2. |
+| **[CHANGELOG](CHANGELOG.md)** | **Milestone Calibration (v2.1.0 $\to$ v2.12.0)** | Full semantic progression matrix, feature scopes, and deliverables from inception through Gen2. |
 | **[TECHNOTE-01](technote-01-data-ingestion-and-polling-strategy.md)** | **Data Ingestion Cadence & Upstream Rate-Limit Safety** | Polling intervals, seismic wave solver latencies, provider courtesy, and circuit-breaker failover. |
 | **[TECHNOTE-02](technote-02-seismic-catalog-hygiene-and-storage.md)** | **Catalog Hygiene, Noise Purging & Deduplication Engine** | M < 2.0 noise cut-off rationale, composite event deduplication, SQLite WAL mechanics, and backfill. |
 | **[TECHNOTE-03](technote-03-security-and-administrative-operations.md)** | **Security Architecture, Concealed Route & Operator Ergonomics** | Concealed `/samet` route, deceptive 404 decoy, inception credentials (`Tema$2023`), dynamic passkey changes, and About modal. |
 | **[TECHNOTE-04](technote-04-geospatial-cartography-and-multimodal-ux.md)** | **Geospatial Cartography, Multimodal Sonification & UI Ergonomics** | Leaflet Canvas mapping, fault-line overlays, Web Audio sonification, 3-column header HUD, and mobile dual-nav. |
+| **[TECHNOTE-05](technote-05-full-spectrum-observatory-analytics.md)** | **Full-Spectrum Observatory Analytics Deck & Seismological Engine** | 4-tab intelligence suite (Overview, Time Trends, Energy, Regions), Gutenberg-Richter $b$-value ($0.94$), TNT equivalency, diurnal cycle, and fault corridors. |
 
 ---
 

@@ -1,5 +1,5 @@
-# TEMAS
-## Turkey Earthquake Monitoring and Analysis System
+# TEMAS 2
+## Turkey Earthquake Monitoring and Analysis System (Gen2)
 
 ### *May God bless Turkish and Syrian people! And all the lucks go to the rescuers.*
 
@@ -9,7 +9,7 @@
 
 Founded following the devastating February 6, 2023 Kahramanmaraş earthquake sequence, TEMAS bridges the gap between public seismic awareness and rigorous geoscientific analysis.
 
-- **Current Release**: `v2.11.0` (September 2026)
+- **Current Release**: `v2.12.0` (September 2026)
 - **Author & Copyright**: © 2023–2026, Alfazen Inc.
 - **License**: [MIT License](LICENSE) (Data copyright Boğaziçi Univ. / KOERI)
 
@@ -20,6 +20,7 @@ Founded following the devastating February 6, 2023 Kahramanmaraş earthquake seq
 - **Real-Time Multi-Agency Monitoring**: Asynchronously aggregates seismic feeds across KOERI (Boğaziçi University Kandilli Observatory), EMSC-CSEM, and USGS.
 - **Continuous Historical Archive**: Persists over 13,400 verified earthquake records (2021–2026, $M \ge 2.0$) locally in SQLite with zero cloud dependencies.
 - **Interactive Geospatial Cartography**: Single Page Application with GPU-accelerated Leaflet Canvas mapping, active tectonic fault overlays, and Day/Night theme synchronization.
+- **Full-Spectrum Observatory Analytics Deck**: 4-tab interactive scientific analysis suite (Overview, Time Trends, Energy, Regions) featuring Gutenberg-Richter recurrence ($b \approx 0.94$), TNT energy equivalence curves, diurnal TRT detection histograms, and seismogenic fault corridor rankings.
 - **Multimodal Timeline Replay**: Chronological earthquake playback paired with Web Audio magnitude sonification and real-time alert chimes.
 - **Responsive & Ergonomic UI**: Balanced 3-column header with centered telemetry HUD on desktop, and adaptive dual-navigation drawers on mobile.
 
@@ -78,11 +79,12 @@ Open **http://localhost:4070** in your browser.
 
 Detailed architectural rationale, seismological design considerations, and operational protocols are documented in the [`docs/`](docs/) directory:
 
-- **[Milestone Changelog (`docs/CHANGELOG.md`)](docs/CHANGELOG.md)**: Full semantic progression from the 2023 prototypes (`v0.1.0`) to the modern platform (`v2.11.0`).
+- **[Milestone Changelog (`docs/CHANGELOG.md`)](docs/CHANGELOG.md)**: Full semantic progression from the 2023 prototypes (`v0.1.0`) to the modern platform (`v2.12.0`).
 - **[TECHNOTE-01: Ingestion Cadence & Upstream Courtesy](docs/technote-01-data-ingestion-and-polling-strategy.md)**: Seismological wave arrival delays, solver latencies, and provider fair-use policies.
 - **[TECHNOTE-02: Catalog Hygiene & Storage Optimization](docs/technote-02-seismic-catalog-hygiene-and-storage.md)**: Noise filtering cut-off ($M < 2.0$), multi-agency deduplication, and SQLite WAL mechanics.
 - **[TECHNOTE-03: Security & Operator Ergonomics](docs/technote-03-security-and-administrative-operations.md)**: Operations deck console, concealed route architecture (`/samet`), dynamic authentication, and database maintenance.
 - **[TECHNOTE-04: Geospatial Cartography & Multimodal UX](docs/technote-04-geospatial-cartography-and-multimodal-ux.md)**: Single-page Leaflet Canvas mapping, fault-line overlays, Web Audio sonification, 3-column header HUD, and mobile dual-nav.
+- **[TECHNOTE-05: Full-Spectrum Observatory Analytics Deck](docs/technote-05-full-spectrum-observatory-analytics.md)**: 4-tab intelligence suite (Overview, Time Trends, Energy, Regions), Gutenberg-Richter $b$-value ($0.94$), TNT energy equivalence, diurnal cycle, and fault corridors.
 
 ---
 
