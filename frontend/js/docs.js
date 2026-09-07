@@ -427,12 +427,11 @@ class TemasDocsApp {
       }
       try { localStorage.setItem('temas_theme', theme); } catch (e) {}
 
-      const label = isLight ? 'Dark' : 'Light';
       const icon = isLight ? MOON_ICON : SUN_ICON;
       const title = isLight ? 'Current: Light • Switch to Dark Observatory Theme' : 'Current: Dark • Switch to Light Daylight Theme';
 
       document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
-        btn.innerHTML = icon + " <span>" + label + "</span>";
+        btn.innerHTML = icon;
         btn.title = title;
       });
     };

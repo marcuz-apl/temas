@@ -1847,12 +1847,15 @@ button {
 .theme-toggle-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
+  justify-content: center;
+  order: 99;
   font-size: 0.8rem;
   font-family: var(--font-sans);
   font-weight: 600;
   cursor: pointer;
-  padding: 0.4rem 0.8rem;
+  padding: 0.4rem;
+  width: 34px;
+  height: 34px;
   border-radius: 6px;
   transition: all 0.2s ease;
 }

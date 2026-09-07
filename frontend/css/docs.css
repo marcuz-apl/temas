@@ -224,6 +224,14 @@ body.docs-body {
   border: 1px solid transparent;
   transition: all 0.2s ease;
 }
+.theme-toggle-btn {
+  order: 99;
+  justify-content: center;
+  gap: 0;
+  width: 34px;
+  height: 34px;
+  padding: 6px;
+}
 .docs-nav-link:hover {
   color: var(--text-primary);
   background: rgba(56, 189, 248, 0.08);
