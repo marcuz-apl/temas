@@ -15,6 +15,9 @@ export function getMagnitudeRadius(mag) {
   return Math.max(5, Math.pow(mag, 1.8) * 0.7);
 }
 
+// Keep the map outline aligned with the backend ingestion/query rectangle.
+export const AOI_BOUNDS = [[34.0, 19.0], [44.0, 50.0]];
+
 export const TURKISH_CITIES = {
   "Kahramanmaraş": [37.5753, 36.9228],
   "Gaziantep": [37.0662, 37.3833],
@@ -48,6 +51,7 @@ export class TemasMap {
     this.faultLayerGroup = L.layerGroup();
     this.provinceLayerGroup = L.layerGroup();
     this.heatLayerGroup = L.layerGroup();
+    this.aoiLayerGroup = L.layerGroup();
     this.heatLayer = null;
     this.currentEarthquakes = [];
 
@@ -155,6 +159,25 @@ export class TemasMap {
     this.faultLayerGroup.addTo(this.map);
     this.provinceLayerGroup.addTo(this.map); // Active by default
     this.heatLayerGroup.addTo(this.map); // Active by default
+    this.createAoiOverlay();
+  }
+
+  createAoiOverlay() {
+    this.aoiLayerGroup.clearLayers();
+    L.rectangle(AOI_BOUNDS, {
+      color: '#f59e0b',
+      weight: 2,
+      opacity: 0.9,
+      dashArray: '8, 6',
+      fillColor: '#f59e0b',
+      fillOpacity: 0.035,
+      interactive: false
+    })
+      .bindTooltip('Area of Interest: Turkey, Greece, Crete & Aegean', {
+        sticky: true,
+        direction: 'center'
+      })
+      .addTo(this.aoiLayerGroup);
   }
 
   doToggleBasemap(forcedMode = null) {
@@ -251,6 +274,14 @@ export class TemasMap {
       }
     } else {
       if (this.map.hasLayer(this.heatLayerGroup)) this.map.removeLayer(this.heatLayerGroup);
+    }
+  }
+
+  setAoiVisibility(visible) {
+    if (visible) {
+      if (!this.map.hasLayer(this.aoiLayerGroup)) this.map.addLayer(this.aoiLayerGroup);
+    } else if (this.map.hasLayer(this.aoiLayerGroup)) {
+      this.map.removeLayer(this.aoiLayerGroup);
     }
   }
 

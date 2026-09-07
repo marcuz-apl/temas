@@ -2,17 +2,23 @@ import logging
 import httpx
 from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
+from backend.database import (
+    AOI_MIN_LATITUDE,
+    AOI_MAX_LATITUDE,
+    AOI_MIN_LONGITUDE,
+    AOI_MAX_LONGITUDE,
+)
 
 logger = logging.getLogger("temas.ingestion.emsc")
 
 EMSC_FDSN_URL = "https://www.seismicportal.eu/fdsnws/event/1/query"
 
-# Turkey bounding box
+# Shared Turkey, Greece, Crete, and Aegean bounding box.
 TURKEY_BBOX = {
-    "minlat": 35.0,
-    "maxlat": 43.0,
-    "minlon": 25.0,
-    "maxlon": 45.0
+    "minlat": AOI_MIN_LATITUDE,
+    "maxlat": AOI_MAX_LATITUDE,
+    "minlon": AOI_MIN_LONGITUDE,
+    "maxlon": AOI_MAX_LONGITUDE
 }
 
 

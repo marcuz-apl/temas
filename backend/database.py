@@ -16,6 +16,19 @@ def get_db_connection() -> sqlite3.Connection:
 
 DEFAULT_ADMIN_KEY = "temas2023"
 
+# Shared Area of Interest: Turkey, Greece, Crete, the Aegean, western Black Sea, and Baku.
+AOI_MIN_LATITUDE = 34.0
+AOI_MAX_LATITUDE = 44.0
+AOI_MIN_LONGITUDE = 19.0
+AOI_MAX_LONGITUDE = 50.0
+
+
+def is_within_aoi(latitude: float, longitude: float) -> bool:
+    return (
+        AOI_MIN_LATITUDE <= latitude <= AOI_MAX_LATITUDE
+        and AOI_MIN_LONGITUDE <= longitude <= AOI_MAX_LONGITUDE
+    )
+
 
 def init_db():
     """Initializes schema, admin configuration, and creates indexes if missing."""
@@ -40,6 +53,12 @@ def init_db():
         conn.execute("CREATE INDEX IF NOT EXISTS idx_quaketk_mag ON quaketk (magnitude DESC)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_quaketk_region ON quaketk (region)")
         conn.execute("CREATE UNIQUE INDEX IF NOT EXISTS uq_quaketk_event ON quaketk (origintimeutc, latitude, longitude, measmethod)")
+
+        # Remove legacy/provider records outside the configured Area of Interest.
+        conn.execute(
+            "DELETE FROM quaketk WHERE latitude < ? OR latitude > ? OR longitude < ? OR longitude > ?",
+            (AOI_MIN_LATITUDE, AOI_MAX_LATITUDE, AOI_MIN_LONGITUDE, AOI_MAX_LONGITUDE)
+        )
 
         # Admin configuration table for dynamic password persistence
         conn.execute("""
@@ -121,7 +140,12 @@ def insert_earthquakes(records: List[Dict[str, Any]]) -> int:
         for r in records:
             try:
                 mag = float(r.get("magnitude", 0.0))
+                latitude = float(r["latitude"])
+                longitude = float(r["longitude"])
             except Exception:
+                continue
+
+            if not is_within_aoi(latitude, longitude):
                 continue
 
             # Seismological noise filter: discard micro-tremors below M < 2.0
@@ -132,8 +156,8 @@ def insert_earthquakes(records: List[Dict[str, Any]]) -> int:
                 str(r["origintimeutc"]),
                 mag,
                 str(r.get("magtype", "ML")),
-                float(r["latitude"]),
-                float(r["longitude"]),
+                latitude,
+                longitude,
                 float(r.get("depthkm", 0.0)),
                 str(r["region"]).strip(),
                 str(r.get("measmethod", "RETMC")),
@@ -170,8 +194,22 @@ def query_earthquakes(
     offset: int = 0
 ) -> Tuple[List[Dict[str, Any]], int]:
     """Queries earthquakes with dynamic filters and returns (records, total_matching)."""
-    where_clauses = ["magnitude >= ?", "magnitude <= ?"]
-    params: List[Any] = [min_mag, max_mag]
+    where_clauses = [
+        "magnitude >= ?",
+        "magnitude <= ?",
+        "latitude >= ?",
+        "latitude <= ?",
+        "longitude >= ?",
+        "longitude <= ?"
+    ]
+    params: List[Any] = [
+        min_mag,
+        max_mag,
+        AOI_MIN_LATITUDE,
+        AOI_MAX_LATITUDE,
+        AOI_MIN_LONGITUDE,
+        AOI_MAX_LONGITUDE
+    ]
 
     if start_date:
         where_clauses.append("origintimeutc >= ?")

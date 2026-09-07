@@ -136,6 +136,11 @@ class TemasApp {
       heatToggle.addEventListener('change', (e) => this.mapEngine.setHeatmapVisibility(e.target.checked));
     }
 
+    const aoiToggle = document.getElementById('toggle-aoi');
+    if (aoiToggle) {
+      aoiToggle.addEventListener('change', (e) => this.mapEngine.setAoiVisibility(e.target.checked));
+    }
+
     // Make Floating Controls Mobile & Draggable (Docked at Lower-Left and Lower-Right)
     const layerControlsBox = document.getElementById('layer-controls');
     const layerDragHandle = document.getElementById('layer-drag-handle');
@@ -2247,6 +2252,7 @@ class TemasApp {
         bottom: 2rem;
         right: 2rem;
         z-index: 9999;
+        pointer-events: none;
         background: rgba(13, 20, 36, 0.95);
         border: 1px solid rgba(56, 189, 248, 0.4);
         box-shadow: 0 10px 30px rgba(0,0,0,0.6), 0 0 20px rgba(56,189,248,0.25);
@@ -2265,12 +2271,16 @@ class TemasApp {
     }
     const icon = type === 'error' ? '❌' : (type === 'success' ? '✅' : '📡');
     toast.innerHTML = `<span>${icon}</span><span>${msg}</span>`;
+    toast.style.display = 'flex';
     toast.style.opacity = '1';
     toast.style.transform = 'translateY(0)';
     clearTimeout(this._toastTimer);
     this._toastTimer = setTimeout(() => {
       toast.style.opacity = '0';
       toast.style.transform = 'translateY(10px)';
+      setTimeout(() => {
+        if (toast.style.opacity === '0') toast.style.display = 'none';
+      }, 300);
     }, 4000);
   }
 

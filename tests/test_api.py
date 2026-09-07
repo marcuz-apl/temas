@@ -1,7 +1,13 @@
 import pytest
 from fastapi.testclient import TestClient
 from backend.main import app, ADMIN_KEY
-from backend.database import init_db
+from backend.database import (
+    AOI_MAX_LATITUDE,
+    AOI_MAX_LONGITUDE,
+    AOI_MIN_LATITUDE,
+    AOI_MIN_LONGITUDE,
+    init_db,
+)
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_db():
@@ -33,6 +39,8 @@ def test_earthquakes_list():
         assert "region" in item
         assert isinstance(item["latitude"], (float, int))
         assert isinstance(item["longitude"], (float, int))
+        assert AOI_MIN_LATITUDE <= item["latitude"] <= AOI_MAX_LATITUDE
+        assert AOI_MIN_LONGITUDE <= item["longitude"] <= AOI_MAX_LONGITUDE
 
 def test_earthquakes_filter():
     res = client.get("/api/earthquakes?min_magnitude=4.5&limit=5")

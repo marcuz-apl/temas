@@ -24,6 +24,10 @@ from backend.database import (
     get_admin_password,
     update_admin_password,
     DEFAULT_ADMIN_KEY,
+    AOI_MIN_LATITUDE,
+    AOI_MAX_LATITUDE,
+    AOI_MIN_LONGITUDE,
+    AOI_MAX_LONGITUDE,
     DB_PATH
 )
 from backend.ingestion.scheduler import (
@@ -115,8 +119,8 @@ class ManualEarthquakeRequest(BaseModel):
     origintimeutc: str = Field(..., description="YYYY-MM-DD HH:MM:SS")
     magnitude: float = Field(..., ge=0.1, le=10.0)
     magtype: str = Field(default="ML")
-    latitude: float = Field(..., ge=30.0, le=48.0)
-    longitude: float = Field(..., ge=20.0, le=50.0)
+    latitude: float = Field(..., ge=AOI_MIN_LATITUDE, le=AOI_MAX_LATITUDE)
+    longitude: float = Field(..., ge=AOI_MIN_LONGITUDE, le=AOI_MAX_LONGITUDE)
     depthkm: float = Field(default=5.0, ge=0.0)
     region: str = Field(..., min_length=2)
     measmethod: str = Field(default="MANUAL-OPERATOR")

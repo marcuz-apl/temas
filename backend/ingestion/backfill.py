@@ -6,7 +6,13 @@ import httpx
 
 from backend.ingestion.emsc import fetch_emsc_earthquakes
 from backend.ingestion.usgs import fetch_usgs_earthquakes
-from backend.database import insert_earthquakes
+from backend.database import (
+    AOI_MAX_LATITUDE,
+    AOI_MAX_LONGITUDE,
+    AOI_MIN_LATITUDE,
+    AOI_MIN_LONGITUDE,
+    insert_earthquakes,
+)
 
 logger = logging.getLogger("temas.ingestion.backfill")
 
@@ -104,10 +110,10 @@ async def run_backfill_job(
                     "starttime": win_s,
                     "endtime": win_e,
                     "minmagnitude": min_mag,
-                    "minlatitude": 35.0,
-                    "maxlatitude": 43.0,
-                    "minlongitude": 25.0,
-                    "maxlongitude": 45.0,
+                    "minlatitude": AOI_MIN_LATITUDE,
+                    "maxlatitude": AOI_MAX_LATITUDE,
+                    "minlongitude": AOI_MIN_LONGITUDE,
+                    "maxlongitude": AOI_MAX_LONGITUDE,
                     "limit": 2000
                 }
                 async with httpx.AsyncClient(timeout=15.0) as client:

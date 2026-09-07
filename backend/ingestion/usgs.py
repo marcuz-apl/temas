@@ -2,17 +2,23 @@ import logging
 from datetime import datetime, timezone
 from typing import List, Dict, Any
 import httpx
+from backend.database import (
+    AOI_MIN_LATITUDE,
+    AOI_MAX_LATITUDE,
+    AOI_MIN_LONGITUDE,
+    AOI_MAX_LONGITUDE,
+)
 
 logger = logging.getLogger("temas.ingestion.usgs")
 
-# USGS Earthquake API - Turkey and Eastern Mediterranean Bounding Box
+# USGS Earthquake API - Turkey, Greece, Crete, and Aegean Bounding Box
 USGS_API_URL = "https://earthquake.usgs.gov/fdsnws/event/1/query"
 PARAMS = {
     "format": "geojson",
-    "minlatitude": 35.0,
-    "maxlatitude": 43.0,
-    "minlongitude": 25.0,
-    "maxlongitude": 45.0,
+    "minlatitude": AOI_MIN_LATITUDE,
+    "maxlatitude": AOI_MAX_LATITUDE,
+    "minlongitude": AOI_MIN_LONGITUDE,
+    "maxlongitude": AOI_MAX_LONGITUDE,
     "minmagnitude": 2.5,
     "limit": 200,
     "orderby": "time"
