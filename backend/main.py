@@ -40,6 +40,7 @@ from backend.ingestion.backfill import (
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "data")
 FRONTEND_DIR = os.path.join(os.path.dirname(__file__), "..", "frontend")
+DOCS_DIR = os.path.join(os.path.dirname(__file__), "..", "docs")
 ADMIN_KEY = DEFAULT_ADMIN_KEY
 
 
@@ -63,6 +64,9 @@ app = FastAPI(
     title="TEMAS API",
     description="Turkey Earthquake Monitoring & Analysis System API",
     version="2.1.0",
+    docs_url="/api/docs",
+    redoc_url="/api/redoc",
+    openapi_url="/api/openapi.json",
     lifespan=lifespan
 )
 
@@ -353,6 +357,209 @@ async def admin_delete_earthquake(event: DeleteEarthquakeRequest, _: bool = Depe
 
 os.makedirs(FRONTEND_DIR, exist_ok=True)
 app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
+
+
+@app.get("/docs")
+async def serve_docs():
+    """Serves 2-Column Documentation Portal."""
+    docs_file = os.path.join(FRONTEND_DIR, "docs.html")
+    if os.path.exists(docs_file):
+        return FileResponse(docs_file)
+    raise HTTPException(status_code=404, detail="Docs page not found")
+
+
+@app.get("/api/docs/articles")
+async def get_docs_articles():
+    """Returns catalog of documentation articles grouped strictly into the 3 core pillars."""
+    articles = [
+        # PART 1: General Knowledge of Earthquakes, Seismology & Surveillance
+        {
+            "id": "seismology-fundamentals",
+            "title": "1. Seismology Fundamentals: Physics & Waves",
+            "category": "Part 1: Earthquake & Seismology Science",
+            "badge": "Physics",
+            "file": "01-seismology-fundamentals.md",
+            "description": "Elastic rebound theory, hypocenter vs epicenter, wave spectrum (P, S, Surface), and Gutenberg-Richter scaling."
+        },
+        {
+            "id": "measurement-and-surveillance",
+            "title": "2. Scales, Sensors & Surveillance Networks",
+            "category": "Part 1: Earthquake & Seismology Science",
+            "badge": "Surveillance",
+            "file": "02-measurement-and-surveillance.md",
+            "description": "Magnitude vs intensity, energy release physics (31.6x factor), broadband seismometers, accelerometers, and EEW."
+        },
+        # PART 2: Turkey Earthquake History & Tectonic Setting
+        {
+            "id": "anatolian-tectonics",
+            "title": "3. The Anatolian Tectonic Engine & Faults",
+            "category": "Part 2: Turkey Earthquake History & Tectonics",
+            "badge": "Tectonics",
+            "file": "03-anatolian-tectonics.md",
+            "description": "Northward Arabian indentation, westward Anatolian escape, North & East Anatolian faults, and the Marmara seismic gap."
+        },
+        {
+            "id": "turkey-earthquake-history",
+            "title": "4. Modern Turkey Earthquake Chronicle (1939–2023)",
+            "category": "Part 2: Turkey Earthquake History & Tectonics",
+            "badge": "History",
+            "file": "04-turkey-earthquake-history.md",
+            "description": "Chronological history from the 1939 Erzincan mega-event to 1999 Gölcük/Marmara and institutional evolution."
+        },
+        {
+            "id": "kahramanmaras-doublet",
+            "title": "5. The February 6, 2023 Kahramanmaraş Doublet",
+            "category": "Part 2: Turkey Earthquake History & Tectonics",
+            "badge": "Doublet 2023",
+            "file": "05-kahramanmaras-doublet.md",
+            "description": "Unprecedented multi-fault cascading ruptures (Pazarcık Mw 7.8 and Elbistan Mw 7.5), Coulomb stress transfer, and ground motion."
+        },
+        # PART 3: How TEMAS Was Formed to Cope with the Challenges
+        {
+            "id": "temas-genesis-and-mission",
+            "title": "6. Platform Genesis & Mission Mandate",
+            "category": "Part 3: How TEMAS Was Formed to Cope",
+            "badge": "Genesis",
+            "file": "06-temas-genesis-and-mission.md",
+            "description": "Born from the chaos of February 2023: addressing government server collapse, conflicting public feeds, and panic."
+        },
+        {
+            "id": "engineering-challenges-and-solutions",
+            "title": "7. Architectural Solutions & Resilience",
+            "category": "Part 3: How TEMAS Was Formed to Cope",
+            "badge": "Architecture",
+            "file": "07-engineering-challenges-and-solutions.md",
+            "description": "Multi-agency deduplication, asynchronous scraper buffering, SQLite WAL throughput, and zero-downtime serving."
+        },
+        # API REFERENCE
+        {
+            "id": "api-reference",
+            "title": "8. REST API Reference & Data Contracts",
+            "category": "API Reference",
+            "badge": "API",
+            "description": "Public REST endpoints, query parameters, GeoJSON schemas, and real-time feed specifications."
+        }
+    ]
+    return {"articles": articles}
+
+
+@app.get("/api/docs/article/{doc_id}")
+async def get_docs_article_content(doc_id: str):
+    """Returns markdown content for a specific technical note or document."""
+    doc_map = {
+        "seismology-fundamentals": "01-seismology-fundamentals.md",
+        "measurement-and-surveillance": "02-measurement-and-surveillance.md",
+        "anatolian-tectonics": "03-anatolian-tectonics.md",
+        "turkey-earthquake-history": "04-turkey-earthquake-history.md",
+        "kahramanmaras-doublet": "05-kahramanmaras-doublet.md",
+        "temas-genesis-and-mission": "06-temas-genesis-and-mission.md",
+        "engineering-challenges-and-solutions": "07-engineering-challenges-and-solutions.md",
+        "technote-01": "technote-01-data-ingestion-and-polling-strategy.md",
+        "technote-02": "technote-02-seismic-catalog-hygiene-and-storage.md",
+        "technote-03": "technote-03-security-and-administrative-operations.md",
+        "technote-04": "technote-04-geospatial-cartography-and-multimodal-ux.md",
+        "technote-05": "technote-05-full-spectrum-observatory-analytics.md",
+        "changelog": "CHANGELOG.md"
+    }
+
+    if doc_id == "api-reference":
+        api_md = """# TEMAS REST API & GeoJSON Data Contracts
+
+**Status**: Production / Live  
+**Base URL**: `http://localhost:4070`  
+**Protocol**: HTTP/1.1 & HTTP/2 over TLS  
+**Data Formats**: Application/JSON, GeoJSON (RFC 7946), CSV  
+
+---
+
+## 1. Public API Endpoints
+
+### 1.1 Query Earthquakes (`GET /api/earthquakes`)
+Returns filtered earthquakes matching geographic, temporal, and magnitude query constraints.
+
+#### Query Parameters:
+| Parameter | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `min_magnitude` | float | `2.0` | Minimum magnitude filter threshold |
+| `max_magnitude` | float | `10.0` | Maximum magnitude filter threshold |
+| `start_date` | string (ISO) | `null` | Lower UTC origin timestamp boundary |
+| `end_date` | string (ISO) | `null` | Upper UTC origin timestamp boundary |
+| `min_depth` | float | `0.0` | Minimum hypocenter depth in km |
+| `max_depth` | float | `700.0`| Maximum hypocenter depth in km |
+| `limit` | int | `1000` | Maximum number of records returned (max: 20,000) |
+| `order_by` | string | `origintimeutc DESC` | Sorting column and direction |
+
+#### Example Response:
+```json
+[
+  {
+    "eventid": "20230206_011734_AFAD",
+    "origintimeutc": "2023-02-06T01:17:34Z",
+    "eventtime": "2023-02-06 04:17:34",
+    "magnitude": 7.8,
+    "magtype": "Mw",
+    "latitude": 37.288,
+    "longitude": 37.043,
+    "depthkm": 8.6,
+    "region": "Pazarcık (Kahramanmaraş)",
+    "source": "AFAD",
+    "measmethod": "Moment Tensor"
+  }
+]
+```
+
+---
+
+### 1.2 Real-Time Live Feed (`GET /api/earthquakes/live`)
+Returns the latest seismic events ingested within the last 24 hours.
+
+---
+
+### 1.3 Seismicity Summary (`GET /api/earthquakes/summary`)
+Returns aggregated telemetry statistics including 24h count, weekly count, maximum magnitude event, and provider ingestion health.
+
+---
+
+### 1.4 Active Tectonic Fault Lines (`GET /api/boundaries/faults`)
+Serves MTA (General Directorate of Mineral Research and Exploration) active fault lines as GeoJSON MultiLineString features.
+
+---
+
+### 1.5 Tectonic Plate Boundaries (`GET /api/boundaries/tectonic`)
+Serves Bird 2002 (PB2002) continental plate boundaries delineating the Anatolian, Arabian, Eurasian, and African plates.
+
+---
+
+### 1.6 Administrative Provinces (`GET /api/boundaries/provinces`)
+Serves simplified administrative boundary polygons for all 81 provinces of Turkey.
+
+---
+
+## 2. Interactive Swagger / OpenAPI UI
+For interactive browser-based testing of all parameters and schemas, visit the [Interactive API Playground](/api/docs).
+"""
+        return {
+            "id": "api-reference",
+            "title": "REST API Reference & Data Contracts",
+            "category": "Developer Resources",
+            "markdown": api_md
+        }
+
+    if doc_id not in doc_map:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    file_path = os.path.join(DOCS_DIR, doc_map[doc_id])
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail=f"File {doc_map[doc_id]} not found on disk")
+
+    with open(file_path, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    return {
+        "id": doc_id,
+        "filename": doc_map[doc_id],
+        "markdown": content
+    }
 
 
 @app.get("/samet")

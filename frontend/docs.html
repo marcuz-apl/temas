@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Documentation — TEMAS 2 Seismic Intelligence Platform</title>
+  <meta name="description" content="Official technical documentation, seismological science fundamentals, Anatolian earthquake history, and architectural reference for TEMAS.">
+
+  <!-- Google Fonts: Outfit + JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/static/css/docs.css?v=2.12.5">
+  <script>
+    (function() {
+      try {
+        if (localStorage.getItem('temas_theme') === 'light') {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      } catch(e) {}
+    })();
+  </script>
+</head>
+<body class="docs-body">
+
+  <!-- Ambient Glow Elements -->
+  <div class="docs-ambient glow-top"></div>
+  <div class="docs-ambient glow-bottom"></div>
+
+  <!-- Top Navigation Bar -->
+  <header class="docs-header">
+    <div class="docs-header-left">
+      <button id="btnMobileSidebarToggle" class="btn-icon-mobile" title="Toggle Sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-menu">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+
+      <a href="/docs" class="docs-brand">
+        <div class="brand-logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
+        </div>
+        <div class="brand-name-wrap">
+          <span class="brand-name">TEMAS 2</span>
+          <span class="docs-pill">DOCS</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- Center Search Bar -->
+    <div class="docs-header-search">
+      <div class="search-box-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="search-icon">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="docsSearchInput" placeholder="Search documentation topics, fault zones, equations..." autocomplete="off">
+        <span class="search-shortcut-badge">Ctrl K</span>
+      </div>
+    </div>
+
+    <!-- Header Actions -->
+    <div class="docs-header-actions">
+            <button type="button" id="docsThemeToggleBtn" class="docs-nav-link theme-toggle-btn" title="Toggle Light / Dark Theme" aria-label="Toggle Light / Dark Theme">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="theme-icon"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        <span class="theme-label">Theme</span>
+      </button>
+      <a href="/" class="docs-nav-link" title="Open Public Interactive Map">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+          <line x1="8" y1="2" x2="8" y2="18"></line>
+          <line x1="16" y1="6" x2="16" y2="22"></line>
+        </svg>
+        <span>Public Map</span>
+      </a>
+
+      <a href="/samet" class="docs-nav-link" title="Access Observatory Operations Control Deck">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z"/>
+          <path d="M12 8v8"/>
+          <path d="M8 12h8"/>
+        </svg>
+        <span>Ops Deck</span>
+      </a>
+
+      <a href="/api/docs" class="docs-nav-link" target="_blank" title="Interactive Swagger / OpenAPI Testing Suite">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="16 18 22 12 16 6"></polyline>
+          <polyline points="8 6 2 12 8 18"></polyline>
+        </svg>
+        <span>Swagger API</span>
+      </a>
+
+
+
+      <a href="https://github.com/marcuz-apl/temas" target="_blank" rel="noopener noreferrer" class="docs-nav-link link-github" title="View Source on GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+        </svg>
+      </a>
+    </div>
+  </header>
+
+  <!-- 2-COLUMN DOCUMENTATION LAYOUT -->
+  <div class="docs-container">
+
+    <!-- COLUMN 1: LEFT NAVIGATION SIDEBAR -->
+    <aside class="docs-sidebar" id="docsSidebar">
+      <div class="sidebar-inner">
+        <!-- Quick Topic Filter -->
+        <div class="sidebar-filter-wrap">
+          <input type="text" id="sidebarFilterInput" placeholder="Filter topics..." class="sidebar-filter-input">
+        </div>
+
+        <!-- Dynamic Category Navigation Groups -->
+        <nav class="sidebar-nav" id="sidebarNav">
+          <!-- Populated dynamically via docs.js -->
+        </nav>
+      </div>
+    </aside>
+
+    <!-- Sidebar Backdrop for Mobile Drawer -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <!-- COLUMN 2: MAIN CANVAS -->
+    <main class="docs-main" id="docsMain">
+      <div class="content-wrapper">
+
+        <!-- Breadcrumbs Trail -->
+        <div class="docs-breadcrumbs" id="docsBreadcrumbs">
+          <span>Docs</span>
+          <span class="bc-sep">/</span>
+          <span id="bcCategory">Part 1: Earthquake &amp; Seismology Science</span>
+          <span class="bc-sep">/</span>
+          <span id="bcTitle" class="bc-current">1. Seismology Fundamentals</span>
+        </div>
+
+        <!-- Article Header Card -->
+        <div class="article-meta-card">
+          <div class="meta-card-top">
+            <span class="article-badge" id="articleBadge">Physics</span>
+            <span class="read-time-pill" id="articleReadTime">⏱ 5 min read</span>
+          </div>
+          <h1 class="article-main-title" id="articleTitle">1. Seismological Fundamentals: Physics, Waves &amp; Ruptures</h1>
+          <p class="article-desc" id="articleDesc">Elastic rebound theory, hypocenter vs epicenter, wave spectrum (P, S, Surface), and Gutenberg-Richter scaling.</p>
+        </div>
+
+        <!-- Markdown Document Target -->
+        <article class="markdown-body" id="docContent">
+          <div class="doc-loading">
+            <div class="pulse-loader"></div>
+            <span>Loading technical document...</span>
+          </div>
+        </article>
+
+        <!-- Bottom Prev / Next Navigation -->
+        <footer class="docs-footer-nav">
+          <button id="btnPrevArticle" class="btn-doc-nav btn-prev" disabled>
+            <span class="nav-direction">&larr; Previous</span>
+            <span class="nav-title" id="prevArticleTitle">--</span>
+          </button>
+          <button id="btnNextArticle" class="btn-doc-nav btn-next" disabled>
+            <span class="nav-direction">Next &rarr;</span>
+            <span class="nav-title" id="nextArticleTitle">--</span>
+          </button>
+        </footer>
+
+        <!-- Micro Footer Notice -->
+        <div class="docs-colophon">
+          <span>TEMAS 2 &bull; Türkiye Earthquake Monitoring &amp; Analytics System</span>
+          <span>Open Science &bull; CC BY-SA 4.0</span>
+          <span>Anatolian Seismic Observatory Documentation</span>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <!-- Floating Back to Top Button -->
+  <button id="btnBackToTop" class="btn-back-to-top" title="Scroll to top">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <polyline points="18 15 12 9 6 15"></polyline>
+    </svg>
+  </button>
+
+  <!-- Marked Markdown Parser (Local Vendor) -->
+  <script src="/static/js/marked.min.js"></script>
+
+  <!-- Docs Application Logic -->
+  <script type="module" src="/static/js/docs.js?v=2.12.5"></script>
+  <script>
+    (function() {
+      function syncThemeBtns() {
+        var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+        var sun = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="theme-icon"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
+        var moon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="theme-icon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
+        var icon = isLight ? moon : sun;
+        var label = isLight ? 'Dark' : 'Light';
+        var title = isLight ? 'Current: Light • Switch to Dark' : 'Current: Dark • Switch to Light';
+        document.querySelectorAll('.theme-toggle-btn').forEach(function(b) {
+          b.innerHTML = icon + ' <span class="theme-label">' + label + '</span>';
+          b.title = title;
+        });
+      }
+      window.toggleTemasTheme = function() {
+        var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+        var next = isLight ? 'dark' : 'light';
+        if (next === 'light') {
+          document.documentElement.setAttribute('data-theme', 'light');
+        } else {
+          document.documentElement.removeAttribute('data-theme');
+        }
+        try { localStorage.setItem('temas_theme', next); } catch(e) {}
+        syncThemeBtns();
+      };
+      document.addEventListener('DOMContentLoaded', function() {
+        syncThemeBtns();
+        document.querySelectorAll('.theme-toggle-btn').forEach(function(b) {
+          b.onclick = window.toggleTemasTheme;
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

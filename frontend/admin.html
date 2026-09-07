@@ -3,14 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TEMAS 2.8 — Observatory Operations Deck</title>
+  <title>TEMAS 2 — Observatory Operations Deck</title>
   <meta name="description" content="Mission control, multi-source ingestion telemetry, and historical backfill engine for TEMAS Turkey-Syria Seismic Observatory.">
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="/static/css/admin.css?v=2.1.2">
+  <link rel="stylesheet" href="/static/css/admin.css?v=2.12.5">
+    <script>
+    (function() {
+      try {
+        var t = localStorage.getItem('temas_theme') || 'dark';
+        if (t === 'light') {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      } catch(e) {}
+    })();
+  </script>
 </head>
 <body>
 
@@ -96,6 +106,10 @@
 
       <div class="header-right">
         <div class="clock-chip" id="deckTime" title="Turkey Observatory Time (UTC+3)">--:--:-- UTC+3</div>
+                <button type="button" id="adminThemeToggleBtn" class="nav-btn theme-toggle-btn" title="Toggle Light / Dark Theme" aria-label="Toggle Light / Dark Theme">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="theme-icon"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+          <span class="theme-label">Theme</span>
+        </button>
         <a href="/" class="nav-btn" title="View Public Interactive Map">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
@@ -103,6 +117,13 @@
             <line x1="16" y1="6" x2="16" y2="22"></line>
           </svg>
           Public Map
+        </a>
+        <a href="/docs" class="nav-btn" title="View Platform Technical Documentation & Architecture">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+          </svg>
+          Docs
         </a>
         <button id="openAboutBtn" class="nav-btn" title="About TEMAS Observatory">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -682,7 +703,40 @@
   <!-- Floating Cyber Toast Container (Replaces browser alert) -->
   <div id="toastContainer" class="toast-container"></div>
 
-  <script src="/static/js/admin.js?v=2.12.0"></script>
+  <script src="/static/js/admin.js?v=2.12.5"></script>
+  <script>
+    (function() {
+      function syncThemeBtns() {
+        var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+        var sun = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="theme-icon"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
+        var moon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="theme-icon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
+        var icon = isLight ? moon : sun;
+        var label = isLight ? 'Dark' : 'Light';
+        var title = isLight ? 'Current: Light • Switch to Dark' : 'Current: Dark • Switch to Light';
+        document.querySelectorAll('.theme-toggle-btn').forEach(function(b) {
+          b.innerHTML = icon + ' <span class="theme-label">' + label + '</span>';
+          b.title = title;
+        });
+      }
+      window.toggleTemasTheme = function() {
+        var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+        var next = isLight ? 'dark' : 'light';
+        if (next === 'light') {
+          document.documentElement.setAttribute('data-theme', 'light');
+        } else {
+          document.documentElement.removeAttribute('data-theme');
+        }
+        try { localStorage.setItem('temas_theme', next); } catch(e) {}
+        syncThemeBtns();
+      };
+      document.addEventListener('DOMContentLoaded', function() {
+        syncThemeBtns();
+        document.querySelectorAll('.theme-toggle-btn').forEach(function(b) {
+          b.onclick = window.toggleTemasTheme;
+        });
+      });
+    })();
+  </script>
 </body>
 </html>
 

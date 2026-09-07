@@ -1067,4 +1067,42 @@
     backfillPollTimer = null;
   }
 
+
+  // ==========================================
+  // Light / Dark Theme Management
+  // ==========================================
+  const SUN_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="theme-icon"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
+  const MOON_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="theme-icon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
+
+  function applyTheme(theme) {
+    const isLight = theme === 'light';
+    if (isLight) {
+      document.documentElement.setAttribute('data-theme', 'light');
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+    }
+    try { localStorage.setItem('temas_theme', theme); } catch (e) {}
+
+    const label = isLight ? 'Dark' : 'Light';
+    const icon = isLight ? MOON_ICON : SUN_ICON;
+    const title = isLight ? 'Current: Light • Switch to Dark Observatory Theme' : 'Current: Dark • Switch to Light Daylight Theme';
+
+    document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
+      btn.innerHTML = icon + " <span>" + label + "</span>";
+      btn.title = title;
+    });
+  }
+
+  function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+    applyTheme(current === 'light' ? 'dark' : 'light');
+  }
+
+  const initialTheme = localStorage.getItem('temas_theme') || 'dark';
+  applyTheme(initialTheme);
+
+  document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
+    btn.addEventListener('click', toggleTheme);
+  });
+
 })();
