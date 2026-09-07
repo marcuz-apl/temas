@@ -14,6 +14,7 @@
   const authSubmitBtn = document.getElementById('authSubmitBtn');
   const adminDeck = document.getElementById('adminDeck');
   const logoutBtn = document.getElementById('logoutBtn');
+  const publicMapLink = document.getElementById('publicMapLink');
   const deckTime = document.getElementById('deckTime');
 
   // Providers & Sync
@@ -465,6 +466,12 @@
   }
 
   logoutBtn.addEventListener('click', lockDeck);
+
+  if (publicMapLink) {
+    publicMapLink.addEventListener('click', () => {
+      lockDeck();
+    });
+  }
 
   if (adminKey) {
     verifyKey(adminKey).then((valid) => {

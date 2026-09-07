@@ -110,7 +110,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="theme-icon"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
           <span class="theme-label">Theme</span>
         </button>
-        <a href="/" class="nav-btn" title="View Public Interactive Map">
+        <a href="/" id="publicMapLink" class="nav-btn" title="View Public Interactive Map">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
             <line x1="8" y1="2" x2="8" y2="18"></line>
@@ -610,7 +610,7 @@
         <button id="closeChangePwdBtn" class="btn-close-modal">✕</button>
       </div>
       <form id="changePwdForm" class="modal-form">
-        <p class="auth-desc" style="margin-bottom: 1.25rem;">Set a new operator master passkey. Default is <code>Tema$2023</code>.</p>
+        <p class="auth-desc" style="margin-bottom: 1.25rem;">Set a new operator master passkey. Default is <code>temas2023</code>.</p>
         <div class="field-item" style="margin-bottom: 1rem;">
           <label for="currentPwdInput">CURRENT PASSWORD</label>
           <input type="password" id="currentPwdInput" placeholder="Enter current passkey..." required>
@@ -704,39 +704,6 @@
   <div id="toastContainer" class="toast-container"></div>
 
   <script src="/static/js/admin.js?v=2.12.5"></script>
-  <script>
-    (function() {
-      function syncThemeBtns() {
-        var isLight = document.documentElement.getAttribute('data-theme') === 'light';
-        var sun = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="theme-icon"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
-        var moon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="theme-icon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
-        var icon = isLight ? moon : sun;
-        var label = isLight ? 'Dark' : 'Light';
-        var title = isLight ? 'Current: Light • Switch to Dark' : 'Current: Dark • Switch to Light';
-        document.querySelectorAll('.theme-toggle-btn').forEach(function(b) {
-          b.innerHTML = icon + ' <span class="theme-label">' + label + '</span>';
-          b.title = title;
-        });
-      }
-      window.toggleTemasTheme = function() {
-        var isLight = document.documentElement.getAttribute('data-theme') === 'light';
-        var next = isLight ? 'dark' : 'light';
-        if (next === 'light') {
-          document.documentElement.setAttribute('data-theme', 'light');
-        } else {
-          document.documentElement.removeAttribute('data-theme');
-        }
-        try { localStorage.setItem('temas_theme', next); } catch(e) {}
-        syncThemeBtns();
-      };
-      document.addEventListener('DOMContentLoaded', function() {
-        syncThemeBtns();
-        document.querySelectorAll('.theme-toggle-btn').forEach(function(b) {
-          b.onclick = window.toggleTemasTheme;
-        });
-      });
-    })();
-  </script>
 </body>
 </html>
 

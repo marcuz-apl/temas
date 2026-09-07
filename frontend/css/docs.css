@@ -955,3 +955,156 @@ html[data-theme="light"] .nav-card:hover {
 html[data-theme="light"] .nav-card-title {
   color: #0f172a;
 }
+
+/* Keep the documentation portal aligned with the admin light theme. */
+html[data-theme="light"] .brand-name,
+html[data-theme="light"] .article-main-title,
+html[data-theme="light"] .markdown-body h1,
+html[data-theme="light"] .markdown-body h2,
+html[data-theme="light"] .markdown-body h3,
+html[data-theme="light"] .markdown-body h4,
+html[data-theme="light"] .markdown-body strong,
+html[data-theme="light"] .nav-title {
+  color: #0f172a;
+}
+
+html[data-theme="light"] .search-box-wrap input,
+html[data-theme="light"] .sidebar-filter-input {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+html[data-theme="light"] .search-box-wrap input:focus,
+html[data-theme="light"] .sidebar-filter-input:focus {
+  background: #ffffff;
+  border-color: #0284c7;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+}
+
+html[data-theme="light"] .search-shortcut-badge {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #64748b;
+}
+
+html[data-theme="light"] .docs-sidebar {
+  background: rgba(255, 255, 255, 0.96);
+  border-right-color: rgba(15, 23, 42, 0.10);
+}
+
+html[data-theme="light"] .sidebar-link-item a {
+  color: #64748b;
+}
+
+html[data-theme="light"] .sidebar-link-item a:hover {
+  background: #f1f5f9;
+  color: #0284c7;
+}
+
+html[data-theme="light"] .sidebar-link-item.active a {
+  background: rgba(2, 132, 199, 0.09);
+  color: #0284c7;
+}
+
+html[data-theme="light"] .nav-badge {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #64748b;
+}
+
+html[data-theme="light"] .docs-main,
+html[data-theme="light"] .content-wrapper {
+  color: #334155;
+}
+
+html[data-theme="light"] .markdown-body {
+  color: #334155;
+}
+
+html[data-theme="light"] .markdown-body h2,
+html[data-theme="light"] .markdown-body h3 {
+  border-bottom-color: #e2e8f0;
+}
+
+html[data-theme="light"] .markdown-body em {
+  color: #64748b;
+}
+
+html[data-theme="light"] .markdown-body code {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #0369a1;
+}
+
+html[data-theme="light"] .code-block-wrapper {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+}
+
+html[data-theme="light"] .code-header {
+  background: #f1f5f9;
+  border-bottom-color: #cbd5e1;
+  color: #64748b;
+}
+
+html[data-theme="light"] .markdown-body pre {
+  background: #f8fafc;
+  color: #334155;
+}
+
+html[data-theme="light"] .markdown-body pre code {
+  color: #334155;
+}
+
+html[data-theme="light"] .btn-copy-code {
+  border-color: #cbd5e1;
+  color: #475569;
+}
+
+html[data-theme="light"] .btn-copy-code:hover {
+  background: #ffffff;
+  color: #0284c7;
+}
+
+html[data-theme="light"] .markdown-body table {
+  background: #ffffff;
+  border-color: #cbd5e1;
+}
+
+html[data-theme="light"] .markdown-body th {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-bottom-color: #cbd5e1;
+}
+
+html[data-theme="light"] .markdown-body td {
+  color: #334155;
+  border-bottom-color: #e2e8f0;
+}
+
+html[data-theme="light"] .markdown-body blockquote {
+  background: #f8fafc;
+  color: #334155;
+}
+
+html[data-theme="light"] .btn-doc-nav {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+html[data-theme="light"] .btn-doc-nav:hover:not(:disabled) {
+  background: #ffffff;
+  border-color: #0284c7;
+}
+
+html[data-theme="light"] .docs-colophon {
+  border-top-color: #e2e8f0;
+}
+
+html[data-theme="light"] .btn-back-to-top {
+  background: #ffffff;
+  color: #0284c7;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.14);
+}

@@ -11,7 +11,7 @@
 
 As the TEMAS platform evolved from an automated prototype into an operational observatory deck, two fundamental requirements arose:
 1. **Secure, Dynamic Authentication**:
-   - Master passkey commemorating the project's inception year (2023): `Tema$2023`.
+  - Master passkey commemorating the project's inception year (2023): `temas2023`.
    - The operator must be equipped with the ability to change this passkey at any time after login, with changes persisting across reboots without requiring server restarts or environment variable modifications.
 2. **Operator Ergonomics & Mission-Control Design**:
    - Critical sync feedback must appear on the **client side** in responsive, sleek telemetry modals rather than in the server console or disruptive browser `alert()` popups.
@@ -21,10 +21,10 @@ As the TEMAS platform evolved from an automated prototype into an operational ob
 
 ## 2. Dynamic Authentication Architecture
 
-### 2.1 The Inception Credential: `Tema$2023`
+### 2.1 The Inception Credential: `temas2023`
 The default administrator master passkey is officially designated as:
 
-> **Default Master Passkey**: `Tema$2023`
+> **Default Master Passkey**: `temas2023`
 
 This honors the birth year of the TEMAS project (founded following the catastrophic February 2023 Kahramanmaraş earthquake sequence to advance open, real-time seismic awareness in Turkey).
 
@@ -63,13 +63,13 @@ To insulate the operations panel against automated botnet scanning, brute-force 
    - **Local Operations URL**: `http://localhost:4070/samet`
 2. **Deceptive 404 on `/admin`**: Requests probing `/admin` receive a standard HTTP 404 Not Found response, concealing the existence of an operational interface.
 3. **Zero Public Links**: No public frontpage headers, mobile menus, or search engine sitemaps link to `/samet`.
-4. **Credential Privacy**: The login interface does not disclose passkey hints; initial credentials (`Tema$2023`) are preserved solely in developer documentation.
+4. **Credential Privacy**: The login interface does not disclose passkey hints; initial credentials (`temas2023`) are preserved solely in developer documentation.
 
 ### 2.5 Documentation Balance: Public README vs. Internal Engineering Manuals
 A key architectural principle in TEMAS is maintaining a secure balance between open-source transparency and operational hardening:
 - **In Public Documentation (`README.md`)**:
   - The feature is documented conceptually as the **"Hardened Administrative Operations Deck"**.
-  - Neither the live concealed path (`/samet`) nor the default master passkey (`Tema$2023`) are published in `README.md`.
+  - Neither the live concealed path (`/samet`) nor the default master passkey (`temas2023`) are published in `README.md`.
   - Probes to `/admin` are explained as returning a deceptive `404 Not Found` decoy.
   - Legitimate operators and contributors are directed to this technical note (`docs/technote-03-security-and-administrative-operations.md`) for internal onboarding.
 - **In Engineering Manuals (`technote-03`)**:
