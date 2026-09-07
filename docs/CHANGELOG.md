@@ -86,8 +86,21 @@ v2.1.0 (Baseline Architecture)
               │
               ├─► v2.12.2 (Fix: Expanded 2/3 Height Time Trends Timeline & Unified Print/PNG Export Header)
               │
-              └─► v2.12.5 (Feat: Operations Deck, Persistent Themes & Admin Security Hardening)
+              ├─► v2.12.5 (Feat: Operations Deck, Persistent Themes & Admin Security Hardening)
+              │
+              └─► v2.12.6 (Feat: Expanded AOI Coverage, Visual Boundary & Compact Theme Controls)
 ```
+
+---
+### [v2.12.6] — 2026-09-07
+**Feat: Expanded AOI Coverage, Visual Boundary & Compact Theme Controls**
+- **Type**: `feat(map)` / `fix(data-integrity)` / `fix(ui)` / `patch-release`
+- **Scope**: `backend/database.py`, `backend/main.py`, `backend/ingestion/`, `frontend/js/map.js`, `frontend/index.html`, `frontend/js/app.js`, `frontend/admin.html`, `frontend/docs.html`, `frontend/css/`
+- **Key Deliverables**:
+  - **Expanded Area of Interest**: Unified ingestion, backfill, manual-event validation, API queries, and database cleanup around the integer rectangle `34–44°N, 19–50°E`, covering Turkey, Greece, Crete, the Aegean, western Black Sea, and Baku.
+  - **Visual AOI Boundary**: Added a toggleable Leaflet rectangle in the Layers panel, hidden by default while retaining strict dataset filtering.
+  - **Interaction Reliability**: Prevented dismissed export toasts from blocking the lower-right magnitude widget and refreshed the frontend asset cache-buster.
+  - **Compact Navigation Controls**: Converted Admin and Docs theme toggles to icon-only controls positioned at the far right while preserving tooltips and accessibility labels.
 
 ---
 ### [v2.12.5] — 2026-09-07
