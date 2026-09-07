@@ -24,7 +24,10 @@ class TemasApp {
         currentIndex: 0,
         speed: 5
       },
-      analyticsScope: 'archive'
+      analyticsScope: 'archive',
+      tablePage: 0,
+      tablePageSize: 100,
+      tableDataScope: 'filtered'
     };
 
     this.fullCatalogCache = null;
@@ -383,6 +386,10 @@ class TemasApp {
 
     if (tableBtn && modalBackdrop) {
       tableBtn.addEventListener('click', () => {
+        this.state.tablePage = 0;
+        this.state.tableDataScope = 'filtered';
+        const scopeSel = document.getElementById('table-data-scope');
+        if (scopeSel) scopeSel.value = 'filtered';
         this.renderModalTable();
         modalBackdrop.classList.add('open');
       });
@@ -392,6 +399,43 @@ class TemasApp {
       closeModalBtn.addEventListener('click', () => modalBackdrop.classList.remove('open'));
       modalBackdrop.addEventListener('click', (e) => {
         if (e.target === modalBackdrop) modalBackdrop.classList.remove('open');
+      });
+    }
+
+    // Data Table Pagination
+    const pageSizeSelect = document.getElementById('table-page-size');
+    if (pageSizeSelect) {
+      pageSizeSelect.addEventListener('change', (e) => {
+        this.state.tablePageSize = parseInt(e.target.value, 10);
+        this.state.tablePage = 0;
+        this.renderModalTable();
+      });
+    }
+
+    const pageFirst = document.getElementById('btn-page-first');
+    const pagePrev  = document.getElementById('btn-page-prev');
+    const pageNext  = document.getElementById('btn-page-next');
+    const pageLast  = document.getElementById('btn-page-last');
+
+    if (pageFirst) pageFirst.addEventListener('click', () => { this.state.tablePage = 0; this.renderModalTable(); });
+    if (pagePrev)  pagePrev.addEventListener('click',  () => { this.state.tablePage = Math.max(0, this.state.tablePage - 1); this.renderModalTable(); });
+    if (pageNext)  pageNext.addEventListener('click',  () => { this.state.tablePage++; this.renderModalTable(); });
+    if (pageLast)  pageLast.addEventListener('click',  () => {
+      const totalPages = Math.max(1, Math.ceil(this.state.earthquakes.length / this.state.tablePageSize));
+      this.state.tablePage = totalPages - 1;
+      this.renderModalTable();
+    });
+
+    // Data Table Scope Selector
+    const dataScopeSelect = document.getElementById('table-data-scope');
+    if (dataScopeSelect) {
+      dataScopeSelect.addEventListener('change', async (e) => {
+        this.state.tableDataScope = e.target.value;
+        this.state.tablePage = 0;
+        if (e.target.value === 'all') {
+          await this.fetchFullCatalogCache();
+        }
+        this.renderModalTable();
       });
     }
 
@@ -674,6 +718,10 @@ class TemasApp {
     if (mTableBtn) {
       mTableBtn.addEventListener('click', () => {
         closeMobileTools();
+        this.state.tablePage = 0;
+        this.state.tableDataScope = 'filtered';
+        const scopeSel = document.getElementById('table-data-scope');
+        if (scopeSel) scopeSel.value = 'filtered';
         this.renderModalTable();
         const tableModal = document.getElementById('table-modal');
         if (tableModal) tableModal.classList.add('open');
@@ -1356,9 +1404,9 @@ class TemasApp {
     // Monthly Chart Render (SVG Area-Bars)
     if (monthlyContainer) {
       const rawMonths = Object.keys(monthCounts).sort();
-      let sortedMonths = [];
+      let allSortedMonths = [];
       if (rawMonths.length > 0) {
-        // Guarantee continuous full-catalog timeline from earliest recorded month (2021-01) to latest (2026-09)
+        // Guarantee continuous full-catalog timeline from earliest to latest month
         const firstYm = rawMonths[0];
         const lastYm = rawMonths[rawMonths.length - 1];
         const startY = parseInt(firstYm.substring(0, 4), 10);
@@ -1369,91 +1417,42 @@ class TemasApp {
         let cy = startY, cm = startM;
         while (cy < endY || (cy === endY && cm <= endM)) {
           const ymKey = `${cy}-${String(cm).padStart(2, '0')}`;
-          sortedMonths.push(ymKey);
+          allSortedMonths.push(ymKey);
           if (!monthCounts[ymKey]) monthCounts[ymKey] = 0;
           cm++;
           if (cm > 12) { cm = 1; cy++; }
         }
       } else {
-        sortedMonths = rawMonths;
+        allSortedMonths = rawMonths;
       }
 
-      let peakMonth = '2023-02';
-      let peakCount = 0;
+      // Cache full dataset for the slider to reuse
+      this._timelineMonths = allSortedMonths;
+      this._timelineMonthCounts = monthCounts;
+      this._timelineMonthMaxM = monthMaxM;
+      this._timelinePeakBadge = peakMonthBadge;
 
-      sortedMonths.forEach((ym) => {
-        if (monthCounts[ym] > peakCount) {
-          peakCount = monthCounts[ym];
-          peakMonth = ym;
+      // Setup slider range: the slider maps 0..100 to the start offset of the 60-month window
+      const windowSize = 60; // 5 years
+      const slider = document.getElementById('timeline-window-range');
+      if (slider) {
+        if (allSortedMonths.length <= windowSize) {
+          slider.disabled = true;
+          slider.value = 100;
+        } else {
+          slider.disabled = false;
+          // Default: show the latest 5 years (slider at right end)
+          slider.value = 100;
         }
-      });
-
-      if (peakMonthBadge) {
-        peakMonthBadge.textContent = `Peak: ${peakMonth} (${peakCount.toLocaleString()} quakes)`;
+        // Wire up the slider event (remove old listener first)
+        if (!this._timelineSliderBound) {
+          slider.addEventListener('input', () => this.renderMonthlyTimelineWindow());
+          this._timelineSliderBound = true;
+        }
       }
 
-      const svgWidth = 1000;
-      const svgHeight = 280;
-      const padLeft = 48;
-      const padRight = 20;
-      const padTop = 22;
-      const padBottom = 34;
-
-      const plotW = svgWidth - padLeft - padRight;
-      const plotH = svgHeight - padTop - padBottom;
-      const maxVal = Math.max(peakCount, 100);
-
-      const nMonths = sortedMonths.length || 1;
-      const barSlotW = plotW / nMonths;
-      const barW = Math.max(3.5, barSlotW - 1.5);
-
-      let barsSvg = '';
-      let yearTicks = '';
-      let lastYear = '';
-
-      sortedMonths.forEach((ym, i) => {
-        const count = monthCounts[ym] || 0;
-        const barH = (count / maxVal) * plotH;
-        const x = padLeft + i * barSlotW;
-        const y = padTop + plotH - barH;
-
-        let color = '#38bdf8';
-        if (ym === '2023-02' || count >= 1000) color = '#ef4444';
-        else if (count >= 500) color = '#f43f5e';
-        else if (count >= 200) color = '#f59e0b';
-
-        barsSvg += `
-          <rect x="${x}" y="${y}" width="${barW}" height="${Math.max(barH, count > 0 ? 3 : 0)}" rx="2" fill="${color}" opacity="${count > 0 ? 0.92 : 0.2}">
-            <title>${ym}: ${count.toLocaleString()} quakes (Max M${(monthMaxM[ym] || 0).toFixed(1)})</title>
-          </rect>
-        `;
-
-        const curYear = ym.substring(0, 4);
-        if (curYear !== lastYear) {
-          yearTicks += `
-            <text x="${x + 2}" y="${svgHeight - 10}" fill="#cbd5e1" font-size="12" font-family="monospace" font-weight="700">${curYear}</text>
-            <line x1="${x}" y1="${padTop}" x2="${x}" y2="${padTop + plotH}" stroke="rgba(255,255,255,0.08)" stroke-dasharray="3,3" />
-          `;
-          lastYear = curYear;
-        }
-      });
-
-      monthlyContainer.innerHTML = `
-        <svg viewBox="0 0 ${svgWidth} ${svgHeight}" preserveAspectRatio="none">
-          <!-- Horizontal Guide Gridlines -->
-          <line x1="${padLeft}" y1="${padTop}" x2="${svgWidth - padRight}" y2="${padTop}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="4,4" />
-          <line x1="${padLeft}" y1="${padTop + plotH / 2}" x2="${svgWidth - padRight}" y2="${padTop + plotH / 2}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="4,4" />
-          <line x1="${padLeft}" y1="${padTop + plotH}" x2="${svgWidth - padRight}" y2="${padTop + plotH}" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" />
-          
-          ${yearTicks}
-          ${barsSvg}
-          
-          <!-- Y-Axis Ticks -->
-          <text x="8" y="${padTop + 12}" fill="#94a3b8" font-size="10" font-family="monospace">${maxVal}</text>
-          <text x="8" y="${padTop + plotH / 2 + 4}" fill="#64748b" font-size="10" font-family="monospace">${Math.round(maxVal / 2)}</text>
-          <text x="8" y="${padTop + plotH}" fill="#64748b" font-size="10" font-family="monospace">0</text>
-        </svg>
-      `;
+      // Initial render at default position (latest 5 years)
+      this.renderMonthlyTimelineWindow();
     }
 
     // 24-Hour Diurnal Chart
@@ -1496,6 +1495,128 @@ class TemasApp {
   /**
    * Tab 3: Seismic Energy & Geophysical Physics
    */
+  /**
+   * Renders the monthly timeline SVG chart for the current slider window (5-year/60-month view).
+   * Called on initial render and whenever the slider is moved.
+   */
+  renderMonthlyTimelineWindow() {
+    const monthlyContainer = document.getElementById('analytics-monthly-chart');
+    if (!monthlyContainer || !this._timelineMonths) return;
+
+    const allMonths = this._timelineMonths;
+    const monthCounts = this._timelineMonthCounts;
+    const monthMaxM = this._timelineMonthMaxM;
+    const peakMonthBadge = this._timelinePeakBadge;
+
+    const windowSize = 60; // 5 years = 60 months
+    const slider = document.getElementById('timeline-window-range');
+    const sliderLabel = document.getElementById('timeline-slider-label');
+    const rangeLabel = document.getElementById('analytics-timeline-range');
+
+    // Compute the window slice
+    let windowMonths;
+    if (allMonths.length <= windowSize) {
+      windowMonths = allMonths;
+    } else {
+      const sliderVal = slider ? parseInt(slider.value, 10) : 100;
+      const maxOffset = allMonths.length - windowSize;
+      const offset = Math.round((sliderVal / 100) * maxOffset);
+      windowMonths = allMonths.slice(offset, offset + windowSize);
+    }
+
+    // Update dynamic title range
+    if (rangeLabel && windowMonths.length > 0) {
+      const firstYear = windowMonths[0].substring(0, 4);
+      const lastYear = windowMonths[windowMonths.length - 1].substring(0, 4);
+      rangeLabel.textContent = firstYear === lastYear ? firstYear : `${firstYear} \u2013 ${lastYear}`;
+    }
+
+    // Update slider label
+    if (sliderLabel && windowMonths.length > 0) {
+      const f = windowMonths[0];
+      const l = windowMonths[windowMonths.length - 1];
+      sliderLabel.textContent = `${f} \u2192 ${l}`;
+    }
+
+    // Find peak in window
+    let peakMonth = '';
+    let peakCount = 0;
+    windowMonths.forEach((ym) => {
+      if ((monthCounts[ym] || 0) > peakCount) {
+        peakCount = monthCounts[ym];
+        peakMonth = ym;
+      }
+    });
+
+    if (peakMonthBadge) {
+      peakMonthBadge.textContent = `Peak: ${peakMonth} (${peakCount.toLocaleString()} quakes)`;
+    }
+
+    // SVG rendering
+    const svgWidth = 1000;
+    const svgHeight = 280;
+    const padLeft = 48;
+    const padRight = 20;
+    const padTop = 22;
+    const padBottom = 34;
+
+    const plotW = svgWidth - padLeft - padRight;
+    const plotH = svgHeight - padTop - padBottom;
+    const maxVal = Math.max(peakCount, 100);
+
+    const nMonths = windowMonths.length || 1;
+    const barSlotW = plotW / nMonths;
+    const barW = Math.max(3.5, barSlotW - 1.5);
+
+    let barsSvg = '';
+    let yearTicks = '';
+    let lastYear = '';
+
+    windowMonths.forEach((ym, i) => {
+      const count = monthCounts[ym] || 0;
+      const barH = (count / maxVal) * plotH;
+      const x = padLeft + i * barSlotW;
+      const y = padTop + plotH - barH;
+
+      let color = '#38bdf8';
+      if (count >= 1000) color = '#ef4444';
+      else if (count >= 500) color = '#f43f5e';
+      else if (count >= 200) color = '#f59e0b';
+
+      barsSvg += `
+        <rect x="${x}" y="${y}" width="${barW}" height="${Math.max(barH, count > 0 ? 3 : 0)}" rx="2" fill="${color}" opacity="${count > 0 ? 0.92 : 0.2}">
+          <title>${ym}: ${count.toLocaleString()} quakes (Max M${(monthMaxM[ym] || 0).toFixed(1)})</title>
+        </rect>
+      `;
+
+      const curYear = ym.substring(0, 4);
+      if (curYear !== lastYear) {
+        yearTicks += `
+          <text x="${x + 2}" y="${svgHeight - 10}" fill="#cbd5e1" font-size="12" font-family="monospace" font-weight="700">${curYear}</text>
+          <line x1="${x}" y1="${padTop}" x2="${x}" y2="${padTop + plotH}" stroke="rgba(255,255,255,0.08)" stroke-dasharray="3,3" />
+        `;
+        lastYear = curYear;
+      }
+    });
+
+    monthlyContainer.innerHTML = `
+      <svg viewBox="0 0 ${svgWidth} ${svgHeight}" preserveAspectRatio="none">
+        <!-- Horizontal Guide Gridlines -->
+        <line x1="${padLeft}" y1="${padTop}" x2="${svgWidth - padRight}" y2="${padTop}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="4,4" />
+        <line x1="${padLeft}" y1="${padTop + plotH / 2}" x2="${svgWidth - padRight}" y2="${padTop + plotH / 2}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="4,4" />
+        <line x1="${padLeft}" y1="${padTop + plotH}" x2="${svgWidth - padRight}" y2="${padTop + plotH}" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" />
+        
+        ${yearTicks}
+        ${barsSvg}
+        
+        <!-- Y-Axis Ticks -->
+        <text x="8" y="${padTop + 12}" fill="#94a3b8" font-size="10" font-family="monospace">${maxVal}</text>
+        <text x="8" y="${padTop + plotH / 2 + 4}" fill="#64748b" font-size="10" font-family="monospace">${Math.round(maxVal / 2)}</text>
+        <text x="8" y="${padTop + plotH}" fill="#64748b" font-size="10" font-family="monospace">0</text>
+      </svg>
+    `;
+  }
+
   renderAnalyticsEnergy(quakes) {
     const energyJoulesBadge = document.getElementById('analytics-energy-joules');
     const energyTntBadge = document.getElementById('analytics-energy-tnt');
@@ -2178,12 +2299,32 @@ class TemasApp {
     }
   }
 
+  /** Returns the earthquake dataset based on the current table scope dropdown. */
+  getTableData() {
+    if (this.state.tableDataScope === 'all' && this.fullCatalogCache && this.fullCatalogCache.length > 0) {
+      return this.fullCatalogCache;
+    }
+    return this.state.earthquakes;
+  }
+
   renderModalTable() {
     const tbody = document.getElementById('table-body');
     if (!tbody) return;
 
-    tbody.innerHTML = this.state.earthquakes
-      .slice(0, 300)
+    const data = this.getTableData();
+    const pageSize = this.state.tablePageSize;
+    const totalPages = Math.max(1, Math.ceil(data.length / pageSize));
+
+    // Clamp current page
+    if (this.state.tablePage >= totalPages) this.state.tablePage = totalPages - 1;
+    if (this.state.tablePage < 0) this.state.tablePage = 0;
+
+    const page = this.state.tablePage;
+    const start = page * pageSize;
+    const end = Math.min(start + pageSize, data.length);
+
+    tbody.innerHTML = data
+      .slice(start, end)
       .map((eq) => {
         const mag = parseFloat(eq.magnitude) || 0;
         const color = getMagnitudeColor(mag);
@@ -2200,12 +2341,51 @@ class TemasApp {
         `;
       })
       .join('');
+
+    // Update pagination info
+    this.updateTablePaginationUI(page, totalPages, data.length);
+  }
+
+  /** Updates pagination button states and page info label. */
+  updateTablePaginationUI(page, totalPages, totalRows) {
+    const info = document.getElementById('table-page-info');
+    if (info) info.textContent = totalRows === 0 ? '0 rows' : `${page + 1} / ${totalPages}  (${totalRows})`;
+
+    const first = document.getElementById('btn-page-first');
+    const prev  = document.getElementById('btn-page-prev');
+    const next  = document.getElementById('btn-page-next');
+    const last  = document.getElementById('btn-page-last');
+
+    const atStart = page <= 0;
+    const atEnd   = page >= totalPages - 1;
+
+    if (first) first.disabled = atStart;
+    if (prev)  prev.disabled  = atStart;
+    if (next)  next.disabled  = atEnd;
+    if (last)  last.disabled  = atEnd;
   }
 
   exportCsv() {
-    if (!this.state.earthquakes.length) return this.showToast('No data to export.', 'warning');
-    const headers = ['OriginTimeUTC', 'EventTimeTRT', 'Magnitude', 'MagType', 'Latitude', 'Longitude', 'DepthKm', 'Region', 'Method'];
-    const rows = this.state.earthquakes.map((eq) => [
+    const exportData = this.getTableData();
+    if (!exportData.length) return this.showToast('No data to export.', 'warning');
+    const isArchive = this.state.tableDataScope === 'all';
+    const scopeLabel = isArchive ? 'All-Time Catalog Archive (Full Dataset)' : 'Filtered Map View (Active Filters / Prev 1-Year)';
+    const exportDateIso = new Date().toISOString();
+    const exportDateTrt = new Date().toLocaleString('tr-TR', { timeZone: 'Europe/Istanbul' });
+
+    const metadataComments = [
+      '# TEMAS 2 - Türkiye Earthquake Monitoring & Analytics System',
+      '# Official Catalog Export (Seismic Intelligence Observatory)',
+      '# Primary Source: AFAD (Republic of Türkiye Ministry of Interior Disaster and Emergency Management Authority)',
+      '# Curated & Processed: TEMAS Observatory (https://github.com/marcuz-apl/temas)',
+      `# Export Scope: ${scopeLabel}`,
+      `# Export Timestamp: ${exportDateIso} (TRT Europe/Istanbul: ${exportDateTrt})`,
+      `# Total Records: ${exportData.length}`,
+      '# Citation & Attribution: Public seismic monitoring data. Citation: AFAD / TEMAS.'
+    ];
+
+    const headers = ['OriginTimeUTC', 'EventTimeTRT', 'Magnitude', 'MagType', 'Latitude', 'Longitude', 'DepthKm', 'Region', 'Method', 'DataSource'];
+    const rows = exportData.map((eq) => [
       `"${eq.origintimeutc}"`,
       `"${eq.eventtime || ''}"`,
       eq.magnitude,
@@ -2214,24 +2394,43 @@ class TemasApp {
       eq.longitude,
       eq.depthkm,
       `"${(eq.region || '').replace(/"/g, '""')}"`,
-      `"${eq.measmethod || ''}"`
+      `"${eq.measmethod || ''}"`,
+      '"AFAD / TEMAS"'
     ]);
 
-    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
-    const encodedUri = encodeURI(csvContent);
+    const csvContent = 'data:text/csv;charset=utf-8,' + encodeURIComponent(
+      [...metadataComments, headers.join(','), ...rows.map((e) => e.join(','))].join('\n')
+    );
     const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
+    link.setAttribute('href', csvContent);
     link.setAttribute('download', `temas_earthquakes_${new Date().toISOString().substring(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    this.showToast(`Exported ${exportData.length} records (${isArchive ? 'All Time' : 'Prev 1-Year'}) with TEMAS/AFAD attribution.`, 'success');
   }
 
   exportGeoJson() {
-    if (!this.state.earthquakes.length) return this.showToast('No data to export.', 'warning');
+    const exportData = this.getTableData();
+    if (!exportData.length) return this.showToast('No data to export.', 'warning');
+    const isArchive = this.state.tableDataScope === 'all';
+    const scopeLabel = isArchive ? 'All-Time Catalog Archive (Full Dataset)' : 'Filtered Map View (Active Filters / Prev 1-Year)';
+    const exportDateIso = new Date().toISOString();
+    const exportDateTrt = new Date().toLocaleString('tr-TR', { timeZone: 'Europe/Istanbul' });
+
     const geojson = {
       type: 'FeatureCollection',
-      features: this.state.earthquakes.map((eq) => ({
+      metadata: {
+        title: 'TEMAS - Türkiye Earthquake Monitoring & Analytics System Seismic Catalog',
+        source: 'AFAD (Republic of Türkiye Ministry of Interior Disaster and Emergency Management Authority)',
+        curator: 'TEMAS Observatory (https://github.com/marcuz-apl/temas)',
+        scope: scopeLabel,
+        generated: exportDateIso,
+        generatedTrt: exportDateTrt,
+        count: exportData.length,
+        attribution: 'Public seismic telemetry aggregated & curated by TEMAS from AFAD open feeds. Citation: AFAD / TEMAS.'
+      },
+      features: exportData.map((eq) => ({
         type: 'Feature',
         geometry: {
           type: 'Point',
@@ -2243,7 +2442,8 @@ class TemasApp {
           origintimeutc: eq.origintimeutc,
           eventtime: eq.eventtime,
           depthkm: parseFloat(eq.depthkm),
-          region: eq.region
+          region: eq.region,
+          source: 'AFAD / TEMAS'
         }
       }))
     };
@@ -2255,6 +2455,7 @@ class TemasApp {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    this.showToast(`Exported ${exportData.length} GeoJSON features (${isArchive ? 'All Time' : 'Prev 1-Year'}) with TEMAS/AFAD attribution.`, 'success');
   }
 
   /**
