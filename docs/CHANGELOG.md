@@ -1,6 +1,6 @@
 # TEMAS Version Milestone Calibration & Changelog
 
-This document establishes the official semantic version history of the **TEMAS (Turkey Earthquake Monitoring & Alert System)** project, chronicling the journey from the original 2023 Dockerized prototype series (`v0.1.0` – `v0.8.0`) through the modern 2026 production observatory platform (`v2.1.0` – `v2.8.1`).
+This document establishes the official semantic version history of the **TEMAS (Turkey Earthquake Monitoring & Alert System)** project, chronicling the journey from the original 2023 Dockerized prototype series (`v0.1.0` – `v0.8.0`) through the modern 2026 production observatory platform (`v2.1.0` – `v2.12.5`).
 
 ---
 
@@ -84,10 +84,24 @@ v2.1.0 (Baseline Architecture)
         │
         └─► v2.12.1 (Fix/Feat: Decoupled Multi-Year Archive Ingestion, Tall Energy Curve & Top 15 Fault Corridors)
               │
-              └─► v2.12.2 (Fix: Expanded 2/3 Height Time Trends Timeline & Unified Print/PNG Export Header)
+              ├─► v2.12.2 (Fix: Expanded 2/3 Height Time Trends Timeline & Unified Print/PNG Export Header)
+              │
+              └─► v2.12.5 (Feat: Operations Deck, Persistent Themes & Admin Security Hardening)
 ```
 
 ---
+### [v2.12.5] — 2026-09-07
+**Feat: Operations Deck, Persistent Themes & Admin Security Hardening**
+- **Type**: `feat(admin)` / `fix(ui)` / `fix(security)` / `docs` / `patch-release`
+- **Scope**: `backend/main.py`, `backend/database.py`, `frontend/admin.html`, `frontend/js/admin.js`, `frontend/css/admin.css`, `frontend/docs.html`, `frontend/js/docs.js`, `frontend/css/docs.css`, `docs/technote-03-security-and-administrative-operations.md`
+- **Key Deliverables**:
+  - **Operations Control Deck**: Added the concealed `/samet` admin workspace with provider telemetry, multi-source synchronization, historical backfill controls, event moderation, database maintenance tools, and live status reporting.
+  - **Theme Parity & Readability**: Unified Admin and Docs light/dark theme behavior with persistent `temas_theme` storage, single-owner toggle handlers, readable light surfaces, and corrected code, table, provider, metric, and event-log panels.
+  - **Credential & Navigation Security**: Established `temas2023` as the default admin passkey with migration of known legacy defaults, preserved operator password changes, and automatically cleared the admin session when leaving for the Public Map.
+  - **Documentation Portal**: Added the technical documentation portal with searchable article navigation, Markdown rendering, responsive layout, code-copy controls, and synchronized theme controls.
+
+---
+
 
 ## Milestone Change Log Details
 
